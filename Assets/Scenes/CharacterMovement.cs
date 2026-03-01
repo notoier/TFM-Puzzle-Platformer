@@ -28,7 +28,7 @@ public class CharacterMovement : MonoBehaviour
     // Update is called once per frame
     private void FixedUpdate()
     {
-        characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * Speed, characterRigidbody.linearVelocity.y);
+        characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * Speed, characterRigidbody.linearVelocity.y-0.98f);
     }
    
     public void OnMove(InputValue Value)
