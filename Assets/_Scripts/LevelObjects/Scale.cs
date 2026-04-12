@@ -19,10 +19,11 @@ public class ScaleController : MonoBehaviour
 
         float difference = leftWeight - rightWeight;
 
-        if (Mathf.Approximately(requiredWeightDifference, 0f))
-            requiredWeightDifference = 0.01f;
+        float safeRequiredDifference = Mathf.Approximately(requiredWeightDifference, 0f)
+            ? 0.01f
+            : requiredWeightDifference;
 
-        float normalized = Mathf.Clamp(difference / requiredWeightDifference, -1f, 1f);
+        float normalized = Mathf.Clamp(difference / safeRequiredDifference, -1f, 1f);
 
         float leftOffset = 0f;
         float rightOffset = 0f;
