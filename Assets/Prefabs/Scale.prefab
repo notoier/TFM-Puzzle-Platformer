@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1801309144579718490}
+  - component: {fileID: 1534517771152563975}
   m_Layer: 0
   m_Name: Scale
   m_TagString: Untagged
@@ -33,6 +34,21 @@ Transform:
   - {fileID: 7777011343245257910}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1534517771152563975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3019753823083614529}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e8386fdf021fa54d85cf8fab037db41, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScaleController
+  leftPlatform: {fileID: 3280694981193016132}
+  rightPlatform: {fileID: 1687162276266865091}
+  requiredWeightDifference: 1
 --- !u!1001 &5888805487072450189
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -81,15 +97,50 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: controlMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: movementDirection
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_Name
       value: R_Platform
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369280316043546058, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: m_Color.b
+      value: 0.19676542
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369280316043546058, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: m_Color.g
+      value: 0.116415106
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369280316043546058, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: m_Color.r
+      value: 0.13277657
+      objectReference: {fileID: 0}
+    - target: {fileID: 7526912688087625280, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: movementDirection
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ebb9f408b616441867183f22000130, type: 3}
+--- !u!114 &1687162276266865091 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+  m_PrefabInstance: {fileID: 5888805487072450189}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df567d7726e54d4b86434b9e4aea463, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WA_Platform
 --- !u!4 &7777011343245257910 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
@@ -143,15 +194,46 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: controlMode
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_Name
       value: L_Platform
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369280316043546058, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: m_Color.b
+      value: 0.21308532
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369280316043546058, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: m_Color.g
+      value: 0.23989207
+      objectReference: {fileID: 0}
+    - target: {fileID: 5369280316043546058, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: m_Color.r
+      value: 0.092788406
+      objectReference: {fileID: 0}
+    - target: {fileID: 7526912688087625280, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: controlMode
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ebb9f408b616441867183f22000130, type: 3}
+--- !u!114 &3280694981193016132 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+  m_PrefabInstance: {fileID: 7733915248560358410}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9df567d7726e54d4b86434b9e4aea463, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WA_Platform
 --- !u!4 &5836701462719692337 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
