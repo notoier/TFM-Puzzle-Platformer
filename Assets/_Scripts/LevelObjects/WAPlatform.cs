@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class WAPlatform : MonoBehaviour, IDetectsWeight
 {
@@ -25,6 +26,8 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
     [Header("Behaviour")]
     [SerializeField] private MovementDirection movementDirection = MovementDirection.Down;
     [SerializeField] private ControlMode controlMode = ControlMode.Independent;
+    
+    private List<IProvidesWeight> _weightProviders;
 
     private Vector3 _startPosition;
     private Coroutine _movementCoroutine;
@@ -237,4 +240,24 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
     }
 
     public bool HasEnoughWeight() => CurrentWeight >= config.requiredWeight;
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
+        if ( weightProvider != null)
+        {
+            _weightProviders.Add(weightProvider);
+            RegisterWeight(weightProvider);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
+        if ( weightProvider != null)
+        {
+            _weightProviders.Add(weightProvider);
+            UnregisterWeight(weightProvider);
+        }
+    }
 }
