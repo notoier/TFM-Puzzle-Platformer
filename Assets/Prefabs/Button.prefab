@@ -138,6 +138,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Button
   buttonConfig: {fileID: 11400000, guid: a2b38ef5dd982bd47ba493464b4b9b7b, type: 2}
+  connectedObjects: []
 --- !u!61 &3784635547163458054
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -168,7 +169,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
