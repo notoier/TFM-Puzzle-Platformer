@@ -1,27 +1,32 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "WAPlatformConfig", menuName = "Game/Interactable/WA Platform Config")]
 public class WAPlatformConfig : ScriptableObject
 {
     [Header("Weight Settings")]
-    [Tooltip("Peso necesario para que la plataforma se active")]
+    [Tooltip("Peso necesario para alcanzar el desplazamiento máximo")]
     public float requiredWeight = 1f;
 
-    [Tooltip("Si es true, la plataforma vuelve a la posición original al quitar el peso de encima")]
+    [Tooltip("Si es true, vuelve a la posición inicial al dejar de recibir peso")]
     public bool recovers = true;
 
-    [Header("Activation Settings")]
-    [Tooltip("Tiempo que tarda en empezar a moverse (opcional)")]
+    [Header("Movement Settings")]
+    [Tooltip("Tiempo que tarda en empezar a moverse")]
     public float movementDelay = 0f;
-    
-    [Header("Behaviour Settings")]
-    [Tooltip("Distancia maxima a la que se puede mover")]
+
+    [Tooltip("Distancia máxima que puede recorrer")]
     public float maxDistance = 4f;
-    
-    [Tooltip("Velocidad a la que se puede mover")]
+
+    [Tooltip("Velocidad de movimiento")]
     public float movementSpeed = 1f;
 
-    [Tooltip("Si es true, la traslacion se realizara de manera inmediata (la plataforma se teletransporta)")]
+    [Tooltip("Si es true, se mueve instantáneamente")]
     public bool instantMovement = false;
+
+    [Header("Return Settings")]
+    [Tooltip("Si es true, al llegar al final volverá automáticamente al origen")]
+    public bool returnAfterReachingEnd = false;
+
+    [Tooltip("Tiempo de espera antes de volver al origen")]
+    public float returnDelay = 0f;
 }
