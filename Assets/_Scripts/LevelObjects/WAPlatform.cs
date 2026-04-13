@@ -58,7 +58,7 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
 
     public void SetNormalizedOffset(float normalizedOffset)
     {
-        if (_isReturning)
+        if (controlMode == ControlMode.Independent && _isReturning)
             return;
 
         normalizedOffset = Mathf.Clamp01(normalizedOffset);
@@ -68,11 +68,11 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         if (config.instantMovement)
         {
             transform.position = targetPosition;
+            _currentTargetPosition = targetPosition;
+            _hasTarget = true;
 
             if (normalizedOffset >= 1f)
-            {
                 OnReachedEnd();
-            }
 
             return;
         }
@@ -86,6 +86,34 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _hasTarget = true;
 
         StartSmoothMovement(targetPosition, normalizedOffset >= 1f);
+    }
+    
+    public void SetSignedOffset(float signedOffset)
+    {
+        if (controlMode == ControlMode.Independent && _isReturning)
+            return;
+
+        signedOffset = Mathf.Clamp(signedOffset, -1f, 1f);
+
+        Vector3 targetPosition = _startPosition + GetDirectionVector() * (config.maxDistance * signedOffset);
+
+        if (config.instantMovement)
+        {
+            transform.position = targetPosition;
+            _currentTargetPosition = targetPosition;
+            _hasTarget = true;
+            return;
+        }
+
+        bool sameTarget = _hasTarget && Vector3.Distance(_currentTargetPosition, targetPosition) < 0.01f;
+
+        if (sameTarget && _movementCoroutine != null)
+            return;
+
+        _currentTargetPosition = targetPosition;
+        _hasTarget = true;
+
+        StartSmoothMovement(targetPosition, false);
     }
 
     public void ResetToStart()
@@ -241,22 +269,24 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
 
     public bool HasEnoughWeight() => CurrentWeight >= config.requiredWeight;
     
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
+        print("webo");
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
         if ( weightProvider != null)
         {
-            _weightProviders.Add(weightProvider);
+            print("patata");
+            //_weightProviders.Add(weightProvider);
             RegisterWeight(weightProvider);
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnTriggerExit2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
         if ( weightProvider != null)
         {
-            _weightProviders.Add(weightProvider);
+            //_weightProviders.Add(weightProvider);
             UnregisterWeight(weightProvider);
         }
     }
