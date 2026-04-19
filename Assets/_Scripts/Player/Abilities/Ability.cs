@@ -1,8 +1,10 @@
 using System;
+using System.Collections.Generic;
 using Unity.VersionControl.Git;
+using Unity.VisualScripting;
 using UnityEngine;
 
-public abstract class Ability : ScriptableObject
+public abstract class Ability : MonoBehaviour
 {
     public string abilityName;
     public bool canActivate;
@@ -10,6 +12,9 @@ public abstract class Ability : ScriptableObject
     public AudioClip abilitySound;
 
     public event Action<Ability, GameObject> OnAbilityActivated;
+
+    [SerializeField]
+    private List<AbilityNode> abilityNodes;
 
     public void Activate(GameObject abilityUser)
     {
