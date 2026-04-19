@@ -112,7 +112,7 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
 
     }
 
-    private void OnTriggerEnter(Collider other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
         if ( weightProvider != null)
@@ -122,7 +122,7 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
         }
     }
 
-    private void OnTriggerExit(Collider other)
+    private void OnTriggerExit2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
         if ( weightProvider != null)
