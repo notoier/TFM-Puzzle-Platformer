@@ -18,5 +18,5 @@ MonoBehaviour:
   maxDistance: 4
   movementSpeed: 1
   instantMovement: 0
-  returnAfterReachingEnd: 1
+  returnAfterReachingEnd: 0
   returnDelay: 2

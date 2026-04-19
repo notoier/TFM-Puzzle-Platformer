@@ -25,21 +25,7 @@ public class ScaleController : MonoBehaviour
 
         float normalized = Mathf.Clamp(difference / safeRequiredDifference, -1f, 1f);
 
-        float leftOffset = 0f;
-        float rightOffset = 0f;
-
-        if (normalized > 0f)
-        {
-            leftOffset = normalized;
-            rightOffset = 0f;
-        }
-        else if (normalized < 0f)
-        {
-            leftOffset = 0f;
-            rightOffset = -normalized;
-        }
-
-        leftPlatform.SetNormalizedOffset(leftOffset);
-        rightPlatform.SetNormalizedOffset(rightOffset);
+        leftPlatform.SetSignedOffset(normalized);
+        rightPlatform.SetSignedOffset(-normalized);
     }
 }
