@@ -7,7 +7,7 @@ using UnityEngine.Rendering;
 using static UnityEngine.Rendering.DebugUI;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class CharacterMovement : MonoBehaviour
+public class CharacterMovement : MonoBehaviour, IProvidesWeight
 {
 
     [SerializeField]
@@ -75,5 +75,7 @@ public class CharacterMovement : MonoBehaviour
         characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, JumpForce);
         animator.SetTrigger("JumpTrigger");
     }
+
+    public float Weight { get; } = 2;
 }
 
