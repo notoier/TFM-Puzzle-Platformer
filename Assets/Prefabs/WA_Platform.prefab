@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8038596424213015504}
   - component: {fileID: 5369280316043546058}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 5103489071183849294}
   - component: {fileID: 2911417321916744549}
   - component: {fileID: 189245233073311266}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WA_Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,8 +139,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WA_Platform
   config: {fileID: 11400000, guid: d7258c59f931d3642899b24d62475560, type: 2}
-  movementDirection: 1
+  movementDirection: 0
   controlMode: 0
+  maxExternalOffset: 1
 --- !u!61 &2911417321916744549
 BoxCollider2D:
   m_ObjectHideFlags: 0
