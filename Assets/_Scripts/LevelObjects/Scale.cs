@@ -6,7 +6,7 @@ public class ScaleController : MonoBehaviour
     [SerializeField] private WAPlatform rightPlatform;
 
     [Header("Scale Settings")]
-    [Tooltip("Diferencia de peso necesaria para llegar al desplazamiento máximo")]
+    [Tooltip("Diferencia de peso necesaria para llegar al desplazamiento mÃ¡ximo")]
     [SerializeField] private float requiredWeightDifference = 1f;
 
     private void Update()
