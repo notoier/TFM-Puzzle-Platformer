@@ -5,11 +5,8 @@ using UnityEngine;
 public class AbilityManager : StaticInstance<AbilityManager>
 {
     [Header("Abilities")]
-    [Tooltip("List of abilities the player can use.")]
     public List<Ability> Abilities;
 
-    //private Dictionary<Ability, bool> abilityAvailability = 
-    //    new Dictionary<Ability, bool>();
     private void Start()
     {
         EndAllAbilities();
@@ -17,23 +14,24 @@ public class AbilityManager : StaticInstance<AbilityManager>
 
     public void ActivateAbility(int index)
     {
-        if (index < 0 || index > Abilities.Count) return;
-        
+        if (index < 0 || index >= Abilities.Count) return;
+
         Ability ability = Abilities[index];
+        if (ability == null) return;
 
-        if(!ability.canActivate) return;
-        else
-        {
+        if (!ability.canActivate) return;
 
-            ability.Activate(gameObject);
-
-        }
+        ability.Activate(gameObject);
     }
 
-    public void EndAbility(int index) 
+    public void EndAbility(int index)
     {
-        if (index < 0 || index > Abilities.Count) return;
-        Abilities[index].End(gameObject);
+        if (index < 0 || index >= Abilities.Count) return;
+
+        Ability ability = Abilities[index];
+        if (ability == null) return;
+
+        ability.End(gameObject);
     }
 
     protected void EndAllAbilities()
