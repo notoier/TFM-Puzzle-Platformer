@@ -1,7 +1,18 @@
+using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "ScriptableObjects/Ability Nodes/Rotate Node")]
+[System.Serializable]
 public class RotateNode : AbilityNode
 {
-    
+    public override AbilityNodeCategory Category => AbilityNodeCategory.Action;
+
+    public int degrees;
+
+    public bool clockwise;
+
+
+    public override void Execute(AbilityContext context)
+    {
+
+    }
 }
