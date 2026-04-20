@@ -1,7 +1,15 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "ScriptableObjects/Ability Nodes/Multi Node")]
+[System.Serializable]
 public class MultiNode : AbilityNode
 {
-  
+    public override AbilityNodeCategory Category => AbilityNodeCategory.Flow;
+
+    public List <AbilityNode> nodes = new List<AbilityNode>();
+    public override void Execute(AbilityContext context)
+    {
+
+    }
 }

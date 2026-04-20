@@ -1,7 +1,14 @@
+using System;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "ScriptableObjects/Ability Nodes/Spawn Node")]
+[System.Serializable]
 public class SpawnNode : AbilityNode
 {
-   
+    public override AbilityNodeCategory Category => AbilityNodeCategory.Action;
+
+    public GameObject spawnable;
+    public override void Execute(AbilityContext context)
+    {
+
+    }
 }

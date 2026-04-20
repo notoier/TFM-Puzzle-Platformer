@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 89706747b613ed142b39260e0f7878da
+guid: fe24f1dc5d29acf45af7c26849eb2a54
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5466635054327294029
-    second: Cancel Node Icon_0
+      213: -5877772692882721016
+    second: Timer Node Icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,12 +100,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cancel Node Icon_0
+      name: Timer Node Icon_0
       rect:
         serializedVersion: 2
-        x: 0
+        x: 3
         y: 0
-        width: 64
+        width: 58
         height: 64
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3b79f1ea16c9224b0800000000000000
-      internalID: -5466635054327294029
+      spriteID: 807fb3aa0e4fd6ea0800000000000000
+      internalID: -5877772692882721016
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cancel Node Icon_0: -5466635054327294029
+      Timer Node Icon_0: -5877772692882721016
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
