@@ -10,6 +10,7 @@ public class AbilityEditor : Editor
     public override void OnInspectorGUI()
     {
         EditorGUILayout.LabelField("ABILITY EDITOR IS RUNNING");
+        EditorGUILayout.Space(10);
         serializedObject.Update();
 
         SerializedProperty nodes = serializedObject.FindProperty("nodes");
@@ -21,6 +22,13 @@ public class AbilityEditor : Editor
         if (GUILayout.Button("Add Node"))
         {
             ShowNodeMenu();
+        }
+
+        GUILayout.Space(900);
+
+        if (GUILayout.Button("Clear Nodes",GUILayout.Height(30)))
+        {
+
         }
 
         serializedObject.ApplyModifiedProperties();
