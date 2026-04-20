@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -26,21 +27,27 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
     [Header("Behaviour")]
     [SerializeField] private MovementDirection movementDirection = MovementDirection.Down;
     [SerializeField] private ControlMode controlMode = ControlMode.Independent;
-    
-    private List<IProvidesWeight> _weightProviders;
+
+    [Header("Scale Settings")]
+    [Tooltip("Desplazamiento máximo respecto a la posición inicial cuando la plataforma está controlada externamente")]
+    [SerializeField] private float maxExternalOffset = 1f;
 
     private Vector3 _startPosition;
-    private Coroutine _movementCoroutine;
     private Vector3 _currentTargetPosition;
-    private bool _hasTarget;
+    private Coroutine _movementCoroutine;
 
+    private bool _hasTarget;
     private bool _isReturning;
     private bool _hasCompletedForwardMove;
     private bool _isWaitingAtStart;
-
+    
+    //private List<IProvidesWeight> _weightProviders = new  List<IProvidesWeight>();
+    
     private void Awake()
     {
         _startPosition = transform.position;
+        _currentTargetPosition = _startPosition;
+        _hasTarget = true;
     }
 
     private void Update()
@@ -65,27 +72,15 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
 
         Vector3 targetPosition = _startPosition + GetDirectionVector() * (config.maxDistance * normalizedOffset);
 
-        if (config.instantMovement)
-        {
-            transform.position = targetPosition;
-            _currentTargetPosition = targetPosition;
-            _hasTarget = true;
 
-            if (normalizedOffset >= 1f)
-                OnReachedEnd();
 
-            return;
-        }
+    public void SetSignedOffset(float signedOffset)
+    {
+        signedOffset = Mathf.Clamp(signedOffset, -maxExternalOffset, maxExternalOffset);
 
-        bool sameTarget = _hasTarget && Vector3.Distance(_currentTargetPosition, targetPosition) < 0.01f;
+        Vector3 targetPosition = _startPosition + GetDirectionVector() * (config.maxDistance * signedOffset);
 
-        if (sameTarget && _movementCoroutine != null)
-            return;
-
-        _currentTargetPosition = targetPosition;
-        _hasTarget = true;
-
-        StartSmoothMovement(targetPosition, normalizedOffset >= 1f);
+        ApplyMovement(targetPosition, false);
     }
     
     public void SetSignedOffset(float signedOffset)
@@ -125,13 +120,19 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _currentTargetPosition = _startPosition;
         _hasTarget = true;
 
+        if (_movementCoroutine != null)
+        {
+            StopCoroutine(_movementCoroutine);
+            _movementCoroutine = null;
+        }
+
         if (config.instantMovement)
         {
             transform.position = _startPosition;
             return;
         }
 
-        StartSmoothMovement(_startPosition, false);
+        StartSmoothMovement(_startPosition, false, false);
     }
 
     public float CalculateNormalizedOffsetFromWeight()
@@ -142,17 +143,43 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         return Mathf.Clamp01(CurrentWeight / config.requiredWeight);
     }
 
-    private void StartSmoothMovement(Vector3 targetPosition, bool reachingEnd)
+    private void ApplyMovement(Vector3 targetPosition, bool reachingEnd)
+    {
+        if (config.instantMovement)
+        {
+            transform.position = targetPosition;
+            _currentTargetPosition = targetPosition;
+            _hasTarget = true;
+
+            if (reachingEnd)
+                OnReachedEnd();
+
+            return;
+        }
+
+        bool sameTarget = _hasTarget && Vector3.Distance(_currentTargetPosition, targetPosition) < 0.01f;
+
+        if (sameTarget && _movementCoroutine != null)
+            return;
+
+        _currentTargetPosition = targetPosition;
+        _hasTarget = true;
+
+        bool useDelay = controlMode == ControlMode.Independent;
+        StartSmoothMovement(targetPosition, reachingEnd, useDelay);
+    }
+
+    private void StartSmoothMovement(Vector3 targetPosition, bool reachingEnd, bool useDelay)
     {
         if (_movementCoroutine != null)
             StopCoroutine(_movementCoroutine);
 
-        _movementCoroutine = StartCoroutine(MoveToPosition(targetPosition, reachingEnd));
+        _movementCoroutine = StartCoroutine(MoveToPosition(targetPosition, reachingEnd, useDelay));
     }
 
-    private IEnumerator MoveToPosition(Vector3 targetPosition, bool reachingEnd)
+    private IEnumerator MoveToPosition(Vector3 targetPosition, bool reachingEnd, bool useDelay)
     {
-        if (config.movementDelay > 0f)
+        if (useDelay && config.movementDelay > 0f)
             yield return new WaitForSeconds(config.movementDelay);
 
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
@@ -172,9 +199,7 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _hasTarget = true;
 
         if (reachingEnd)
-        {
             OnReachedEnd();
-        }
     }
 
     private void OnReachedEnd()
@@ -200,25 +225,18 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         if (config.returnDelay > 0f)
             yield return new WaitForSeconds(config.returnDelay);
 
-        if (config.instantMovement)
+        while (Vector3.Distance(transform.position, _startPosition) > 0.01f)
         {
-            transform.position = _startPosition;
-        }
-        else
-        {
-            while (Vector3.Distance(transform.position, _startPosition) > 0.01f)
-            {
-                transform.position = Vector3.MoveTowards(
-                    transform.position,
-                    _startPosition,
-                    config.movementSpeed * Time.deltaTime
-                );
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                _startPosition,
+                config.movementSpeed * Time.deltaTime
+            );
 
-                yield return null;
-            }
-
-            transform.position = _startPosition;
+            yield return null;
         }
+
+        transform.position = _startPosition;
 
         _isReturning = false;
         _hasCompletedForwardMove = false;
@@ -268,14 +286,14 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
     }
 
     public bool HasEnoughWeight() => CurrentWeight >= config.requiredWeight;
-    
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         print("webo");
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
         if ( weightProvider != null)
         {
-            print("patata");
+
             //_weightProviders.Add(weightProvider);
             RegisterWeight(weightProvider);
         }

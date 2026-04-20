@@ -1,30 +1,36 @@
-using System;
-using Unity.VersionControl.Git;
+using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Ability : ScriptableObject
+[CreateAssetMenu(menuName = "ScriptableObjects/Ability")]
+public class Ability : ScriptableObject
 {
-    public string abilityName;
-    public bool canActivate;
+    // This list builds the logic for the ability via nodes.
+    [SerializeReference]
+    public List<AbilityNode> nodes = new();
 
-    public AudioClip abilitySound;
+    public bool canActivate = true;
 
-    public event Action<Ability, GameObject> OnAbilityActivated;
-
-    public void Activate(GameObject abilityUser)
+    // When this function is called, it passes the user to get their AbilityContext. This context is passed to every node if events are not cancelled.
+    public void Activate(GameObject actor)
     {
-        if (!canActivate) return;
-
-        Execute(abilityUser);
-        AudioManager.Instance.PlayEffect(abilitySound);
         canActivate = false;
-        OnAbilityActivated?.Invoke(this, abilityUser);
+
+        AbilityContext context = new AbilityContext
+        {
+            actor = actor
+        };
+
+        foreach (var node in nodes)
+        {
+            if (context.cancelled)
+                break;
+
+            node.Execute(context);
+        }
     }
 
-    protected abstract void Execute(GameObject abilityUser);
-
-    public virtual void End(GameObject abilityUser)
+    public void End(GameObject actor)
     {
-        canActivate = true;
+
     }
 }
