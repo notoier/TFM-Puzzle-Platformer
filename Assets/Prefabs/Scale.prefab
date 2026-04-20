@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1801309144579718490}
   - component: {fileID: 1534517771152563975}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Scale
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScaleController
   leftPlatform: {fileID: 3280694981193016132}
   rightPlatform: {fileID: 1687162276266865091}
-  requiredWeightDifference: 1
+  requiredWeightDifference: 0
 --- !u!1001 &5888805487072450189
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -103,7 +103,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: movementDirection
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_Name
@@ -128,10 +128,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 5940606852217683534}
+    m_AddedComponents: [{targetCorrespondingSourceObject: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}, insertIndex: -1, addedObject: {fileID: 5940606852217683534}}]
   m_SourcePrefab: {fileID: 100100000, guid: 97ebb9f408b616441867183f22000130, type: 3}
 --- !u!114 &1687162276266865091 stripped
 MonoBehaviour:
@@ -233,6 +230,10 @@ PrefabInstance:
       propertyPath: controlMode
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: movementDirection
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_Name
       value: L_Platform
@@ -256,10 +257,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 3478250403101721962}
+    m_AddedComponents: [{targetCorrespondingSourceObject: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}, insertIndex: -1, addedObject: {fileID: 3478250403101721962}}]
   m_SourcePrefab: {fileID: 100100000, guid: 97ebb9f408b616441867183f22000130, type: 3}
 --- !u!1 &2487458635984093996 stripped
 GameObject:
