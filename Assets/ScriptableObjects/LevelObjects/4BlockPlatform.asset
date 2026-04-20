@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::WAPlatformConfig
   requiredWeight: 0
   recovers: 1
-  movementDelay: 2
+  movementDelay: 1
   maxDistance: 4
-  movementSpeed: 1
+  movementSpeed: 3
   instantMovement: 0
   returnAfterReachingEnd: 0
   returnDelay: 2
