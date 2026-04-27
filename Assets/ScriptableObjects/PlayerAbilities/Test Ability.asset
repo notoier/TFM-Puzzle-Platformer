@@ -12,8 +12,70 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a292160de25e449489aa7bb3320959d7, type: 3}
   m_Name: Test Ability
   m_EditorClassIdentifier: Assembly-CSharp::Ability
-  nodes: []
+  nodes:
+  - rid: 6210008210590662731
+  - rid: 6210008210590662735
+  - rid: 6210008210590662736
+  - rid: 6210008210590662737
+  - rid: 6210008210590662738
+  - rid: 6210008210590662739
+  - rid: 6210008210590662740
+  - rid: 6210008210590662742
+  - rid: 6210008210590662743
+  - rid: 6210008210590662744
+  - rid: 6210008210590662745
+  - rid: 6210008210590662776
   canActivate: 1
   references:
     version: 2
-    RefIds: []
+    RefIds:
+    - rid: 6210008210590662731
+      type: {class: DeathNode, ns: , asm: Assembly-CSharp}
+      data:
+        isDead: 0
+    - rid: 6210008210590662735
+      type: {class: RotateNode, ns: , asm: Assembly-CSharp}
+      data:
+        degrees: 0
+        clockwise: 0
+    - rid: 6210008210590662736
+      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
+      data:
+        scale: 0
+    - rid: 6210008210590662737
+      type: {class: SpawnNode, ns: , asm: Assembly-CSharp}
+      data:
+        spawnable: {fileID: 0}
+    - rid: 6210008210590662738
+      type: {class: MathNode, ns: , asm: Assembly-CSharp}
+      data:
+        valueA: 0
+        valueB: 0
+    - rid: 6210008210590662739
+      type: {class: ParameterNode, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 6210008210590662740
+      type: {class: TargetNode, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 6210008210590662742
+      type: {class: MultiNode, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 6210008210590662743
+      type: {class: TimerNode, ns: , asm: Assembly-CSharp}
+      data:
+        time: 0
+    - rid: 6210008210590662744
+      type: {class: ConditionalNode, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 6210008210590662745
+      type: {class: CancelNode, ns: , asm: Assembly-CSharp}
+      data: 
+    - rid: 6210008210590662776
+      type: {class: MovementNode, ns: , asm: Assembly-CSharp}
+      data:
+        distance: 0
+        targetNode:
+          rid: 6210008210590662777
+    - rid: 6210008210590662777
+      type: {class: TargetNode, ns: , asm: Assembly-CSharp}
+      data: 

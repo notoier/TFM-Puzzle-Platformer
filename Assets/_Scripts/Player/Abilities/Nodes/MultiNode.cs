@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
+
 public class MultiNode : AbilityNode
 {
     public override AbilityNodeCategory Category => AbilityNodeCategory.Flow;

@@ -1,15 +1,24 @@
 using System;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class LerpNode : AbilityNode
 {
     public override AbilityNodeCategory Category => AbilityNodeCategory.Flow;
 
+    [SerializeReference]
+    [NodeCategory(AbilityNodeCategory.Data)]
+    public AbilityNode dataNodeA;
 
-    public TimerNode time;
+    [SerializeReference]
+    [NodeCategory(AbilityNodeCategory.Data)]
+    public TimerNode dataNodeB;
 
-    public AbilityNode node;
+    [SerializeReference]
+    [NodeCategory(AbilityNodeCategory.Flow)]
+    public TimerNode timer;
+
+    
 
     public override void Execute(AbilityContext context)
     {
