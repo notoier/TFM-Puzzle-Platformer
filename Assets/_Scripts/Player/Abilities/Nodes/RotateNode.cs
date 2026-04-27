@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class RotateNode : AbilityNode
 {
     public override AbilityNodeCategory Category => AbilityNodeCategory.Action;
