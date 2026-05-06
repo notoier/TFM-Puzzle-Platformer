@@ -32,6 +32,7 @@ Transform:
   m_Children:
   - {fileID: 5836701462719692337}
   - {fileID: 7777011343245257910}
+  - {fileID: 845985804988724642}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1534517771152563975
@@ -48,7 +49,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScaleController
   leftPlatform: {fileID: 3280694981193016132}
   rightPlatform: {fileID: 1687162276266865091}
+  centerPoint: {fileID: 845985804988724642}
   requiredWeightDifference: 0
+--- !u!1 &3690726932959861915
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 845985804988724642}
+  m_Layer: 0
+  m_Name: CenterPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 7422848464349959988, guid: 0000000000000000d000000000000000, type: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &845985804988724642
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3690726932959861915}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 1.5, y: 2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1801309144579718490}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &5888805487072450189
 PrefabInstance:
   m_ObjectHideFlags: 0
