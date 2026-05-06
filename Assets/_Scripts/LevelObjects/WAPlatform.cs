@@ -1,11 +1,9 @@
-using System;
 using UnityEngine;
 using System.Collections;
-using System.Collections.Generic;
 
 public class WAPlatform : MonoBehaviour, IDetectsWeight
 {
-    public enum MovementDirection
+    private enum MovementDirection
     {
         Up,
         Down,
@@ -13,13 +11,16 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         Right
     }
 
-    public enum ControlMode
+    private enum ControlMode
     {
         Independent,
         External
     }
 
     public float CurrentWeight { get; set; }
+
+    public Vector3 StartPosition => _startPosition;
+    public float MaxDistance => config.maxDistance;
 
     [Header("Config")]
     [SerializeField] private WAPlatformConfig config;
@@ -29,7 +30,7 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
     [SerializeField] private ControlMode controlMode = ControlMode.Independent;
 
     [Header("Scale Settings")]
-    [Tooltip("Desplazamiento máximo respecto a la posición inicial cuando la plataforma está controlada externamente")]
+    [Tooltip("Desplazamiento máximo relativo en modo externo. Normalmente 1.")]
     [SerializeField] private float maxExternalOffset = 1f;
 
     private Vector3 _startPosition;
@@ -40,9 +41,10 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
     private bool _isReturning;
     private bool _hasCompletedForwardMove;
     private bool _isWaitingAtStart;
-    
-    //private List<IProvidesWeight> _weightProviders = new  List<IProvidesWeight>();
-    
+
+    /// <summary>
+    /// Stores the platform's initial position and initializes its first target.
+    /// </summary>
     private void Awake()
     {
         _startPosition = transform.position;
@@ -50,6 +52,10 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _hasTarget = true;
     }
 
+    /// <summary>
+    /// Handles automatic movement when the platform is working independently.
+    /// In external mode, movement is controlled by another script such as a ScaleController.
+    /// </summary>
     private void Update()
     {
         if (controlMode != ControlMode.Independent || _isReturning || _isWaitingAtStart)
@@ -63,6 +69,14 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         SetNormalizedOffset(normalizedOffset);
     }
 
+    /// <summary>
+    /// Moves the platform using a normalized offset between 0 and 1.
+    /// This is mainly used by independent platforms.
+    /// </summary>
+    /// <param name="normalizedOffset">
+    /// Value between 0 and 1. 
+    /// 0 means the start position and 1 means the maximum movement distance.
+    /// </param>
     public void SetNormalizedOffset(float normalizedOffset)
     {
         if (controlMode == ControlMode.Independent && _isReturning)
@@ -70,20 +84,41 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
 
         normalizedOffset = Mathf.Clamp01(normalizedOffset);
 
-        Vector3 targetPosition = _startPosition + GetDirectionVector() * (config.maxDistance * normalizedOffset);
+        Vector3 targetPosition =
+            _startPosition + GetMovementDirectionVector() * (config.maxDistance * normalizedOffset);
 
         ApplyMovement(targetPosition, normalizedOffset >= 1f);
     }
 
+    /// <summary>
+    /// Moves the platform using a signed offset between -maxExternalOffset and maxExternalOffset.
+    /// Positive values move the platform along its configured direction,
+    /// while negative values move it in the opposite direction.
+    /// </summary>
+    /// <param name="signedOffset">Signed movement offset used by external controllers.</param>
     public void SetSignedOffset(float signedOffset)
     {
         signedOffset = Mathf.Clamp(signedOffset, -maxExternalOffset, maxExternalOffset);
 
-        Vector3 targetPosition = _startPosition + GetDirectionVector() * (config.maxDistance * signedOffset);
+        Vector3 targetPosition =
+            _startPosition + GetMovementDirectionVector() * (config.maxDistance * signedOffset);
 
         ApplyMovement(targetPosition, false);
     }
 
+    /// <summary>
+    /// Moves the platform directly towards a specific world position.
+    /// This is useful for external controllers that calculate their own target position.
+    /// </summary>
+    /// <param name="targetPosition">World position the platform should move towards.</param>
+    public void SetTargetPosition(Vector3 targetPosition)
+    {
+        ApplyMovement(targetPosition, false);
+    }
+
+    /// <summary>
+    /// Resets the platform movement state and moves it back to its initial position.
+    /// </summary>
     public void ResetToStart()
     {
         _hasCompletedForwardMove = false;
@@ -108,6 +143,12 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         StartSmoothMovement(_startPosition, false, false);
     }
 
+    /// <summary>
+    /// Converts the current weight on the platform into a normalized movement offset.
+    /// </summary>
+    /// <returns>
+    /// A value between 0 and 1, where 0 means no movement and 1 means full movement.
+    /// </returns>
     public float CalculateNormalizedOffsetFromWeight()
     {
         if (config.requiredWeight <= 0f)
@@ -116,6 +157,14 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         return Mathf.Clamp01(CurrentWeight / config.requiredWeight);
     }
 
+    /// <summary>
+    /// Applies either instant or smooth movement towards the given target position.
+    /// </summary>
+    /// <param name="targetPosition">Target world position.</param>
+    /// <param name="reachingEnd">
+    /// True if this movement reaches the platform's maximum offset.
+    /// Used to trigger automatic return behavior.
+    /// </param>
     private void ApplyMovement(Vector3 targetPosition, bool reachingEnd)
     {
         if (config.instantMovement)
@@ -130,7 +179,8 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
             return;
         }
 
-        bool sameTarget = _hasTarget && Vector3.Distance(_currentTargetPosition, targetPosition) < 0.01f;
+        bool sameTarget =
+            _hasTarget && Vector3.Distance(_currentTargetPosition, targetPosition) < 0.01f;
 
         if (sameTarget && _movementCoroutine != null)
             return;
@@ -139,9 +189,16 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _hasTarget = true;
 
         bool useDelay = controlMode == ControlMode.Independent;
+
         StartSmoothMovement(targetPosition, reachingEnd, useDelay);
     }
 
+    /// <summary>
+    /// Starts a smooth movement coroutine, stopping any previous movement first.
+    /// </summary>
+    /// <param name="targetPosition">Target world position.</param>
+    /// <param name="reachingEnd">Whether the target is the end of the platform's path.</param>
+    /// <param name="useDelay">Whether the configured movement delay should be applied.</param>
     private void StartSmoothMovement(Vector3 targetPosition, bool reachingEnd, bool useDelay)
     {
         if (_movementCoroutine != null)
@@ -150,6 +207,12 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _movementCoroutine = StartCoroutine(MoveToPosition(targetPosition, reachingEnd, useDelay));
     }
 
+    /// <summary>
+    /// Smoothly moves the platform towards the target position.
+    /// </summary>
+    /// <param name="targetPosition">Target world position.</param>
+    /// <param name="reachingEnd">Whether the movement reaches the end of the path.</param>
+    /// <param name="useDelay">Whether to wait before starting the movement.</param>
     private IEnumerator MoveToPosition(Vector3 targetPosition, bool reachingEnd, bool useDelay)
     {
         if (useDelay && config.movementDelay > 0f)
@@ -175,6 +238,10 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
             OnReachedEnd();
     }
 
+    /// <summary>
+    /// Handles the logic executed when the platform reaches the end of its movement.
+    /// If configured, the platform starts returning to its original position.
+    /// </summary>
     private void OnReachedEnd()
     {
         if (_hasCompletedForwardMove)
@@ -191,6 +258,10 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         }
     }
 
+    /// <summary>
+    /// Waits for the configured return delay, moves the platform back to its start position,
+    /// and optionally waits again before allowing a new activation.
+    /// </summary>
     private IEnumerator ReturnAfterDelay()
     {
         _isReturning = true;
@@ -226,7 +297,11 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         _movementCoroutine = null;
     }
 
-    private Vector3 GetDirectionVector()
+    /// <summary>
+    /// Returns the world-space direction vector based on the selected movement direction.
+    /// </summary>
+    /// <returns>The movement direction as a Vector3.</returns>
+    public Vector3 GetMovementDirectionVector()
     {
         return movementDirection switch
         {
@@ -238,45 +313,69 @@ public class WAPlatform : MonoBehaviour, IDetectsWeight
         };
     }
 
+    /// <summary>
+    /// Registers the weight of an object currently affecting the platform.
+    /// </summary>
+    /// <param name="weightProvider">Object that provides weight.</param>
     public void RegisterWeight(IProvidesWeight weightProvider)
     {
         CurrentWeight += weightProvider.Weight;
     }
 
+    /// <summary>
+    /// Registers a raw weight value on the platform.
+    /// </summary>
+    /// <param name="weight">Weight value to add.</param>
     public void RegisterWeight(float weight)
     {
         CurrentWeight += weight;
     }
 
+    /// <summary>
+    /// Removes the weight of an object that is no longer affecting the platform.
+    /// </summary>
+    /// <param name="weightProvider">Object that provides weight.</param>
     public void UnregisterWeight(IProvidesWeight weightProvider)
     {
         CurrentWeight -= weightProvider.Weight;
     }
 
+    /// <summary>
+    /// Removes a raw weight value from the platform.
+    /// </summary>
+    /// <param name="weight">Weight value to remove.</param>
     public void UnregisterWeight(float weight)
     {
         CurrentWeight -= weight;
     }
 
+    /// <summary>
+    /// Checks whether the platform currently has enough weight to be fully activated.
+    /// </summary>
+    /// <returns>True if the current weight is greater than or equal to the required weight.</returns>
     public bool HasEnoughWeight() => CurrentWeight >= config.requiredWeight;
 
+    /// <summary>
+    /// Detects weighted objects entering the platform trigger area and registers their weight.
+    /// </summary>
+    /// <param name="other">Collider entering the trigger.</param>
     private void OnTriggerEnter2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
-        if ( weightProvider != null)
-        {
-            //_weightProviders.Add(weightProvider);
+
+        if (weightProvider != null)
             RegisterWeight(weightProvider);
-        }
     }
 
+    /// <summary>
+    /// Detects weighted objects leaving the platform trigger area and unregisters their weight.
+    /// </summary>
+    /// <param name="other">Collider exiting the trigger.</param>
     private void OnTriggerExit2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
-        if ( weightProvider != null)
-        {
-            //_weightProviders.Add(weightProvider);
+
+        if (weightProvider != null)
             UnregisterWeight(weightProvider);
-        }
     }
 }
