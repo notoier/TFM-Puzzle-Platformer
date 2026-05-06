@@ -1,31 +1,134 @@
 using UnityEngine;
+using System.Collections;
 
 public class ScaleController : MonoBehaviour
 {
     [SerializeField] private WAPlatform leftPlatform;
     [SerializeField] private WAPlatform rightPlatform;
+    [SerializeField] private Transform centerPoint;
 
     [Header("Scale Settings")]
-    [Tooltip("Diferencia de peso necesaria para llegar al desplazamiento mÃ¡ximo")]
+    [Tooltip("Diferencia de peso necesaria para llegar al desplazamiento máximo. Si es 0, cualquier diferencia inclina al máximo.")]
     [SerializeField] private float requiredWeightDifference = 1f;
+
+    [Tooltip("Distancia máxima permitida respecto al centro en el eje de movimiento")]
+    [SerializeField] private float maxDistanceFromCenter = 2f;
+
+    [Header("Delay Settings")]
+    [Tooltip("Tiempo que espera la balanza antes de ajustarse al quitar todo el peso")]
+    [SerializeField] private float unloadDelay = 0.15f;
+
+    private bool _wasLoaded;
+    private bool _isWaitingAfterUnload;
+    private Coroutine _unloadDelayCoroutine;
 
     private void Update()
     {
-        if (!leftPlatform || !rightPlatform)
+        if (!leftPlatform || !rightPlatform || !centerPoint)
             return;
 
         float leftWeight = leftPlatform.CurrentWeight;
         float rightWeight = rightPlatform.CurrentWeight;
+        float totalWeight = leftWeight + rightWeight;
+
+        bool isLoaded = totalWeight > 0f;
+
+        if (_wasLoaded && !isLoaded)
+        {
+            StartUnloadDelay();
+        }
+
+        _wasLoaded = isLoaded;
+
+        if (_isWaitingAfterUnload)
+            return;
 
         float difference = leftWeight - rightWeight;
 
-        float safeRequiredDifference = Mathf.Approximately(requiredWeightDifference, 0f)
-            ? 0.01f
-            : requiredWeightDifference;
+        float normalized;
 
-        float normalized = Mathf.Clamp(difference / safeRequiredDifference, -1f, 1f);
+        if (Mathf.Approximately(requiredWeightDifference, 0f))
+        {
+            normalized = Mathf.Approximately(difference, 0f)
+                ? 0f
+                : Mathf.Sign(difference);
+        }
+        else
+        {
+            normalized = Mathf.Clamp(difference / requiredWeightDifference, -1f, 1f);
+        }
 
-        leftPlatform.SetSignedOffset(normalized);
-        rightPlatform.SetSignedOffset(-normalized);
+        ApplyLimitedOffset(leftPlatform, normalized);
+        ApplyLimitedOffset(rightPlatform, -normalized);
+    }
+
+    
+        
+    
+    /// <summary>
+    /// Starts the delay coroutine for when there's a weight change
+    ///</summary>
+    private void StartUnloadDelay()
+    {
+        if (_unloadDelayCoroutine != null)
+            StopCoroutine(_unloadDelayCoroutine);
+
+        _unloadDelayCoroutine = StartCoroutine(UnloadDelayRoutine());
+    }
+
+    
+    
+     /// <summary>
+     /// Sets a delay for when there's a weight change in the scale
+     ///</summary>
+    private IEnumerator UnloadDelayRoutine()
+    {
+        _isWaitingAfterUnload = true;
+
+        if (unloadDelay > 0f)
+            yield return new WaitForSeconds(unloadDelay);
+
+        _isWaitingAfterUnload = false;
+        _unloadDelayCoroutine = null;
+    }
+
+    
+    /// <summary>
+    /// Applies a signed movement offset to the given platform while ensuring that
+    /// the resulting target position does not exceed the allowed distance from the
+    /// scale center point along the platform's movement axis.
+    /// </summary>
+    ///
+    /// <param name="platform">
+    /// The platform that will receive the calculated target position.</param>
+    ///
+    /// <param name="signedOffset">
+    /// Normalized signed offset used to move the platform.
+    /// Positive values move it along its configured movement direction,
+    /// negative values move it in the opposite direction.
+    /// </param>
+    private void ApplyLimitedOffset(WAPlatform platform, float signedOffset)
+    {
+        Vector3 direction = platform.GetMovementDirectionVector();
+
+        Vector3 centerToStart = platform.StartPosition - centerPoint.position;
+
+        float startDistanceFromCenter = Vector3.Dot(centerToStart, direction);
+
+        float desiredMovementFromStart = platform.MaxDistance * signedOffset;
+
+        float minAllowedMovement = -maxDistanceFromCenter - startDistanceFromCenter;
+        float maxAllowedMovement = maxDistanceFromCenter - startDistanceFromCenter;
+
+        float limitedMovementFromStart = Mathf.Clamp(
+            desiredMovementFromStart,
+            minAllowedMovement,
+            maxAllowedMovement
+        );
+
+        Vector3 targetPosition =
+            platform.StartPosition + direction * limitedMovementFromStart;
+
+        platform.SetTargetPosition(targetPosition);
     }
 }
