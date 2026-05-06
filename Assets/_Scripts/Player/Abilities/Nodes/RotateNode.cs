@@ -2,10 +2,8 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class RotateNode : AbilityNode
+public class RotateNode : ActionNode
 {
-    public override AbilityNodeCategory Category => AbilityNodeCategory.Action;
-
     public int degrees;
 
     public bool clockwise;
@@ -13,6 +11,6 @@ public class RotateNode : AbilityNode
 
     public override void Execute(AbilityContext context)
     {
-
+        context.actor.transform.Rotate(0, clockwise ? degrees : -degrees, 0);
     }
 }

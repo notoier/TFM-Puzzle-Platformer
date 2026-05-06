@@ -11,10 +11,10 @@ public class AbilityEditor : Editor
     {
         EditorGUILayout.LabelField("ABILITY EDITOR IS RUNNING");
         EditorGUILayout.Space(10);
+
         serializedObject.Update();
 
         SerializedProperty nodes = serializedObject.FindProperty("nodes");
-
         EditorGUILayout.PropertyField(nodes, true);
 
         GUILayout.Space(10);
@@ -26,9 +26,15 @@ public class AbilityEditor : Editor
 
         GUILayout.Space(900);
 
-        if (GUILayout.Button("Clear Nodes",GUILayout.Height(30)))
+        if (GUILayout.Button("Clear Nodes", GUILayout.Height(30)))
         {
+            Ability ability = (Ability)target;
 
+            Undo.RecordObject(ability, "Clear Nodes");
+
+            ability.nodes.Clear();
+
+            EditorUtility.SetDirty(ability);
         }
 
         serializedObject.ApplyModifiedProperties();
@@ -41,18 +47,14 @@ public class AbilityEditor : Editor
         var nodeTypes = GetAllNodeTypes();
 
         var grouped = nodeTypes
-         .GroupBy(t =>
-         {
-         var instance = (AbilityNode)Activator.CreateInstance(t);
-         return instance.Category;
-         })
-         .OrderBy(g => g.Key.ToString());
+            .GroupBy(GetMainCategoryType)
+            .OrderBy(g => g.Key.Name);
 
         foreach (var group in grouped)
         {
-            string categoryName = group.Key.ToString();
+            string categoryName = group.Key.Name.Replace("Node", "");
 
-            foreach (var type in group)
+            foreach (var type in group.OrderBy(t => t.Name))
             {
                 string nodeName = type.Name.Replace("Node", "");
                 string path = $"{categoryName}/{nodeName}";
@@ -65,6 +67,19 @@ public class AbilityEditor : Editor
         }
 
         menu.ShowAsContext();
+    }
+
+    private Type GetMainCategoryType(Type type)
+    {
+        // Walk up inheritance until we hit the direct child of AbilityNode
+        Type current = type.BaseType;
+
+        while (current != null && current.BaseType != typeof(AbilityNode))
+        {
+            current = current.BaseType;
+        }
+
+        return current ?? type;
     }
 
     private void AddNode(Type type)

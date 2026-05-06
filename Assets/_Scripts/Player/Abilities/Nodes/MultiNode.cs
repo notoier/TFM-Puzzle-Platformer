@@ -4,10 +4,8 @@ using UnityEngine;
 
 [Serializable]
 
-public class MultiNode : AbilityNode
+public class MultiNode : FlowNode
 {
-    public override AbilityNodeCategory Category => AbilityNodeCategory.Flow;
-
     public List <AbilityNode> nodes = new List<AbilityNode>();
     public override void Execute(AbilityContext context)
     {
