@@ -24,7 +24,11 @@ public class Ability : ScriptableObject
         {
             if (context.cancelled)
                 break;
-
+            if (!context.success)
+            {
+                node.DefaultBehavior(context);
+                continue;
+            }
             node.Execute(context);
         }
     }

@@ -1,13 +1,12 @@
 using System;
-using Unity.VisualScripting;
 using UnityEngine;
 
-[System.Serializable]
-public class CancelNode : AbilityNode
+[Serializable]
+public class CancelNode : MiscNode
 {
     
     public override void Execute(AbilityContext context)
     {
-
+        context.cancelled = true;
     }
 }

@@ -3,10 +3,8 @@ using UnityEngine;
 
 [Serializable]
 
-public class MathNode : AbilityNode
+public class MathNode : DataNode
 {
-    public override AbilityNodeCategory Category => AbilityNodeCategory.Data;
-
     public float valueA;
     public float valueB;
 

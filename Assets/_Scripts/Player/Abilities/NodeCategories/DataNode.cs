@@ -1,11 +1,8 @@
-using System;
 using UnityEngine;
 
-[System.Serializable]
-public class TimerNode : FlowNode
+public abstract class DataNode : AbilityNode
 {
-    public float time;
-
+    public float value;
     public override void Execute(AbilityContext context)
     {
 
