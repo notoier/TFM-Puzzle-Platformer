@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
-using Unity.VersionControl.Git;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Rendering;
-using static UnityEngine.Rendering.DebugUI;
+
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class CharacterMovement : MonoBehaviour, IProvidesWeight
@@ -16,8 +13,16 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [Header("Movement Configuration")]
     [SerializeField]
     private float Speed;
+    
+    [Header("Jump Configuration")]
     [SerializeField]
-    private float JumpForce;
+    private float JumpForce =14;
+    [SerializeField]
+    private float coyoteTime = 0.1f;
+    [SerializeField]
+    private float jumpBufferTime = 0.1f;
+    
+
 
     [Header("Check Ground")]
     [SerializeField]
@@ -27,18 +32,34 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private LayerMask groundLayer;
 
+    [Header("Gravedad")]
+    [SerializeField]
+    private float fallMultiplier = 2.5f;
+    [SerializeField]
+    private float lowJumpMultiplier = 2f;
 
     private Vector3 characterMovementDirection;
     private Rigidbody2D characterRigidbody;
     private bool isGrounded;
 
-    void Start()
+    //Timers salto
+    private float coyoteTimeCounter;
+    private float jumpBufferCounter;
+
+    //private bool jumpHeld;
+    private bool hasJumped;
+    private bool jumpPressed;
+
+    void Awake()
     {
         characterRigidbody = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
     {
+
+        //Separar por funciones!!!!!!!!! TO-DO
+
         //Animations
         animator.SetFloat("Speed", Mathf.Abs(characterRigidbody.linearVelocity.x));
         animator.SetBool("IsGrounded", isGrounded);
@@ -51,30 +72,93 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
         //Estamos en el suelo
         Debug.DrawRay(groundCheck.position, Vector2.down * groundRadius, isGrounded ? Color.green : Color.red);
+
+        //CoyoteTime
+        if (isGrounded)
+        {
+            coyoteTimeCounter=coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter-=Time.deltaTime;
+        }
+
+        //Buffer para detectar si el jugador ha saltado antes de timepo
+        
+        jumpBufferCounter -= Time.deltaTime;
+
+
     }
-    // Update is called once per frame
+
     private void FixedUpdate()
     {
         characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * Speed, characterRigidbody.linearVelocity.y);
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
+        if (isGrounded)
+        {
+            hasJumped = false;
+        }
+
+        //Buffering jump and coyote time
+        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f && !hasJumped)
+        {
+          
+            characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, JumpForce);
+            animator.SetTrigger("JumpTrigger");
+
+            jumpBufferCounter = 0f;
+            coyoteTimeCounter = 0f;
+
+            //No Doble Salto
+            hasJumped = true;
+
+        }
+        //Mejorar la gravedad y la relación con el salto
+        if (characterRigidbody.linearVelocity.y < 0)
+        {
+            characterRigidbody.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+        }
+        else if (characterRigidbody.linearVelocity.y > 0 && !jumpPressed)
+        {
+            characterRigidbody.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+        }
+
+        
+
+
     }
 
-    public void OnMove(InputValue Value)
+    public void OnMove(InputAction.CallbackContext context)
     {
-        Vector2 vectorInput = Value.Get<Vector2>();
+        Vector2 vectorInput = context.ReadValue<Vector2>();
         characterMovementDirection = new Vector3(vectorInput.x, 0f, 0f);
-        characterMovementDirection = characterMovementDirection.normalized;
+        
     }
 
-    public void OnJump(InputValue Value)
+    public void OnJump(InputAction.CallbackContext context)
     {
-        if (!Value.isPressed) return;
-        if (!isGrounded) return;
+        Debug.Log(jumpPressed);
+        if (context.performed)
+        {
+            jumpBufferCounter = jumpBufferTime;
+            jumpPressed = true;
+        }
+        else if (context.canceled)
+        {
+            jumpPressed = false;
 
-        characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, JumpForce);
-        animator.SetTrigger("JumpTrigger");
+            //Corta el salto
+            if(characterRigidbody.linearVelocity.y >0)
+            {
+                characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, characterRigidbody.linearVelocity.y* 0.5f);
+            }
+        }
+
+
+ 
     }
+
 
     public float Weight { get; } = 2;
 }
