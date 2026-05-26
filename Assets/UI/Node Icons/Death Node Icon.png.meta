@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 89706747b613ed142b39260e0f7878da
+guid: f60998f893aaacd4b945157416f78dd3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5466635054327294029
-    second: Cancel Node Icon_0
+      213: -7788327953805102209
+    second: Death Node Icon_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Cancel Node Icon_0
+      name: Death Node Icon_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
+        y: 1
         width: 64
-        height: 64
+        height: 60
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -115,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3b79f1ea16c9224b0800000000000000
-      internalID: -5466635054327294029
+      spriteID: f73b3378dfc4ae390800000000000000
+      internalID: -7788327953805102209
       vertices: []
       indices: 
       edges: []
@@ -135,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Cancel Node Icon_0: -5466635054327294029
+      Death Node Icon_0: -7788327953805102209
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

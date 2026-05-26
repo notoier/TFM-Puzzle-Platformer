@@ -1,7 +1,18 @@
+using System;
 using UnityEngine;
 
-public class AbilityNode : ScriptableObject
+[Serializable]
+public abstract class AbilityNode
 {
-    public Sprite icon;
+    public virtual AbilityNodeCategory Category => AbilityNodeCategory.Misc;
+    public abstract void Execute(AbilityContext context);
+}
 
+public enum AbilityNodeCategory
+{
+    Action,
+    Flow,
+    Logic,
+    Data,
+    Misc
 }

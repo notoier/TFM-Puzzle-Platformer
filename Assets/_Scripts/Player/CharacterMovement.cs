@@ -76,6 +76,6 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         animator.SetTrigger("JumpTrigger");
     }
 
-    public float Weight { get; } = 1;
+    public float Weight { get; } = 2;
 }
 
