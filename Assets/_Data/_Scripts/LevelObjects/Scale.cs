@@ -239,6 +239,8 @@ public class ScaleController : MonoBehaviour
 
         return new Vector2(minAllowedMovement, maxAllowedMovement);
     }
+    
+    
 /* #################### *\    
     IN EDITOR SETTINGS     
 \* #################### */

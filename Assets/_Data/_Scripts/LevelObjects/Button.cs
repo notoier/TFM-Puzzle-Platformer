@@ -13,33 +13,13 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
     
     public float CurrentWeight { get; set; }
     
-    [SerializeField]
-    private ButtonConfig buttonConfig;
+    [SerializeField] private ButtonConfig buttonConfig;
 
-    [SerializeField] 
-    private List<GameObject> connectedObjects;
-    
+    [SerializeField] private List<GameObject> connectedObjects;
     private List<IProvidesWeight> _weightProviders;
+
+    [SerializeField] private bool deactivates = true;
     
-    /* Methods */
-    
-    /* Uniques */
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.X))
-        {
-            HasEnoughWeight();
-            print("Checking weight");
-        }
-
-        if (Input.GetKeyDown(KeyCode.W))
-        {
-            RegisterWeight(1);
-            print("Weight added");
-        }
-    }
-
-
     /* IActivable */
     public void Activate()
     {
@@ -115,20 +95,18 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
     private void OnTriggerEnter2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
-        if ( weightProvider != null)
-        {
-            _weightProviders.Add(weightProvider);
-            RegisterWeight(weightProvider);
-        }
+        if (weightProvider == null) return;
+        
+        //_weightProviders.Add(weightProvider);
+        RegisterWeight(weightProvider);
     }
 
     private void OnTriggerExit2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
-        if ( weightProvider != null)
-        {
-            _weightProviders.Add(weightProvider);
-            UnregisterWeight(weightProvider);
-        }
+        if (weightProvider == null || !deactivates) return;
+        
+        //_weightProviders.Add(weightProvider);
+        UnregisterWeight(weightProvider);
     }
 }

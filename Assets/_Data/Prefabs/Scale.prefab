@@ -54,12 +54,13 @@ MonoBehaviour:
   maxDistanceFromCenter: 3
   loadDelay: 0.2
   unloadDelay: 0.75
-  autoPlacePlatforms: 1
   grid: {fileID: 0}
+  autoPlacePlatforms: 1
   snapToGrid: 1
   snapManualMovementToGrid: 1
   horizontalSeparation: 7
   verticalSeparation: 3
+  snapAfterMoveDelay: 0.25
 --- !u!1 &3690726932959861915
 GameObject:
   m_ObjectHideFlags: 0
@@ -85,7 +86,7 @@ Transform:
   m_GameObject: {fileID: 3690726932959861915}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.49, y: -0.00999999, z: 0}
+  m_LocalPosition: {x: -0.5, y: -0.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -101,11 +102,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3.01
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.51
+      value: -1.5
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.z
@@ -186,11 +187,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -3.99
+      value: -4
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.49
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.z

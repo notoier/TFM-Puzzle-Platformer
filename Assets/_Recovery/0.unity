@@ -300,8 +300,7 @@ GameObject:
   - component: {fileID: 207752754}
   - component: {fileID: 207752756}
   - component: {fileID: 207752755}
-  - component: {fileID: 207752757}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1031,44 +1030,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!19719996 &207752757
-TilemapCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 207752753}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0}
-  m_MaximumTileChangeCount: 1000
-  m_ExtrusionFactor: 0
-  m_UseDelaunayMesh: 0
 --- !u!1001 &419039790
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1229,7 +1190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 706005121}
   - component: {fileID: 706005120}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1378,6 +1339,50 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
+--- !u!1 &1439338132
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1439338134}
+  - component: {fileID: 1439338133}
+  m_Layer: 0
+  m_Name: Grid
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!156049354 &1439338133
+Grid:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1439338132}
+  m_Enabled: 1
+  m_CellSize: {x: 1, y: 1, z: 1}
+  m_CellGap: {x: 0, y: 0, z: 0}
+  m_CellLayout: 0
+  m_CellSwizzle: 0
+--- !u!4 &1439338134
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1439338132}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 23.19127, y: -5.97705, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1833513245
 GameObject:
   m_ObjectHideFlags: 0
@@ -1467,8 +1472,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Unity.Cinemachine::Unity.Cinemachine.CinemachineFollow
   TrackerSettings:
-    BindingMode: 3
-    PositionDamping: {x: 0.4, y: 1.2, z: 1.48}
+    BindingMode: 4
+    PositionDamping: {x: 1, y: 1, z: 1}
     AngularDampingMode: 0
     RotationDamping: {x: 1, y: 1, z: 1}
     QuaternionDamping: 1
@@ -1605,10 +1610,6 @@ PrefabInstance:
       value: Button
       objectReference: {fileID: 0}
     - target: {fileID: 8023188318061383610, guid: dee0b4b518c4ad441bcc2c56ca3fa8fb, type: 3}
-      propertyPath: deactivates
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8023188318061383610, guid: dee0b4b518c4ad441bcc2c56ca3fa8fb, type: 3}
       propertyPath: connectedObjects.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -1618,7 +1619,7 @@ PrefabInstance:
       objectReference: {fileID: 1851515999}
     - target: {fileID: 8836213091117512077, guid: dee0b4b518c4ad441bcc2c56ca3fa8fb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -21
+      value: -26
       objectReference: {fileID: 0}
     - target: {fileID: 8836213091117512077, guid: dee0b4b518c4ad441bcc2c56ca3fa8fb, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1667,6 +1668,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 4540024925545667252}
   - {fileID: 419039790}
+  - {fileID: 1439338134}
   - {fileID: 863781320}
   - {fileID: 706005121}
   - {fileID: 8677605905501748785}
