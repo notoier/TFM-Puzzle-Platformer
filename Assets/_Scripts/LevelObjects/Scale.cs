@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -22,6 +23,12 @@ public class ScaleController : MonoBehaviour
     private bool _isWaitingAfterUnload;
     private Coroutine _unloadDelayCoroutine;
 
+    
+    /// <summary>
+    /// Updates the scale behavior every frame by reading the weight on both platforms,
+    /// calculating the resulting tilt, applying unload delay when needed,
+    /// and moving both platforms using a shared balanced offset.
+    /// </summary>
     private void Update()
     {
         if (!leftPlatform || !rightPlatform || !centerPoint)
@@ -58,8 +65,7 @@ public class ScaleController : MonoBehaviour
             normalized = Mathf.Clamp(difference / requiredWeightDifference, -1f, 1f);
         }
 
-        ApplyLimitedOffset(leftPlatform, normalized);
-        ApplyLimitedOffset(rightPlatform, -normalized);
+        ApplyBalancedOffset(normalized);
     }
 
     
@@ -107,6 +113,8 @@ public class ScaleController : MonoBehaviour
     /// Positive values move it along its configured movement direction,
     /// negative values move it in the opposite direction.
     /// </param>
+
+    [Obsolete]
     private void ApplyLimitedOffset(WAPlatform platform, float signedOffset)
     {
         Vector3 direction = platform.GetMovementDirectionVector();
@@ -130,5 +138,66 @@ public class ScaleController : MonoBehaviour
             platform.StartPosition + direction * limitedMovementFromStart;
 
         platform.SetTargetPosition(targetPosition);
+    }
+    
+    /// <summary>
+    /// Applies a balanced movement offset to both scale platforms.
+    /// The movement is limited using the allowed range of both platforms,
+    /// so if one platform reaches its limit, the other one also stops moving.
+    /// </summary>
+    /// <param name="normalizedOffset">
+    /// Normalized scale offset between -1 and 1.
+    /// Positive values move the left platform along its movement direction
+    /// and the right platform in the opposite direction.
+    /// </param>
+    private void ApplyBalancedOffset(float normalizedOffset)
+    {
+        Vector3 direction = leftPlatform.GetMovementDirectionVector();
+
+        float desiredMovement = leftPlatform.MaxDistance * normalizedOffset;
+
+        Vector2 leftAllowedRange = GetAllowedMovementRange(leftPlatform, direction);
+        Vector2 rightAllowedRange = GetAllowedMovementRange(rightPlatform, direction);
+
+        float minSharedMovement = Mathf.Max(leftAllowedRange.x, -rightAllowedRange.y);
+        float maxSharedMovement = Mathf.Min(leftAllowedRange.y, -rightAllowedRange.x);
+
+        float limitedMovement = Mathf.Clamp(
+            desiredMovement,
+            minSharedMovement,
+            maxSharedMovement
+        );
+
+        leftPlatform.SetTargetPosition(
+            leftPlatform.StartPosition + direction * limitedMovement
+        );
+
+        rightPlatform.SetTargetPosition(
+            rightPlatform.StartPosition - direction * limitedMovement
+        );
+    }
+    
+    
+    
+    /// <summary>
+    /// Calculates how far the given platform is allowed to move from its start position
+    /// without exceeding the maximum distance from the scale center point along the
+    /// selected movement direction.
+    /// </summary>
+    /// <param name="platform">Platform whose movement range will be calculated.</param>
+    /// <param name="direction">Movement direction used as the scale axis.</param>
+    /// <returns>
+    /// A Vector2 where x is the minimum allowed movement and y is the maximum allowed movement.
+    /// </returns>
+    private Vector2 GetAllowedMovementRange(WAPlatform platform, Vector3 direction)
+    {
+        Vector3 centerToStart = platform.StartPosition - centerPoint.position;
+
+        float startDistanceFromCenter = Vector3.Dot(centerToStart, direction);
+
+        float minAllowedMovement = -maxDistanceFromCenter - startDistanceFromCenter;
+        float maxAllowedMovement = maxDistanceFromCenter - startDistanceFromCenter;
+
+        return new Vector2(minAllowedMovement, maxAllowedMovement);
     }
 }
