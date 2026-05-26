@@ -7,5 +7,6 @@ public class Biomass : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D other)
     {
         other?.GetComponent<IProvidesWeight>()?.AddWeight(mass);
+        this.gameObject.SetActive(false);
     }
 }
