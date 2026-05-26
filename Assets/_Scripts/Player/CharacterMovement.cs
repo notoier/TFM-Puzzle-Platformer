@@ -6,17 +6,20 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(Rigidbody2D))]
 public class CharacterMovement : MonoBehaviour, IProvidesWeight
 {
+    private static readonly int JumpTrigger = Animator.StringToHash("JumpTrigger");
+    private static readonly int IsGrounded = Animator.StringToHash("IsGrounded");
+    private static readonly int Speed1 = Animator.StringToHash("Speed");
 
     [SerializeField]
     private Animator animator;
 
     [Header("Movement Configuration")]
     [SerializeField]
-    private float Speed;
+    private float speed;
     
     [Header("Jump Configuration")]
     [SerializeField]
-    private float JumpForce =14;
+    private float jumpForce =14;
     [SerializeField]
     private float coyoteTime = 0.1f;
     [SerializeField]
@@ -61,8 +64,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         //Separar por funciones!!!!!!!!! TO-DO
 
         //Animations
-        animator.SetFloat("Speed", Mathf.Abs(characterRigidbody.linearVelocity.x));
-        animator.SetBool("IsGrounded", isGrounded);
+        animator.SetFloat(Speed1, Mathf.Abs(characterRigidbody.linearVelocity.x));
+        animator.SetBool(IsGrounded, isGrounded);
 
         //Le damos la vuelta
         if (characterMovementDirection.x != 0)
@@ -92,7 +95,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
     private void FixedUpdate()
     {
-        characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * Speed, characterRigidbody.linearVelocity.y);
+        characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * speed, characterRigidbody.linearVelocity.y);
 
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
         if (isGrounded)
@@ -104,8 +107,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f && !hasJumped)
         {
           
-            characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, JumpForce);
-            animator.SetTrigger("JumpTrigger");
+            characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, jumpForce);
+            animator.SetTrigger(JumpTrigger);
 
             jumpBufferCounter = 0f;
             coyoteTimeCounter = 0f;
@@ -114,14 +117,14 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             hasJumped = true;
 
         }
-        //Mejorar la gravedad y la relación con el salto
+        //Mejorar la gravedad y la relaciï¿½n con el salto
         if (characterRigidbody.linearVelocity.y < 0)
         {
-            characterRigidbody.linearVelocity += Vector2.up * Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime;
+            characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime);
         }
         else if (characterRigidbody.linearVelocity.y > 0 && !jumpPressed)
         {
-            characterRigidbody.linearVelocity += Vector2.up * Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime;
+            characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime);
         }
 
         
@@ -158,8 +161,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
  
     }
-
-
-    public float Weight { get; } = 2;
+    
+    public float Weight { get; set; } = 2;
 }
 
