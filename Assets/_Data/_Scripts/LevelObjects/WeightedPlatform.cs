@@ -391,7 +391,15 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             UnregisterWeight(weightProvider);
     }
     
-    #if UNITY_EDITOR
+    
+    
+/* #################### *\
+    IN EDITOR SETTINGS
+\* #################### */
+    
+
+    
+#if UNITY_EDITOR
 /// <summary>
 /// Automatically assigns the scene grid when this platform is edited.
 /// </summary>
@@ -409,6 +417,9 @@ private void OnDrawGizmosSelected()
         return;
 
     if (!snapManualMovementToGrid || !snapToGrid)
+        return;
+
+    if (controlMode == ControlMode.External) 
         return;
 
     DetectManualMovement();
