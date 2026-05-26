@@ -41,7 +41,7 @@ public class ScaleController : MonoBehaviour
     [OddRange(3, 15)]
     [SerializeField] private int horizontalSeparation = 3;
 
-    [OddRange(1, 15)]
+    [OddRange(-15, 15)]
     [SerializeField] private int verticalSeparation = 3;
     
     /// <summary>

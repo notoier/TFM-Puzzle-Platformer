@@ -141905,7 +141905,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1534517771152563975, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
       propertyPath: loadDelay
-      value: 0.2
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 1534517771152563975, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
       propertyPath: unloadDelay
