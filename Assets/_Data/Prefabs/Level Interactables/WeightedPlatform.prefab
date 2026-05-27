@@ -106,7 +106,7 @@ GameObject:
   - component: {fileID: 1368201190479163995}
   - component: {fileID: -8490371548589171188}
   m_Layer: 6
-  m_Name: WA_Platform
+  m_Name: WeightedPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

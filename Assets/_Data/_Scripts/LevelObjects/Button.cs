@@ -19,6 +19,10 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
     private List<IProvidesWeight> _weightProviders;
 
     [SerializeField] private bool deactivates = true;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip activationSound;
+    [SerializeField] private AudioClip deactivationSound;
     
     /* IActivable */
     public void Activate()
@@ -28,6 +32,8 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
             if (obj.TryGetComponent(out IActivable a))
                 a.Activate();
         });
+        
+        if (activationSound) AudioManager.Instance.PlayEffect(activationSound);
     }
 
     public void Deactivate()
@@ -37,6 +43,8 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
             if (obj.TryGetComponent(out IActivable a))
                 a.Deactivate();
         });
+        
+        if (deactivationSound) AudioManager.Instance.PlayEffect(deactivationSound, this.transform.position);
     }
 
     
@@ -89,7 +97,6 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
     
         print("Not enough weight");
         return false;
-
     }
 
     private void OnTriggerEnter2D(Collider2D other)
