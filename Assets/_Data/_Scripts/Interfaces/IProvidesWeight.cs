@@ -4,6 +4,6 @@ public interface IProvidesWeight
 { 
     float Weight { get; set; }
 
-    public void AddWeight(float  mass) { Weight += mass; }
+    public virtual void AddWeight(float  mass) { Weight += mass; }
     
 }

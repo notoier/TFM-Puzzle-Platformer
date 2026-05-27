@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb1f966450453b044a3881b318985978, type: 3}
   m_Name: 4BlockPlatform
   m_EditorClassIdentifier: Assembly-CSharp::WAPlatformConfig
-  requiredWeight: 0
+  requiredWeight: 2
   recovers: 1
   movementDelay: 1
   maxDistance: 4

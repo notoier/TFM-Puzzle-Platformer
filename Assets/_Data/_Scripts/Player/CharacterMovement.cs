@@ -167,5 +167,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     }
     
     public float Weight { get; set; } = 2;
+
+    public void AddWeight(float mass)
+    {
+        Weight += mass;
+        weightDebug += mass;
+    }
 }
 
