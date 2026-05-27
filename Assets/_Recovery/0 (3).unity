@@ -632,17 +632,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 894117630833578484, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
   m_PrefabInstance: {fileID: 318965180}
   m_PrefabAsset: {fileID: 0}
-  m_ObjectHideFlags: 0
-  m_GameObject: {fileID: 644545883}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 6.2479095, y: -11.091179, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 1666543927}
-  m_Father: {fileID: 1000206205}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &422790018
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -143148,84 +143137,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7264478080905995074, guid: f6976b4e9038d8949b786f13f8738a91, type: 3}
   m_PrefabInstance: {fileID: 864197682}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &644545883
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 8694582396581301538, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 318965180}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 318965181}
-  - component: {fileID: 644545885}
-  - component: {fileID: 644545884}
-  m_Layer: 0
-  m_Name: FallingZone (1)
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!61 &644545884
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 813840111676983209, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 318965180}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 644545883}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: -0.4532671, y: 0.82941914}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 9.175638, y: 4.0066433}
-  m_EdgeRadius: 0
---- !u!114 &644545885
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5710625248457661823, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 318965180}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 644545883}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4cdcd0f2a173534bb9805d7703ee4f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RespawnPoints
-  player: {fileID: 695386018}
-  respawnPoint: {fileID: 1666543927}
 --- !u!1001 &733015458
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -143465,37 +143376,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f6976b4e9038d8949b786f13f8738a91, type: 3}
---- !u!1 &902979932
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5101745745070374650, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 5030346917793215915}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 902979933}
-  m_Layer: 0
-  m_Name: RespawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &902979933
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 4928946149549580418, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 5030346917793215915}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 902979932}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -14.06, y: 17.28, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1028528752}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &934011864
 GameObject:
   m_ObjectHideFlags: 0
@@ -143589,17 +143469,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 894117630833578484, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
   m_PrefabInstance: {fileID: 5030346917793215915}
   m_PrefabAsset: {fileID: 0}
-  m_ObjectHideFlags: 0
-  m_GameObject: {fileID: 1723453096}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 76.007904, y: 45.088818, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 902979933}
-  m_Father: {fileID: 1000206205}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1200282818 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1801309144579718490, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
@@ -143891,37 +143760,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
---- !u!1 &1666543926
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5101745745070374650, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 318965180}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1666543927}
-  m_Layer: 0
-  m_Name: RespawnPoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1666543927
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 4928946149549580418, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 318965180}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1666543926}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 5.92, y: 12.82, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 318965181}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1671279722
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -144136,84 +143974,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97ebb9f408b616441867183f22000130, type: 3}
---- !u!1 &1723453096
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 8694582396581301538, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 5030346917793215915}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1028528752}
-  - component: {fileID: 1723453098}
-  - component: {fileID: 1723453097}
-  m_Layer: 0
-  m_Name: FallingZone
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!61 &1723453097
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 813840111676983209, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 5030346917793215915}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1723453096}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0.23327446, y: 0.82941914}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 18.05492, y: 4.0066433}
-  m_EdgeRadius: 0
---- !u!114 &1723453098
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 5710625248457661823, guid: 5e903201ca1821441bc87965eefca85b, type: 3}
-  m_PrefabInstance: {fileID: 5030346917793215915}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1723453096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d4cdcd0f2a173534bb9805d7703ee4f3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RespawnPoints
-  player: {fileID: 695386018}
-  respawnPoint: {fileID: 902979933}
 --- !u!1001 &1842773294
 PrefabInstance:
   m_ObjectHideFlags: 0

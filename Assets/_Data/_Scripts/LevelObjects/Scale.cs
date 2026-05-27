@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 
@@ -81,7 +82,7 @@ public class ScaleController : MonoBehaviour
         if (_isWaitingAfterLoad || _isWaitingAfterUnload)
             return;
 
-        float normalized = CalculateNormalizedTilt(leftWeight, rightWeight);
+        float normalized = CalculateTotalNormalizedTilt(leftWeight, rightWeight);
 
         ApplyBalancedOffset(normalized);
     }
@@ -108,6 +109,19 @@ public class ScaleController : MonoBehaviour
         }
 
         return Mathf.Clamp(difference / requiredWeightDifference, -1f, 1f);
+    }
+
+    private float CalculateTotalNormalizedTilt(float leftWeight, float rightWeight)
+    {
+        float difference = leftWeight - rightWeight;
+        float absDiff = Math.Abs(difference);
+
+        if (absDiff < requiredWeightDifference)
+        {
+            return 0f;
+        }
+
+        return Math.Sign(difference);
     }
 
     /// <summary>
