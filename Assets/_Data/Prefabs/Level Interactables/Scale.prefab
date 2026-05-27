@@ -58,7 +58,7 @@ MonoBehaviour:
   autoPlacePlatforms: 1
   snapToGrid: 1
   snapManualMovementToGrid: 1
-  horizontalSeparation: 7
+  horizontalSeparation: 9
   verticalSeparation: 3
   snapAfterMoveDelay: 0.25
 --- !u!1 &3690726932959861915
@@ -86,7 +86,7 @@ Transform:
   m_GameObject: {fileID: 3690726932959861915}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.5, y: -0.5, z: 0}
+  m_LocalPosition: {x: -0.5799999, y: 1.35, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -102,11 +102,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 3
+      value: 3.92
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.5
+      value: 0.35000002
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.z
@@ -140,6 +140,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: grid
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_Name
       value: R_Platform
@@ -156,7 +160,8 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.61917514
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -8490371548589171188, guid: 97ebb9f408b616441867183f22000130, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
@@ -187,11 +192,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4
+      value: -5.08
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.5
+      value: 2.35
       objectReference: {fileID: 0}
     - target: {fileID: 4203059115410471483, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_LocalPosition.z
@@ -225,6 +230,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5103489071183849294, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      propertyPath: grid
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 5319129950507599654, guid: 97ebb9f408b616441867183f22000130, type: 3}
       propertyPath: m_Name
       value: L_Platform
@@ -241,7 +250,8 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.45340765
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -8490371548589171188, guid: 97ebb9f408b616441867183f22000130, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

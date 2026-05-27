@@ -22,16 +22,15 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     public Vector3 StartPosition => _startPosition;
     public float MaxDistance => config.maxDistance;
 
-    [Header("Config")]
-    [SerializeField] private WeightedPlatformConfig config;
+    [Header("Config")] [SerializeField] private WeightedPlatformConfig config;
 
-    [Header("Behaviour")]
-    [SerializeField] private MovementDirection movementDirection = MovementDirection.Down;
+    [Header("Behaviour")] [SerializeField] private MovementDirection movementDirection = MovementDirection.Down;
     [SerializeField] private ControlMode controlMode = ControlMode.Independent;
 
     [Header("Scale Settings")]
     [Tooltip("Desplazamiento máximo relativo en modo externo. Normalmente 1.")]
-    [SerializeField] private float maxExternalOffset = 1f;
+    [SerializeField]
+    private float maxExternalOffset = 1f;
 
     private Vector3 _startPosition;
     private Vector3 _currentTargetPosition;
@@ -41,10 +40,11 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private bool _isReturning;
     private bool _hasCompletedForwardMove;
     private bool _isWaitingAtStart;
-    
+
 #if UNITY_EDITOR
-    [Header("Editor Setup")]
-    [SerializeField] private Grid grid;
+    [Header("Editor Setup")] [SerializeField]
+    private Grid grid;
+
     [SerializeField] private bool snapToGrid = true;
     [SerializeField] private bool snapManualMovementToGrid = true;
     [SerializeField] private float snapAfterMoveDelay = 0.25f;
@@ -390,121 +390,4 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (weightProvider != null)
             UnregisterWeight(weightProvider);
     }
-    
-    
-    
-/* #################### *\
-    IN EDITOR SETTINGS
-\* #################### */
-    
-
-    
-#if UNITY_EDITOR
-/// <summary>
-/// Automatically assigns the scene grid when this platform is edited.
-/// </summary>
-private void OnValidate()
-{
-    AutoAssignGrid();
-}
-
-/// <summary>
-/// Detects manual movement in the editor and schedules a grid snap after movement stops.
-/// </summary>
-private void OnDrawGizmosSelected()
-{
-    if (Application.isPlaying)
-        return;
-
-    if (!snapManualMovementToGrid || !snapToGrid)
-        return;
-
-    if (controlMode == ControlMode.External) 
-        return;
-
-    DetectManualMovement();
-    TrySnapAfterManualMovement();
-}
-
-/// <summary>
-/// Automatically assigns the first Grid found in the current scene.
-/// </summary>
-private void AutoAssignGrid()
-{
-    if (grid != null)
-        return;
-
-#if UNITY_2023_1_OR_NEWER
-    grid = FindFirstObjectByType<Grid>();
-#else
-    grid = FindObjectOfType<Grid>();
-#endif
-}
-
-/// <summary>
-/// Checks whether the platform has been moved manually in the editor.
-/// </summary>
-private void DetectManualMovement()
-{
-    if (transform.position == _lastEditorPosition)
-        return;
-
-    _lastManualMoveTime = UnityEditor.EditorApplication.timeSinceStartup;
-    _snapPending = true;
-
-    _lastEditorPosition = transform.position;
-}
-
-/// <summary>
-/// Snaps the platform to the grid once it has stopped being moved for a short time.
-/// </summary>
-private void TrySnapAfterManualMovement()
-{
-    if (!_snapPending)
-        return;
-
-    double elapsedTime = UnityEditor.EditorApplication.timeSinceStartup - _lastManualMoveTime;
-
-    if (elapsedTime < snapAfterMoveDelay)
-        return;
-
-    SnapPlatformToGridFromInspector();
-    _snapPending = false;
-}
-
-/// <summary>
-/// Snaps this platform to the nearest grid position from the Inspector context menu.
-/// </summary>
-[ContextMenu("Snap Platform To Grid")]
-private void SnapPlatformToGridFromInspector()
-{
-    if (!grid)
-    {
-        Debug.LogWarning("No Grid assigned. Cannot snap platform to grid.", this);
-        return;
-    }
-
-    transform.position = SnapPositionToGrid(transform.position);
-    _lastEditorPosition = transform.position;
-}
-
-/// <summary>
-/// Snaps a world position to the nearest valid grid-aligned platform position.
-/// </summary>
-private Vector3 SnapPositionToGrid(Vector3 position)
-{
-    if (!grid)
-        return position;
-
-    Vector3 cellSize = grid.cellSize;
-
-    float safeGridX = Mathf.Approximately(cellSize.x, 0f) ? 1f : cellSize.x;
-    float safeGridY = Mathf.Approximately(cellSize.y, 0f) ? 1f : cellSize.y;
-
-    position.x = Mathf.Round(position.x / safeGridX) * safeGridX;
-    position.y = Mathf.Round(position.y / safeGridY) * safeGridY + 0.5f;
-
-    return position;
-}
-#endif
 }
