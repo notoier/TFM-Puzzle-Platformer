@@ -30,6 +30,11 @@ public class ScaleController : MonoBehaviour
 
     private Coroutine _loadDelayCoroutine;
     private Coroutine _unloadDelayCoroutine;
+    
+    [Header("Audio")]
+    [SerializeField] private AudioClip tickingSound;
+    [SerializeField] private AudioClip lockedSound;
+    [SerializeField] private AudioClip movingSound;
 
     [Header("Editor Setup")] 
     [SerializeField] private Grid grid;
@@ -123,7 +128,7 @@ public class ScaleController : MonoBehaviour
     {
         if (_unloadDelayCoroutine != null)
             StopCoroutine(_unloadDelayCoroutine);
-
+        
         _unloadDelayCoroutine = StartCoroutine(UnloadDelayRoutine());
     }
 
@@ -160,6 +165,7 @@ public class ScaleController : MonoBehaviour
     {
         _isWaitingAfterLoad = true;
 
+        if (tickingSound) AudioManager.Instance.StopSound(tickingSound.name);
         if (loadDelay > 0f)
             yield return new WaitForSeconds(loadDelay);
 
@@ -174,9 +180,9 @@ public class ScaleController : MonoBehaviour
     {
         _isWaitingAfterUnload = true;
 
-        if (unloadDelay > 0f)
-            yield return new WaitForSeconds(unloadDelay);
-
+        if (unloadDelay >= 5f && tickingSound) AudioManager.Instance.PlayEffect(tickingSound, centerPoint.position); 
+        if (unloadDelay > 0f) yield return new WaitForSeconds(unloadDelay);
+        AudioManager.Instance.StopSound(tickingSound.name);
         _isWaitingAfterUnload = false;
         _unloadDelayCoroutine = null;
     }
@@ -280,17 +286,17 @@ public class ScaleController : MonoBehaviour
     /// </summary>
     private void DetectManualMovement()
     {
-        if (leftPlatform.transform.position != _lastLeftPosition ||
-            rightPlatform.transform.position != _lastRightPosition ||
-            centerPoint.position != _lastCenterPosition)
-        {
-            _lastManualMoveTime = UnityEditor.EditorApplication.timeSinceStartup;
-            _snapPending = true;
+        if (leftPlatform.transform.position == _lastLeftPosition &&
+            rightPlatform.transform.position == _lastRightPosition &&
+            centerPoint.position == _lastCenterPosition) return;
+        
+        
+        _lastManualMoveTime = UnityEditor.EditorApplication.timeSinceStartup;
+        _snapPending = true;
 
-            _lastLeftPosition = leftPlatform.transform.position;
-            _lastRightPosition = rightPlatform.transform.position;
-            _lastCenterPosition = centerPoint.position;
-        }
+        _lastLeftPosition = leftPlatform.transform.position;
+        _lastRightPosition = rightPlatform.transform.position;
+        _lastCenterPosition = centerPoint.position;
     }
 
     /// <summary>
