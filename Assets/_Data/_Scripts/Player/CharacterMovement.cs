@@ -41,6 +41,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private float lowJumpMultiplier = 2f;
 
+    [Header("Debug")] 
+    [SerializeField] private float weightDebug = 1f;
+
     private Vector3 characterMovementDirection;
     private Rigidbody2D characterRigidbody;
     private bool isGrounded;
@@ -56,6 +59,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     void Awake()
     {
         characterRigidbody = GetComponent<Rigidbody2D>();
+        Weight = weightDebug;
     }
 
     private void Update()
