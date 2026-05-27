@@ -1365,6 +1365,10 @@ PrefabInstance:
       propertyPath: horizontalSeparation
       value: 9
       objectReference: {fileID: 0}
+    - target: {fileID: 7378725979074267572, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
+      propertyPath: requiredWeightDifference
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 7777011343245257910, guid: cf186a8e71a9a3944b8aa285ef000151, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.92
