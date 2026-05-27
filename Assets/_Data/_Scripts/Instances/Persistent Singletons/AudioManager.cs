@@ -14,12 +14,12 @@ public class AudioManager : PersistentSingleton<AudioManager>
     
     private float _masterVolume, _effectVolume, _musicVolume;
     
+    // ReSharper disable Unity.PerformanceAnalysis
     public void StopSound(string soundName)
     {
-        if (_audioSources.ContainsKey(soundName))
+        if (_audioSources.TryGetValue(soundName, out AudioSource source))
         {
-            AudioSource source = _audioSources[soundName];
-            if (source != null)
+            if (source)
             {
                 source.Stop();
             }
@@ -39,7 +39,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
 
     public void PlayEffect(AudioClip clip, Vector3 soundPosition = default, float volume = 1.0f, bool stop = false, float minPitch = 1f, float manPitch = 1f)
     {
-        if (clip == null) return;
+        if (!clip) return;
         
         
         // Use the clip name as the key in the dictionary
@@ -59,7 +59,6 @@ public class AudioManager : PersistentSingleton<AudioManager>
         AudioSource source = _audioSources[soundName];
 
         source.volume = _masterVolume * _effectVolume * volume;
-        Debug.LogWarning("Volume" + source.volume);
         source.pitch = Random.Range(minPitch, manPitch);
 
         if (stop)

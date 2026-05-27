@@ -29,9 +29,12 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
     [Header("Scale Settings")]
     [Tooltip("Desplazamiento máximo relativo en modo externo. Normalmente 1.")]
-    [SerializeField]
-    private float maxExternalOffset = 1f;
+    [SerializeField] private float maxExternalOffset = 1f;
 
+    [Header("Colliders")]
+    [SerializeField] private BoxCollider2D solidCollider;
+    [SerializeField] private BoxCollider2D weightTriggerCollider;
+    
     private Vector3 _startPosition;
     private Vector3 _currentTargetPosition;
     private Coroutine _movementCoroutine;
@@ -389,5 +392,28 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
         if (weightProvider != null)
             UnregisterWeight(weightProvider);
+    }
+    
+    /// <summary>
+    /// Updates the platform colliders to match the current visual size.
+    /// </summary>
+    /// <param name="platformSize">Final platform size in local units.</param>
+    public void UpdateColliders(Vector2 platformSize)
+    {
+        if (solidCollider)
+        {
+            solidCollider.size = platformSize;
+            solidCollider.offset = Vector2.zero;
+        }
+
+        if (!weightTriggerCollider) return;
+        
+        const float triggerHeight = 0.25f;
+
+        weightTriggerCollider.size = new Vector2(platformSize.x, triggerHeight);
+        weightTriggerCollider.offset = new Vector2(
+            0f,
+            platformSize.y * 0.5f + triggerHeight * 0.5f
+        );
     }
 }
