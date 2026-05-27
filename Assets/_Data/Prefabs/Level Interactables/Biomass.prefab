@@ -102,6 +102,7 @@ GameObject:
   - component: {fileID: 1422438926995525106}
   - component: {fileID: 6798164079558958134}
   - component: {fileID: 3533594620175182939}
+  - component: {fileID: 3584150490063124996}
   m_Layer: 0
   m_Name: Biomass
   m_TagString: Untagged
@@ -174,3 +175,21 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.75
+--- !u!114 &3584150490063124996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3702091747114418202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7e455b7ddfc40e0a242d9abfd679c9b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GridPlaceable
+  grid: {fileID: 0}
+  snapToGrid: 1
+  snapManualMovementToGrid: 1
+  snapMode: 0
+  snapOffset: {x: 0, y: 0}
+  snapAfterMoveDelay: 0.25
