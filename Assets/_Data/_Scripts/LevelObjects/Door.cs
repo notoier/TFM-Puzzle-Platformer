@@ -1,25 +1,48 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-[RequireComponent( typeof(BoxCollider2D) )]
 public class Door : MonoBehaviour, IActivable
 {
     public bool IsActive { get; private set;  }
     
-    [SerializeField]
-    private BoxCollider2D doorCollider;
+    [SerializeField] private GameObject doorClosed;
+    [SerializeField] private GameObject doorOpen;
+
+    [Header("Audio")]
+    [SerializeField] private AudioClip openSound;
+    [SerializeField] private AudioClip closeSound;
     
     /* IActivable */
     public void Activate()
     {
-        doorCollider.enabled = false;
-        IsActive = false;
-        print("Door is OPEN");
+        Toggle();
+    }
+
+    private void Toggle()
+    {
+        if (IsActive) Close();
+        else Open();
+        IsActive = !IsActive;
+    }
+
+    private void Close()
+    {
+        doorClosed.SetActive(true);
+        doorOpen.SetActive(false);
+        
+        if (closeSound) AudioManager.Instance.PlayEffect(closeSound, this.transform.position);
+    }
+
+    private void Open()
+    {
+        doorClosed.SetActive(false);
+        doorOpen.SetActive(true);
+        
+        if (openSound) AudioManager.Instance.PlayEffect(openSound, this.transform.position);
     }
 
     public void Deactivate()
     {
-        doorCollider.enabled = true;
-        IsActive = true;
-        print("Door is CLOSED");
+        Toggle();
     }
 }

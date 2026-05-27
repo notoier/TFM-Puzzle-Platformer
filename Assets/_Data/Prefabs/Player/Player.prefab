@@ -273,7 +273,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterMovement
   animator: {fileID: 524551957039536644}
   speed: 7
-  jumpForce: 14
+  jumpForce: 20
   coyoteTime: 0.1
   jumpBufferTime: 0.1
   groundCheck: {fileID: 1060500521697069407}
@@ -283,7 +283,6 @@ MonoBehaviour:
     m_Bits: 64
   fallMultiplier: 2.5
   lowJumpMultiplier: 2
-  weightDebug: 1
 --- !u!114 &800464548893343621
 MonoBehaviour:
   m_ObjectHideFlags: 0
