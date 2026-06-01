@@ -16,8 +16,6 @@ public class PlatformVisualBuilder : MonoBehaviour
     [Min(1)]
     [SerializeField] private int centerPieces = 3;
 
-    [SerializeField] private float pieceWidth = 1f;
-
     [Header("Sorting")]
     [SerializeField] private string sortingLayerName = "Default";
     [SerializeField] private int sortingOrder = 0;

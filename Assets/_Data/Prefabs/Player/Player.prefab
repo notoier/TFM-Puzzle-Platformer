@@ -280,9 +280,10 @@ MonoBehaviour:
   groundRadius: 0.15
   groundLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 320
   fallMultiplier: 2.5
   lowJumpMultiplier: 2
+  weightDebug: 1
 --- !u!114 &800464548893343621
 MonoBehaviour:
   m_ObjectHideFlags: 0

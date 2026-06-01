@@ -43,20 +43,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private bool _isReturning;
     private bool _hasCompletedForwardMove;
     private bool _isWaitingAtStart;
-
-#if UNITY_EDITOR
-    [Header("Editor Setup")] [SerializeField]
-    private Grid grid;
-
-    [SerializeField] private bool snapToGrid = true;
-    [SerializeField] private bool snapManualMovementToGrid = true;
-    [SerializeField] private float snapAfterMoveDelay = 0.25f;
-
-    private Vector3 _lastEditorPosition;
-    private double _lastManualMoveTime;
-    private bool _snapPending;
-#endif
-
+    
     /// <summary>
     /// Stores the platform's initial position and initializes its first target.
     /// </summary>
