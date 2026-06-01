@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 620678040839192058}
   - component: {fileID: 3252001733803915294}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -101,7 +101,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1869265666093589829}
   - component: {fileID: 3378018663707628590}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Center_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -192,7 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8038596424213015504}
   - component: {fileID: 5369280316043546058}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Platform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -288,7 +288,7 @@ GameObject:
   - component: {fileID: 1368201190479163995}
   - component: {fileID: -8490371548589171188}
   - component: {fileID: 3267940106129335712}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: WeightedPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -330,10 +330,6 @@ MonoBehaviour:
   maxExternalOffset: 1
   solidCollider: {fileID: 2911417321916744549}
   weightTriggerCollider: {fileID: 189245233073311266}
-  grid: {fileID: 0}
-  snapToGrid: 1
-  snapManualMovementToGrid: 1
-  snapAfterMoveDelay: 0.25
 --- !u!61 &2911417321916744549
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -414,7 +410,7 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 0.625}
+  m_Offset: {x: -0.5, y: 0.625}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -487,7 +483,6 @@ MonoBehaviour:
   centerSprite: {fileID: 21300000, guid: 2a84bc2d5fc29224a8e70eb1aa0b72ea, type: 3}
   rightSprite: {fileID: 21300000, guid: fe08932bd0d9bd64396b40bbfd977e70, type: 3}
   centerPieces: 2
-  pieceWidth: 1
   sortingLayerName: Visual
   sortingOrder: 0
   visualRoot: {fileID: 8242961461073436824}
@@ -503,7 +498,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4650487882895269883}
   - component: {fileID: 2251184577519299998}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Center_1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -593,7 +588,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8242961461073436824}
-  m_Layer: 6
+  m_Layer: 8
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -629,7 +624,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8707661860778605425}
   - component: {fileID: 9145009089648565206}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
