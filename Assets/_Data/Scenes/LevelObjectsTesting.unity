@@ -5779,8 +5779,28 @@ PrefabInstance:
       value: Door (2)
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 2322095975864944947, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 2645604986708235293, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 6236272511896059421, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 8694394923327711993, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 5119916638783657231, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 5038530455657383577, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 6186702682960338653, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    - {fileID: 8348584363418416114, guid: 97ebb9f408b616441867183f22000130, type: 3}
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 8242961461073436824, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 693197688}
+    - targetCorrespondingSourceObject: {fileID: 8242961461073436824, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1681264045}
+    - targetCorrespondingSourceObject: {fileID: 8242961461073436824, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1925339642}
+    - targetCorrespondingSourceObject: {fileID: 8242961461073436824, guid: 97ebb9f408b616441867183f22000130, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 593002315}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0d56970a5a467b644a426752c7021a32, type: 3}
 --- !u!1 &1851515999 stripped
@@ -5973,6 +5993,10 @@ SpriteRenderer:
 --- !u!1001 &1982778401
 PrefabInstance:
   m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1715921329}
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
