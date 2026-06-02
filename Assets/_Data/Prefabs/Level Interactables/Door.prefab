@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7113551276564894905}
   - component: {fileID: 7817989592637063489}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: DoorOpenSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 6247254617766344976}
   - component: {fileID: 697543391865495615}
   - component: {fileID: 7773161154863756722}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -118,7 +118,7 @@ Transform:
   m_GameObject: {fileID: 7188731079847095836}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.30257, y: -0.84109, z: 0}
+  m_LocalPosition: {x: -0.5, y: -1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -159,7 +159,9 @@ MonoBehaviour:
   doorClosed: {fileID: 8184021271010404476}
   doorOpen: {fileID: 1410640235136376994}
   openSound: {fileID: 8300000, guid: a72101be2b952e840a3ccb81fcca6b65, type: 3}
+  openSoundVolume: 0.1
   closeSound: {fileID: 8300000, guid: d59fd086eb882a74cade41359618d45c, type: 3}
+  closeSoundVolume: 0.1
 --- !u!1 &8184021271010404476
 GameObject:
   m_ObjectHideFlags: 0
@@ -171,7 +173,7 @@ GameObject:
   - component: {fileID: 7362807014124256722}
   - component: {fileID: 6343228684339981461}
   - component: {fileID: 8074798273333525993}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: DoorClosedSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}

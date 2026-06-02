@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Door : MonoBehaviour, IActivable
 {
@@ -10,8 +9,10 @@ public class Door : MonoBehaviour, IActivable
 
     [Header("Audio")]
     [SerializeField] private AudioClip openSound;
+    [SerializeField] private float openSoundVolume;
     [SerializeField] private AudioClip closeSound;
-    
+    [SerializeField] private float closeSoundVolume;
+
     /* IActivable */
     public void Activate()
     {
@@ -27,18 +28,18 @@ public class Door : MonoBehaviour, IActivable
 
     private void Close()
     {
-        doorClosed.SetActive(true);
-        doorOpen.SetActive(false);
+        doorClosed?.SetActive(true);
+        doorOpen?.SetActive(false);
         
-        if (closeSound) AudioManager.Instance.PlayEffect(closeSound, this.transform.position);
+        if (closeSound) AudioManager.Instance?.PlayEffect(closeSound, this.transform.position, closeSoundVolume);
     }
 
     private void Open()
     {
-        doorClosed.SetActive(false);
-        doorOpen.SetActive(true);
+        doorClosed?.SetActive(false);
+        doorOpen?.SetActive(true);
         
-        if (openSound) AudioManager.Instance.PlayEffect(openSound, this.transform.position);
+        if (openSound) AudioManager.Instance?.PlayEffect(openSound, this.transform.position, openSoundVolume);
     }
 
     public void Deactivate()

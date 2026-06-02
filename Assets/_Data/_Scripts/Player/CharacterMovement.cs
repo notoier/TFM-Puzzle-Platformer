@@ -121,19 +121,17 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             hasJumped = true;
 
         }
-        //Mejorar la gravedad y la relaci�n con el salto
-        if (characterRigidbody.linearVelocity.y < 0)
+
+        switch (characterRigidbody.linearVelocity.y)
         {
-            characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime);
+            //Mejorar la gravedad y la relaci�n con el salto
+            case < 0:
+                characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime);
+                break;
+            case > 0 when !jumpPressed:
+                characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime);
+                break;
         }
-        else if (characterRigidbody.linearVelocity.y > 0 && !jumpPressed)
-        {
-            characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime);
-        }
-
-        
-
-
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -145,7 +143,6 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
     public void OnJump(InputAction.CallbackContext context)
     {
-        Debug.Log(jumpPressed);
         if (context.performed)
         {
             jumpBufferCounter = jumpBufferTime;
@@ -161,9 +158,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
                 characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, characterRigidbody.linearVelocity.y* 0.5f);
             }
         }
+    }
 
-
- 
+    public Vector2 GetMovementDirection()
+    {
+        return characterMovementDirection;
     }
     
     public float Weight { get; set; } = 2;

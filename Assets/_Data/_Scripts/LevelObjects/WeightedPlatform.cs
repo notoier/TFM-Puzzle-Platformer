@@ -22,7 +22,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     public Vector3 StartPosition => _startPosition;
     public float MaxDistance => config.maxDistance;
 
-    [Header("Config")] [SerializeField] private WeightedPlatformConfig config;
+    [Header("Config")] 
+    [SerializeField] private WeightedPlatformConfig config;
 
     [Header("Behaviour")] [SerializeField] private MovementDirection movementDirection = MovementDirection.Down;
     [SerializeField] private ControlMode controlMode = ControlMode.Independent;
@@ -35,6 +36,14 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     [SerializeField] private BoxCollider2D solidCollider;
     [SerializeField] private BoxCollider2D weightTriggerCollider;
     
+    [Header("Audio")]
+    [SerializeField] private AudioClip movingSound;
+    [SerializeField] private float movingSoundVolume;
+    [SerializeField] private AudioClip lockedSound;
+    [SerializeField] private float lockedSoundVolume;
+    private bool _isMovingSoundPlaying;
+    
+    
     private Vector3 _startPosition;
     private Vector3 _currentTargetPosition;
     private Coroutine _movementCoroutine;
@@ -43,20 +52,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private bool _isReturning;
     private bool _hasCompletedForwardMove;
     private bool _isWaitingAtStart;
-
-#if UNITY_EDITOR
-    [Header("Editor Setup")] [SerializeField]
-    private Grid grid;
-
-    [SerializeField] private bool snapToGrid = true;
-    [SerializeField] private bool snapManualMovementToGrid = true;
-    [SerializeField] private float snapAfterMoveDelay = 0.25f;
-
-    private Vector3 _lastEditorPosition;
-    private double _lastManualMoveTime;
-    private bool _snapPending;
-#endif
-
+    
     /// <summary>
     /// Stores the platform's initial position and initializes its first target.
     /// </summary>
@@ -99,10 +95,28 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
         normalizedOffset = Mathf.Clamp01(normalizedOffset);
 
+        float currentNormalizedOffset = GetCurrentNormalizedOffset();
+
+        if (!config.recovers && normalizedOffset < currentNormalizedOffset)
+            return;
+
         Vector3 targetPosition =
             _startPosition + GetMovementDirectionVector() * (config.maxDistance * normalizedOffset);
 
         ApplyMovement(targetPosition, normalizedOffset >= 1f);
+    }
+    
+    private float GetCurrentNormalizedOffset()
+    {
+        if (config.maxDistance <= 0f)
+            return 0f;
+
+        Vector3 direction = GetMovementDirectionVector();
+        Vector3 fromStart = transform.position - _startPosition;
+
+        float currentDistance = Vector3.Dot(fromStart, direction);
+
+        return Mathf.Clamp01(currentDistance / config.maxDistance);
     }
 
     /// <summary>
@@ -148,6 +162,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             StopCoroutine(_movementCoroutine);
             _movementCoroutine = null;
         }
+        
+        StopMovingSound();
 
         if (config.instantMovement)
         {
@@ -194,6 +210,20 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             return;
         }
 
+        bool alreadyAtTarget = Vector3.Distance(transform.position, targetPosition) < 0.01f;
+
+        if (alreadyAtTarget)
+        {
+            _currentTargetPosition = targetPosition;
+            _hasTarget = true;
+            StopMovingSound();
+
+            if (reachingEnd)
+                OnReachedEnd();
+
+            return;
+        }
+
         bool sameTarget =
             _hasTarget && Vector3.Distance(_currentTargetPosition, targetPosition) < 0.01f;
 
@@ -217,8 +247,10 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private void StartSmoothMovement(Vector3 targetPosition, bool reachingEnd, bool useDelay)
     {
         if (_movementCoroutine != null)
+        {
             StopCoroutine(_movementCoroutine);
-
+        }
+        
         _movementCoroutine = StartCoroutine(MoveToPosition(targetPosition, reachingEnd, useDelay));
     }
 
@@ -233,6 +265,21 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (useDelay && config.movementDelay > 0f)
             yield return new WaitForSeconds(config.movementDelay);
 
+        if (Vector3.Distance(transform.position, targetPosition) <= 0.01f)
+        {
+            transform.position = targetPosition;
+            _movementCoroutine = null;
+            _currentTargetPosition = targetPosition;
+            _hasTarget = true;
+
+            if (reachingEnd)
+                OnReachedEnd();
+
+            yield break;
+        }
+
+        StartMovingSound();
+
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(
@@ -245,10 +292,13 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         }
 
         transform.position = targetPosition;
+
+        StopMovingSound();
+        
         _movementCoroutine = null;
         _currentTargetPosition = targetPosition;
         _hasTarget = true;
-
+        
         if (reachingEnd)
             OnReachedEnd();
     }
@@ -263,14 +313,20 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             return;
 
         _hasCompletedForwardMove = true;
+        
+        
+        PlayLockSound();
 
         if (config.returnAfterReachingEnd && controlMode == ControlMode.Independent)
         {
-            if (_movementCoroutine != null)
-                StopCoroutine(_movementCoroutine);
-
             _movementCoroutine = StartCoroutine(ReturnAfterDelay());
         }
+    }
+
+    private void PlayLockSound()
+    {
+        if (lockedSound)
+            AudioManager.Instance?.PlayEffect(lockedSound, transform.position, lockedSoundVolume);
     }
 
     /// <summary>
@@ -284,6 +340,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (config.returnDelay > 0f)
             yield return new WaitForSeconds(config.returnDelay);
 
+        StartMovingSound();
+        
         while (Vector3.Distance(transform.position, _startPosition) > 0.01f)
         {
             transform.position = Vector3.MoveTowards(
@@ -297,6 +355,10 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
         transform.position = _startPosition;
 
+        StopMovingSound();
+        
+        PlayLockSound();
+        
         _isReturning = false;
         _hasCompletedForwardMove = false;
         _currentTargetPosition = _startPosition;
@@ -415,5 +477,23 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             0f,
             platformSize.y * 0.5f + triggerHeight * 0.5f
         );
+    }
+    
+    private void StartMovingSound()
+    {
+        if (_isMovingSoundPlaying || !movingSound)
+            return;
+
+        AudioManager.Instance?.PlayLoopEffect(movingSound, transform.position, movingSoundVolume);
+        _isMovingSoundPlaying = true;
+    }
+
+    private void StopMovingSound()
+    {
+        if (!_isMovingSoundPlaying || !movingSound)
+            return;
+
+        AudioManager.Instance?.StopSound(movingSound.name);
+        _isMovingSoundPlaying = false;
     }
 }
