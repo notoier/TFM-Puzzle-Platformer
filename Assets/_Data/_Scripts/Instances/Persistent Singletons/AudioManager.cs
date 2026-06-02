@@ -37,40 +37,66 @@ public class AudioManager : PersistentSingleton<AudioManager>
         }
     }// Stops every sound found inside "audioSources" dictionary
 
-    public void PlayEffect(AudioClip clip, Vector3 soundPosition = default, float volume = 1.0f, bool stop = false, float minPitch = 1f, float manPitch = 1f)
+    public void PlayEffect(
+        AudioClip clip,
+        Vector3 soundPosition = default,
+        float volume = 1.0f,
+        float minPitch = 1f,
+        float maxPitch = 1f)
     {
-        if (!clip) return;
-        
-        
-        // Use the clip name as the key in the dictionary
+        if (!clip || !isSfxOn)
+            return;
+
+        AudioSource source = GetOrCreateAudioSource(clip, soundPosition);
+
+        source.loop = false;
+        source.transform.position = soundPosition;
+        source.volume = _masterVolume * _effectVolume * volume;
+        source.pitch = Random.Range(minPitch, maxPitch);
+
+        source.PlayOneShot(clip);
+    }
+
+    public void PlayLoopEffect(
+        AudioClip clip,
+        Vector3 soundPosition = default,
+        float volume = 1.0f,
+        float minPitch = 1f,
+        float maxPitch = 1f)
+    {
+        if (!clip || !isSfxOn)
+            return;
+
+        AudioSource source = GetOrCreateAudioSource(clip, soundPosition);
+
+        source.clip = clip;
+        source.loop = true;
+        source.transform.position = soundPosition;
+        source.volume = _masterVolume * _effectVolume * volume;
+        source.pitch = Random.Range(minPitch, maxPitch);
+
+        if (!source.isPlaying)
+            source.Play();
+    }
+    
+    // ReSharper disable Unity.PerformanceAnalysis
+    private AudioSource GetOrCreateAudioSource(AudioClip clip, Vector3 soundPosition)
+    {
         string soundName = clip.name;
 
-        // Check if the sound is already in the dictionary
-        if (!_audioSources.ContainsKey(soundName))
-        {
-            // Create a new AudioSource, assign the clip, and add it to the dictionary
-            AudioSource newSource = gameObject.AddComponent<AudioSource>();
-            newSource.clip = clip;
-            newSource.transform.position = soundPosition;
-            _audioSources.Add(soundName, newSource);
-        }
+        if (_audioSources.TryGetValue(soundName, out AudioSource existingSource) && existingSource)
+            return existingSource;
 
-        // Get the AudioSource from the dictionary
-        AudioSource source = _audioSources[soundName];
+        AudioSource newSource = gameObject.AddComponent<AudioSource>();
+        newSource.clip = clip;
+        newSource.transform.position = soundPosition;
+        newSource.playOnAwake = false;
 
-        source.volume = _masterVolume * _effectVolume * volume;
-        source.pitch = Random.Range(minPitch, manPitch);
+        _audioSources[soundName] = newSource;
 
-        if (stop)
-        {
-            source.Play();
-        }
-        else
-        {
-            // Play the clip as a one-shot
-            source.PlayOneShot(clip);
-        }
-    }// Plays a sound through "effectSource" audio source
+        return newSource;
+    }
+
 
     public void PlayMusic(AudioClip clip, float volume = 1.0f)
     {
@@ -112,7 +138,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
     }// Activates/deactivates musicSource
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.F8)) StopAllSounds();
+        //if (Input.GetKeyDown(KeyCode.F8)) StopAllSounds();
     }
     
     public void UpdateSoundVolumes(float masterVolume, float effectVolume, float musicVolume)

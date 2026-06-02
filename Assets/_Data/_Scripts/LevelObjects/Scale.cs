@@ -37,10 +37,6 @@ public class ScaleController : MonoBehaviour
     [SerializeField] private float tickingSoundVolume;
     [SerializeField] private AudioClip timerEndSound;
     [SerializeField] private float timerEndSoundVolume;
-    [SerializeField] private AudioClip lockedSound;
-    [SerializeField] private float lockedSoundVolume;
-    [SerializeField] private AudioClip movingSound;
-    [SerializeField] private float movingSoundVolume;
 
     [Header("Editor Setup")] 
     [SerializeField] private Grid grid;
@@ -201,7 +197,7 @@ public class ScaleController : MonoBehaviour
 
         if (unloadDelay >= 5f && tickingSound) AudioManager.Instance.PlayEffect(tickingSound, centerPoint.position, tickingSoundVolume); 
         if (unloadDelay > 0f) yield return new WaitForSeconds(unloadDelay);
-        AudioManager.Instance.StopSound(tickingSound.name);
+        if (unloadDelay >= 5f && tickingSound)AudioManager.Instance.StopSound(tickingSound.name);
         _isWaitingAfterUnload = false;
         _unloadDelayCoroutine = null;
     }
