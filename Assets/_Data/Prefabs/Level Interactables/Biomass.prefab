@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8614575693601604461}
   - component: {fileID: 3278678296444431624}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Hexagon Point Top
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -103,7 +103,7 @@ GameObject:
   - component: {fileID: 6798164079558958134}
   - component: {fileID: 3533594620175182939}
   - component: {fileID: 3584150490063124996}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Biomass
   m_TagString: Untagged
   m_Icon: {fileID: 0}
