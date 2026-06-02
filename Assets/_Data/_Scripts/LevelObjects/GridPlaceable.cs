@@ -23,6 +23,9 @@ public class GridPlaceable : MonoBehaviour
     [SerializeField] private Vector2 snapOffset = Vector2.zero;
     [SerializeField] private float snapAfterMoveDelay = 0.25f;
 
+    [Header("References")]
+    [SerializeField] private WeightedPlatform platform;
+    
 #if UNITY_EDITOR
     private Vector3 _lastEditorPosition;
     private double _lastManualMoveTime;
@@ -31,6 +34,7 @@ public class GridPlaceable : MonoBehaviour
     private void OnValidate()
     {
         AutoAssignGrid();
+        if (!platform) platform = GetComponent<WeightedPlatform>();
     }
 
     private void OnDrawGizmosSelected()
@@ -38,7 +42,7 @@ public class GridPlaceable : MonoBehaviour
         if (Application.isPlaying)
             return;
 
-        if (!snapToGrid || !snapManualMovementToGrid)
+        if (!snapToGrid || !snapManualMovementToGrid || platform?.GetControlMode() == WeightedPlatform.ControlMode.External)
             return;
 
         DetectManualMovement();
