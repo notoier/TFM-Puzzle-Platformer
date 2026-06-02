@@ -11,7 +11,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         Right
     }
 
-    private enum ControlMode
+    public enum ControlMode
     {
         Independent,
         External
@@ -61,6 +61,11 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         _startPosition = transform.position;
         _currentTargetPosition = _startPosition;
         _hasTarget = true;
+    }
+
+    public ControlMode GetControlMode()
+    {
+        return controlMode;
     }
 
     /// <summary>
