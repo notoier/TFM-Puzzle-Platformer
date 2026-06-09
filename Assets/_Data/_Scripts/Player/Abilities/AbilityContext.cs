@@ -10,6 +10,7 @@ public class AbilityContext
 
     /* ??? */
     public bool keepActive;
+    public Vector3 direction;
     
     Dictionary<string, Vector3> vectors = new Dictionary<string, Vector3>();
     Dictionary<string, float> floats = new Dictionary<string, float>();
