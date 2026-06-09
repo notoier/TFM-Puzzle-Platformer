@@ -34,7 +34,7 @@ public class TilemapDarknessShader : MonoBehaviour
 
         InitTilemapData();
         CalculateDepthMap();
-        DebugDepthMapValues();
+        //DebugDepthMapValues();
     }
 
     private void InitTilemapData()
@@ -236,7 +236,7 @@ public class TilemapDarknessShader : MonoBehaviour
     }
     
     
-    /* DEBUG */
+    /* DEBUG 
     
     private void DebugDepthMapValues()
     {
@@ -273,4 +273,6 @@ public class TilemapDarknessShader : MonoBehaviour
             Debug.Log($"Depth {i}: {counts[i]}");
         }
     }
+    
+    */
 }
