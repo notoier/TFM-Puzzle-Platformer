@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 8614575693601604461}
   - component: {fileID: 3278678296444431624}
   m_Layer: 8
-  m_Name: Hexagon Point Top
+  m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -81,7 +81,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5585950298514518254, guid: c31f23f765608e245aee48544d4e5f04, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0fa12a360df33384a8ee5428e44779cd, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
