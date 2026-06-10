@@ -11,7 +11,7 @@ public class Ability : ScriptableObject
     public bool canActivate = true;
 
     // When this function is called, it passes the user to get their AbilityContext. This context is passed to every node if events are not cancelled.
-    public void Activate(GameObject actor)
+    public AbilityContext Activate(GameObject actor)
     {
         canActivate = false;
 
@@ -31,10 +31,17 @@ public class Ability : ScriptableObject
             }
             node.Execute(context);
         }
+
+        return context;
     }
 
     public void End(GameObject actor)
     {
 
+    }
+
+    public AbilityValidationResult Validate()
+    {
+        return null;
     }
 }
