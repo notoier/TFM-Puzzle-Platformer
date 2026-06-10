@@ -15,7 +15,7 @@ MonoBehaviour:
   requiredWeight: 1
   recovers: 1
   movementDelay: 1
-  maxDistance: 10
+  maxDistance: 14
   movementSpeed: 5
   instantMovement: 0
   returnAfterReachingEnd: 1
