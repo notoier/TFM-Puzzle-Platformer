@@ -1,5 +1,4 @@
 ﻿using System;
-using Unity.VersionControl.Git;
 using UnityEngine;
 
 [RequireComponent(typeof(BoxCollider2D))]
