@@ -1,17 +1,30 @@
+using System;
 using UnityEngine;
 
 public class Door : MonoBehaviour, IActivable
 {
     public bool IsActive { get; private set;  }
-    
+    [Header("References")]
     [SerializeField] private GameObject doorClosed;
     [SerializeField] private GameObject doorOpen;
 
+    [Header("Status")]
+    [SerializeField] private bool startsOpen;
+    
     [Header("Audio")]
     [SerializeField] private AudioClip openSound;
     [SerializeField] private float openSoundVolume;
     [SerializeField] private AudioClip closeSound;
     [SerializeField] private float closeSoundVolume;
+
+    private void Awake()
+    {
+        if (!startsOpen) return;
+        
+        doorClosed.SetActive(false);
+        doorOpen.SetActive(true);
+        IsActive = true;
+    }
 
     /* IActivable */
     public void Activate()
