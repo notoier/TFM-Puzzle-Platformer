@@ -46,5 +46,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
   musicSource: {fileID: 0}
   effectSource: {fileID: 0}
-  isSfxOn: 0
+  isSfxOn: 1
   isMusicOn: 0
