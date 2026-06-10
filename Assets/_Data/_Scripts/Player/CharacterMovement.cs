@@ -74,7 +74,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         //Le damos la vuelta
         if (characterMovementDirection.x != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(-characterMovementDirection.x), 1, 1);
+            transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
         }
 
         //Estamos en el suelo
@@ -113,6 +113,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
           
             characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, jumpForce);
             animator.SetTrigger(JumpTrigger);
+            animator.SetBool(IsGrounded, false);
 
             jumpBufferCounter = 0f;
             coyoteTimeCounter = 0f;
