@@ -18,7 +18,7 @@ TextureImporter:
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
@@ -46,8 +46,8 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
-    aniso: 1
+    filterMode: 2
+    aniso: 8
     mipBias: 0
     wrapU: 1
     wrapV: 1
@@ -60,7 +60,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 256
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -105,93 +105,106 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: TileMap_01 1_0
+      name: TileMap_01 _fix_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 1276
-        width: 514
-        height: 772
+        y: 1792
+        width: 256
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 2801f26c4f702ce70800000000000000
-      internalID: 9133871742139175042
+      spriteID: 7c60fed55c6cef54098c525bb5bed23c
+      internalID: 39814405
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TileMap_01 1_1
+      name: TileMap_01 _fix_1
       rect:
         serializedVersion: 2
-        x: 764
-        y: 1021
-        width: 1032
-        height: 1027
+        x: 256
+        y: 1792
+        width: 256
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: e45791a726a8615d0800000000000000
-      internalID: -3092131938583349938
+      spriteID: 03924d1506fcb0348b4572e5185a0d79
+      internalID: 214927561
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TileMap_01 1_2
+      name: TileMap_01 _fix_8
       rect:
         serializedVersion: 2
         x: 0
-        y: 1018
-        width: 516
-        height: 163
+        y: 1536
+        width: 256
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: 71c0724dad7a32b40800000000000000
-      internalID: 5414355735333506071
+      spriteID: 350d0af15b671864fa98ca3cc5a0287c
+      internalID: 1438677741
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: TileMap_01 1_3
+      name: TileMap_01 _fix_9
       rect:
         serializedVersion: 2
-        x: 0
-        y: 509
-        width: 1025
-        height: 262
+        x: 256
+        y: 1536
+        width: 256
+        height: 256
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
-      tessellationDetail: -1
+      tessellationDetail: 0
       bones: []
-      spriteID: a1f16de9729c68ac0800000000000000
-      internalID: -3853171259163140326
+      spriteID: 3d25bce4c8872a540817ec936488c7c5
+      internalID: -1149044811
       vertices: []
       indices: 
       edges: []
@@ -200,7 +213,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 1fe825c2d2308e543bd29cde9b217575
     internalID: 0
     vertices: []
     indices: 
@@ -208,12 +221,58 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     spriteCustomMetadata:
-      entries: []
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":256.0,"y":256.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
     nameFileIdTable:
-      TileMap_01 1_0: 9133871742139175042
-      TileMap_01 1_1: -3092131938583349938
-      TileMap_01 1_2: 5414355735333506071
-      TileMap_01 1_3: -3853171259163140326
+      TileMap_01 _fix_0: 39814405
+      TileMap_01 _fix_1: 214927561
+      TileMap_01 _fix_10: 2116892768
+      TileMap_01 _fix_11: -536837205
+      TileMap_01 _fix_12: -1258040827
+      TileMap_01 _fix_13: -63669064
+      TileMap_01 _fix_14: -954319780
+      TileMap_01 _fix_15: 1314480065
+      TileMap_01 _fix_16: 1101242036
+      TileMap_01 _fix_17: -601759672
+      TileMap_01 _fix_18: 88128767
+      TileMap_01 _fix_19: 347134271
+      TileMap_01 _fix_2: -184286754
+      TileMap_01 _fix_20: -194375529
+      TileMap_01 _fix_21: 758333620
+      TileMap_01 _fix_22: -1901857212
+      TileMap_01 _fix_23: -1619595568
+      TileMap_01 _fix_24: -1427864633
+      TileMap_01 _fix_25: 766313168
+      TileMap_01 _fix_26: -1902957788
+      TileMap_01 _fix_27: -463789976
+      TileMap_01 _fix_28: -560727313
+      TileMap_01 _fix_29: -1078079801
+      TileMap_01 _fix_3: 787152412
+      TileMap_01 _fix_30: -1814308207
+      TileMap_01 _fix_31: 1196546284
+      TileMap_01 _fix_32: 918863830
+      TileMap_01 _fix_33: -325616439
+      TileMap_01 _fix_34: -1774686542
+      TileMap_01 _fix_35: -1181982669
+      TileMap_01 _fix_36: 462060584
+      TileMap_01 _fix_37: 1781327127
+      TileMap_01 _fix_38: 261685497
+      TileMap_01 _fix_39: -1471162937
+      TileMap_01 _fix_4: 819796142
+      TileMap_01 _fix_40: -1020464047
+      TileMap_01 _fix_41: 1944242719
+      TileMap_01 _fix_42: -802637535
+      TileMap_01 _fix_43: -1303258076
+      TileMap_01 _fix_44: -445414596
+      TileMap_01 _fix_45: -1237967343
+      TileMap_01 _fix_46: 1557892433
+      TileMap_01 _fix_47: 455460244
+      TileMap_01 _fix_5: -1568385976
+      TileMap_01 _fix_6: -889156239
+      TileMap_01 _fix_7: 1372116858
+      TileMap_01 _fix_8: 1438677741
+      TileMap_01 _fix_9: -1149044811
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
