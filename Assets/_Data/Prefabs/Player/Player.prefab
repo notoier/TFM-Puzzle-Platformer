@@ -413,4 +413,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ac84b403d91a074a8e67c94c0ace369, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
-  Abilities: []
+  Abilities:
+  - ability: {fileID: 11400000, guid: 7ffb9ebe096db554eaa1a39fb49adc9f, type: 2}
+    key: 20

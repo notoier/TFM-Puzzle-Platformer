@@ -11,6 +11,20 @@ public class RotateNode : ActionNode
 
     public override void Execute(AbilityContext context)
     {
-        context.actor.transform.Rotate(0, clockwise ? degrees : -degrees, 0);
+        if (context.actor == null)
+        {
+            Fail(context);
+            return;
+        }
+
+        context.actor.transform.Rotate(0, 0, clockwise ? -degrees : degrees);
+    }
+
+    public override AbilityValidationResult Validate()
+    {
+        if (degrees == 0)
+            return AbilityValidationResult.Incomplete("Rotate node needs degrees.");
+
+        return AbilityValidationResult.Complete();
     }
 }

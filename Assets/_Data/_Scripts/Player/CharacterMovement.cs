@@ -74,7 +74,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         //Le damos la vuelta
         if (characterMovementDirection.x != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+            Vector3 currentScale = transform.localScale;
+            transform.localScale = new Vector3(
+                Mathf.Sign(characterMovementDirection.x) * Mathf.Abs(currentScale.x),
+                currentScale.y,
+                currentScale.z);
         }
 
         //Estamos en el suelo

@@ -8,4 +8,9 @@ public class DeathNode : ActionNode
     {
         //Destroy(context.actor);
     }
+
+    public override AbilityValidationResult Validate()
+    {
+        return AbilityValidationResult.Incomplete("Death node execution is not implemented yet.");
+    }
 }

@@ -4,30 +4,33 @@ using UnityEngine;
 [Serializable]
 public class SpawnNode : ActionNode
 {
-    [SerializeReference]
-    public ParameterNode spawnable, positon;
+    [SerializeField]
+    private GameObject prefab;
+
+    [SerializeField]
+    private Vector3 position;
 
 
     public override void Execute(AbilityContext context)
     {
-        if(positon.parameterType != ParameterType.Vector3) 
+        if (prefab == null)
         {
-            Debug.LogError("SpawnNode requires a Vector3 parameter for the spawn position.");
-            context.success = false;
+            Fail(context);
             return;
         }
 
-        if(spawnable.parameterType != ParameterType.GameObject) 
-        {
-            Debug.LogError("SpawnNode requires a GameObject parameter for the spawnable object.");
-            context.success = false;
-            return;
-        }
+        GameObject spawnedObject = GameObject.Instantiate(prefab, position, Quaternion.identity);
+        if (spawnedObject != null)
+            Complete(context);
+        else
+            Fail(context);
+    }
 
-        GameObject prefab = spawnable.GetValue<GameObject>();   
-        Vector3 pos = positon.GetValue<Vector3>();         
+    public override AbilityValidationResult Validate()
+    {
+        if (prefab == null)
+            return AbilityValidationResult.Incomplete("Spawn node needs a prefab.");
 
-        GameObject spawnedObject = GameObject.Instantiate(prefab, pos, Quaternion.identity);
-        context.success = spawnedObject != null;
+        return AbilityValidationResult.Complete();
     }
 }
