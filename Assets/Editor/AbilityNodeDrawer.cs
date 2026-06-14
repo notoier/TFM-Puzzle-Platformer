@@ -7,11 +7,14 @@ using UnityEngine;
 [CustomPropertyDrawer(typeof(AbilityNode), true)]
 public class AbilityNodeDrawer : PropertyDrawer
 {
+    /// <summary>
+    /// Draws a managed-reference ability node in the Inspector, including its validation state.
+    /// </summary>
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginProperty(position, label, property);
 
-        bool isFilled = IsNodeFullyFilled(property);
+        AbilityValidationResult validation = GetValidation(property);
 
         if (property.managedReferenceValue == null)
         {
@@ -20,13 +23,13 @@ public class AbilityNodeDrawer : PropertyDrawer
             return;
         }
 
-        DrawNodeState(position, property, isFilled);
+        DrawNodeState(position, property, validation);
 
         EditorGUI.EndProperty();
     }
 
     /// <summary>
-    /// Draws the UI when the node IS empty.
+    /// Draws the placeholder UI for an empty node slot and exposes the create-node menu.
     /// </summary>
     private void DrawEmptyState(Rect position, SerializedProperty property)
     {
@@ -59,9 +62,9 @@ public class AbilityNodeDrawer : PropertyDrawer
     }
 
     /// <summary>
-    /// Draws the UI when the node is NOT empty.
+    /// Draws an existing node, its visible serialized fields, and any validation message.
     /// </summary>
-    private void DrawNodeState(Rect position, SerializedProperty property, bool isFilled)
+    private void DrawNodeState(Rect position, SerializedProperty property, AbilityValidationResult validation)
     {
         string name = property.managedReferenceValue
             .GetType()
@@ -70,14 +73,12 @@ public class AbilityNodeDrawer : PropertyDrawer
 
         Color prevColor = GUI.color;
 
-        GUI.color = isFilled
-            ? new Color32(0, 255, 47, 255)   // green
-            : new Color32(255, 196, 0, 255); // orange
+        GUI.color = GetStateColor(validation.State);
 
         property.isExpanded = EditorGUI.Foldout(
             new Rect(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight),
             property.isExpanded,
-            name,
+            $"{name} - {GetStateLabel(validation.State)}",
             true
         );
 
@@ -97,6 +98,12 @@ public class AbilityNodeDrawer : PropertyDrawer
 
         while (!SerializedProperty.EqualContents(iterator, end))
         {
+            if (!ShouldDrawProperty(property, iterator))
+            {
+                iterator.NextVisible(false);
+                continue;
+            }
+
             float height = EditorGUI.GetPropertyHeight(iterator, true);
 
             EditorGUI.PropertyField(
@@ -109,10 +116,18 @@ public class AbilityNodeDrawer : PropertyDrawer
             iterator.NextVisible(false);
         }
 
+        if (!string.IsNullOrEmpty(validation.Message) && validation.State != AbilityValidationState.Complete)
+        {
+            Rect helpRect = new Rect(position.x, y, position.width, EditorGUIUtility.singleLineHeight * 2);
+            EditorGUI.HelpBox(helpRect, validation.Message, GetMessageType(validation.State));
+        }
+
         EditorGUI.indentLevel--;
     }
 
-
+    /// <summary>
+    /// Calculates the Inspector height needed for the node, including nested fields and help boxes.
+    /// </summary>
     public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
     {
         if (property.managedReferenceValue == null)
@@ -130,25 +145,41 @@ public class AbilityNodeDrawer : PropertyDrawer
 
         while (!SerializedProperty.EqualContents(iterator, end))
         {
+            if (!ShouldDrawProperty(property, iterator))
+            {
+                iterator.NextVisible(false);
+                continue;
+            }
+
             height += EditorGUI.GetPropertyHeight(iterator, true) + 2;
             iterator.NextVisible(false);
         }
 
+        AbilityValidationResult validation = GetValidation(property);
+        if (!string.IsNullOrEmpty(validation.Message) && validation.State != AbilityValidationState.Complete)
+            height += EditorGUIUtility.singleLineHeight * 2 + 2;
+
         return height;
     }
 
-
+    /// <summary>
+    /// Shows a context menu with only the node types assignable to the selected managed-reference field.
+    /// </summary>
     private void ShowNodeMenu(SerializedProperty property)
     {
         GenericMenu menu = new GenericMenu();
+        Type acceptedType = GetManagedReferenceFieldType(property) ?? typeof(AbilityNode);
 
         var nodeTypes = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(a => a.GetTypes())
             .Where(t => typeof(AbilityNode).IsAssignableFrom(t))
+            .Where(t => acceptedType.IsAssignableFrom(t))
             .Where(t => !t.IsAbstract && !t.IsInterface);
 
+        bool hasItems = false;
         foreach (var type in nodeTypes)
         {
+            hasItems = true;
             string name = type.Name.Replace("Node", "");
 
             menu.AddItem(new GUIContent(name), false, () =>
@@ -157,12 +188,41 @@ public class AbilityNodeDrawer : PropertyDrawer
                 property.serializedObject.ApplyModifiedProperties();
             });
         }
+
+        if (!hasItems)
+            menu.AddDisabledItem(new GUIContent($"No {acceptedType.Name} types available"));
        
         menu.ShowAsContext();
     }
 
     /// <summary>
-    /// Checks recursively if the nodes are filled. Useful data to handle color codes and allowing the user to complete an ability.
+    /// Resolves the declared field type of a managed reference so the create menu can be filtered.
+    /// </summary>
+    private Type GetManagedReferenceFieldType(SerializedProperty property)
+    {
+        string fieldTypeName = property.managedReferenceFieldTypename;
+        if (string.IsNullOrWhiteSpace(fieldTypeName))
+            return typeof(AbilityNode);
+
+        string[] typeParts = fieldTypeName.Split(' ');
+        if (typeParts.Length < 2)
+            return typeof(AbilityNode);
+
+        string assemblyName = typeParts[0];
+        string typeName = typeParts[1];
+
+        Type resolvedType = Type.GetType($"{typeName}, {assemblyName}");
+        if (resolvedType != null)
+            return resolvedType;
+
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(a => a.GetTypes())
+            .FirstOrDefault(t => t.FullName == typeName || t.Name == typeName)
+            ?? typeof(AbilityNode);
+    }
+
+    /// <summary>
+    /// Checks recursively whether a node and its nested references/object fields are populated.
     /// </summary>
     private bool IsNodeFullyFilled(SerializedProperty property)
     {
@@ -193,5 +253,129 @@ public class AbilityNodeDrawer : PropertyDrawer
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Decides whether a child property should be visible for the currently drawn node.
+    /// </summary>
+    private bool ShouldDrawProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
+    {
+        if (nodeProperty.managedReferenceValue is not ParameterNode)
+            return true;
+
+        string childName = childProperty.name;
+        if (!IsParameterValueProperty(childName))
+            return true;
+
+        SerializedProperty parameterType = nodeProperty.FindPropertyRelative("parameterType");
+        if (parameterType == null)
+            return true;
+
+        ParameterType selectedType = (ParameterType)parameterType.enumValueIndex;
+        return childName == GetParameterValuePropertyName(selectedType);
+    }
+
+    /// <summary>
+    /// Returns true when the property is one of ParameterNode's type-specific value fields.
+    /// </summary>
+    private bool IsParameterValueProperty(string propertyName)
+    {
+        return propertyName == "floatValue"
+               || propertyName == "intValue"
+               || propertyName == "boolValue"
+               || propertyName == "vector3Value"
+               || propertyName == "gameObjectValue";
+    }
+
+    /// <summary>
+    /// Maps a ParameterType to the serialized field that stores that type's literal value.
+    /// </summary>
+    private string GetParameterValuePropertyName(ParameterType type)
+    {
+        return type switch
+        {
+            ParameterType.Float => "floatValue",
+            ParameterType.Int => "intValue",
+            ParameterType.Bool => "boolValue",
+            ParameterType.Vector3 => "vector3Value",
+            ParameterType.GameObject => "gameObjectValue",
+            _ => "floatValue"
+        };
+    }
+
+    /// <summary>
+    /// Runs validation for the node, using root-node rules only for nodes in the ability's top-level list.
+    /// </summary>
+    private AbilityValidationResult GetValidation(SerializedProperty property)
+    {
+        if (property.managedReferenceValue == null)
+            return AbilityValidationResult.Incomplete("Node is empty.");
+
+        AbilityNode node = property.managedReferenceValue as AbilityNode;
+        if (node == null)
+            return AbilityValidationResult.Invalid("Managed reference is not an ability node.");
+
+        AbilityValidationContext validationContext = GetValidationContext(property);
+        return IsRootAbilityNode(property)
+            ? node.ValidateAsRoot(validationContext)
+            : node.Validate(validationContext);
+    }
+
+    /// <summary>
+    /// Determines whether the property belongs directly to the ability's root nodes list.
+    /// </summary>
+    private bool IsRootAbilityNode(SerializedProperty property)
+    {
+        string path = property.propertyPath;
+        if (!path.StartsWith("nodes.Array.data["))
+            return false;
+
+        int closingBracket = path.IndexOf(']');
+        return closingBracket == path.Length - 1;
+    }
+
+    /// <summary>
+    /// Builds validation context from the inspected ability asset's declared variables.
+    /// </summary>
+    private AbilityValidationContext GetValidationContext(SerializedProperty property)
+    {
+        Ability ability = property.serializedObject.targetObject as Ability;
+        return ability != null ? new AbilityValidationContext(ability.variables) : null;
+    }
+
+    /// <summary>
+    /// Chooses the foldout color used to represent a validation state.
+    /// </summary>
+    private Color GetStateColor(AbilityValidationState state)
+    {
+        return state switch
+        {
+            AbilityValidationState.Invalid => new Color32(255, 64, 64, 255),
+            AbilityValidationState.Complete => new Color32(0, 220, 80, 255),
+            AbilityValidationState.Ready => new Color32(64, 160, 255, 255),
+            _ => new Color32(255, 196, 0, 255)
+        };
+    }
+
+    /// <summary>
+    /// Converts a validation state into the short status label shown beside the node name.
+    /// </summary>
+    private string GetStateLabel(AbilityValidationState state)
+    {
+        return state switch
+        {
+            AbilityValidationState.Invalid => "Invalid",
+            AbilityValidationState.Complete => "Complete",
+            AbilityValidationState.Ready => "Ready",
+            _ => "Incomplete"
+        };
+    }
+
+    /// <summary>
+    /// Converts a validation state into the Unity HelpBox message style.
+    /// </summary>
+    private MessageType GetMessageType(AbilityValidationState state)
+    {
+        return state == AbilityValidationState.Invalid ? MessageType.Error : MessageType.Warning;
     }
 }

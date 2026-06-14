@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a292160de25e449489aa7bb3320959d7, type: 3}
+  m_Name: Divide
+  m_EditorClassIdentifier: Assembly-CSharp::Ability
+  variables: []
+  nodes:
+  - rid: 7721760492357000000
+  references:
+    version: 2
+    RefIds:
+    - rid: 7721760492357000000
+      type: {class: DivideNode, ns: , asm: Assembly-CSharp}
+      data:
+        fakePrefab: {fileID: 0}
+        hideDuration: 0.1
+        dividedScale: 0.5
+        weightMultiplier: 0.5
+        playerOffset: {x: -1, y: 0}
+        fakeOffset: {x: 1, y: 0}
+        launchAfterDivide: 1
+        playerLaunchVelocity: {x: -4, y: 2}
+        fakeLaunchVelocity: {x: 4, y: 2}
+        swapKey: 32
+        destroyExistingFake: 1

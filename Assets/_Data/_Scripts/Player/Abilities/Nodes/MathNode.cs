@@ -1,15 +1,9 @@
-using System;
 using UnityEngine;
 
-[Serializable]
-
-public class MathNode : DataNode
+public class MathNode : LogicNode
 {
-    public float valueA;
-    public float valueB;
-
-    public override void Execute(AbilityContext context)
+    public override AbilityValidationResult Validate()
     {
-
+        return AbilityValidationResult.Incomplete("Math node has no operation configured yet.");
     }
 }

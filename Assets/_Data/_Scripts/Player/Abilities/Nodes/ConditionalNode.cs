@@ -2,16 +2,19 @@ using System;
 using UnityEngine;
 
 [Serializable]
-public class ConditionalNode : FlowNode
+public class ConditionalNode : LogicNode
 {
-    [SerializeReference]
-    public DataNode element1, element2;
-    
+    [SerializeField]
+    private float valueA, valueB;   
 
     public ComparisonType comparison;
+
     public override void Execute(AbilityContext context)
     {
-        context.success = Evaluate(element1.value, element2.value, comparison);
+        if (Evaluate(valueA, valueB, comparison))
+            Complete(context);
+        else
+            Fail(context);
     }
     private bool Evaluate(float a, float b, ComparisonType comp)
     {

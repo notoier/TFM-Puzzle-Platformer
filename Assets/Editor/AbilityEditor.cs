@@ -14,6 +14,15 @@ public class AbilityEditor : Editor
 
         serializedObject.Update();
 
+        Ability ability = (Ability)target;
+        AbilityValidationResult validation = ability.Validate();
+        DrawAbilityStatus(validation);
+        EditorGUILayout.Space(10);
+
+        SerializedProperty variables = serializedObject.FindProperty("variables");
+        EditorGUILayout.PropertyField(variables, true);
+        EditorGUILayout.Space(10);
+
         SerializedProperty nodes = serializedObject.FindProperty("nodes");
         EditorGUILayout.PropertyField(nodes, true);
 
@@ -24,15 +33,14 @@ public class AbilityEditor : Editor
             ShowNodeMenu();
         }
 
-        GUILayout.Space(900);
+        GUILayout.Space(10);
 
         if (GUILayout.Button("Clear Nodes", GUILayout.Height(30)))
         {
-            Ability ability = (Ability)target;
-
             Undo.RecordObject(ability, "Clear Nodes");
 
-            ability.nodes.Clear();
+            nodes.arraySize = 0;
+            serializedObject.ApplyModifiedProperties();
 
             EditorUtility.SetDirty(ability);
         }
@@ -84,17 +92,15 @@ public class AbilityEditor : Editor
 
     private void AddNode(Type type)
     {
-        Ability ability = (Ability)target;
-
-        Undo.RecordObject(ability, "Add Ability Node");
-
-        if (ability.nodes == null)
-            ability.nodes = new List<AbilityNode>();
+        serializedObject.Update();
 
         AbilityNode newNode = (AbilityNode)Activator.CreateInstance(type);
+        SerializedProperty nodes = serializedObject.FindProperty("nodes");
 
-        ability.nodes.Add(newNode);
+        nodes.arraySize++;
+        nodes.GetArrayElementAtIndex(nodes.arraySize - 1).managedReferenceValue = newNode;
 
+        Ability ability = (Ability)target;
         EditorUtility.SetDirty(ability);
         serializedObject.ApplyModifiedProperties();
     }
@@ -106,5 +112,43 @@ public class AbilityEditor : Editor
             .Where(t => typeof(AbilityNode).IsAssignableFrom(t))
             .Where(t => !t.IsAbstract && !t.IsInterface)
             .ToList();
+    }
+
+    private void DrawAbilityStatus(AbilityValidationResult validation)
+    {
+        Color prevColor = GUI.color;
+        GUI.color = GetStateColor(validation.State);
+        EditorGUILayout.LabelField($"Status: {GetStateLabel(validation.State)}", EditorStyles.boldLabel);
+        GUI.color = prevColor;
+
+        if (!string.IsNullOrEmpty(validation.Message))
+            EditorGUILayout.HelpBox(validation.Message, GetMessageType(validation.State));
+    }
+
+    private Color GetStateColor(AbilityValidationState state)
+    {
+        return state switch
+        {
+            AbilityValidationState.Invalid => new Color32(255, 64, 64, 255),
+            AbilityValidationState.Complete => new Color32(0, 220, 80, 255),
+            AbilityValidationState.Ready => new Color32(64, 160, 255, 255),
+            _ => new Color32(255, 196, 0, 255)
+        };
+    }
+
+    private string GetStateLabel(AbilityValidationState state)
+    {
+        return state switch
+        {
+            AbilityValidationState.Invalid => "Invalid",
+            AbilityValidationState.Complete => "Complete",
+            AbilityValidationState.Ready => "Ready",
+            _ => "Incomplete"
+        };
+    }
+
+    private MessageType GetMessageType(AbilityValidationState state)
+    {
+        return state == AbilityValidationState.Invalid ? MessageType.Error : MessageType.Info;
     }
 }

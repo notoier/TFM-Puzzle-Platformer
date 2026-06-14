@@ -7,6 +7,6 @@ public class CancelNode : MiscNode
     
     public override void Execute(AbilityContext context)
     {
-        context.cancelled = true;
+        Cancel(context);
     }
 }

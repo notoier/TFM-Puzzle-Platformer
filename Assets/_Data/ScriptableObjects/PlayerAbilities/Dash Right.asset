@@ -10,16 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a292160de25e449489aa7bb3320959d7, type: 3}
-  m_Name: Test Ability
+  m_Name: Dash Right
   m_EditorClassIdentifier: Assembly-CSharp::Ability
   variables: []
   nodes:
-  - rid: 7721760485400903752
+  - rid: 7721760476001992704
   references:
     version: 2
     RefIds:
-    - rid: 7721760485400903752
-      type: {class: RotateNode, ns: , asm: Assembly-CSharp}
+    - rid: 7721760476001992704
+      type: {class: MovementNode, ns: , asm: Assembly-CSharp}
       data:
-        degrees: 90
-        clockwise: 1
+        distance: 2
+        instant: 0
+        duration: 0.1
+        directionSource: 0
+        direction: {x: 1, y: 1, z: 0}
