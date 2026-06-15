@@ -184,7 +184,9 @@ public class AbilityNodeDrawer : PropertyDrawer
 
             menu.AddItem(new GUIContent(name), false, () =>
             {
-                property.managedReferenceValue = Activator.CreateInstance(type);
+                object instance = Activator.CreateInstance(type);
+                ApplyNodeDefaults(property, instance);
+                property.managedReferenceValue = instance;
                 property.serializedObject.ApplyModifiedProperties();
             });
         }
@@ -193,6 +195,41 @@ public class AbilityNodeDrawer : PropertyDrawer
             menu.AddDisabledItem(new GUIContent($"No {acceptedType.Name} types available"));
        
         menu.ShowAsContext();
+    }
+
+    /// <summary>
+    /// Applies context-aware defaults when a node is created inside another node's field.
+    /// </summary>
+    private void ApplyNodeDefaults(SerializedProperty property, object instance)
+    {
+        if (instance is ParameterNode parameterNode && TryGetDefaultParameterType(property, out ParameterType parameterType))
+            parameterNode.parameterType = parameterType;
+    }
+
+    /// <summary>
+    /// Infers the expected ParameterNode value type from the managed-reference field name.
+    /// </summary>
+    private bool TryGetDefaultParameterType(SerializedProperty property, out ParameterType parameterType)
+    {
+        parameterType = ParameterType.Float;
+
+        return property.name switch
+        {
+            "localDirection" => SetParameterType(ParameterType.Vector3, out parameterType),
+            "scaleParameter" => SetParameterType(ParameterType.Float, out parameterType),
+            "weightParameter" => SetParameterType(ParameterType.Int, out parameterType),
+            "visibilityParameter" => SetParameterType(ParameterType.Bool, out parameterType),
+            _ => false
+        };
+    }
+
+    /// <summary>
+    /// Assigns a parameter type while keeping switch expressions compact.
+    /// </summary>
+    private bool SetParameterType(ParameterType input, out ParameterType output)
+    {
+        output = input;
+        return true;
     }
 
     /// <summary>
@@ -260,6 +297,12 @@ public class AbilityNodeDrawer : PropertyDrawer
     /// </summary>
     private bool ShouldDrawProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
     {
+        if (nodeProperty.managedReferenceValue is MovementNode)
+            return ShouldDrawMovementProperty(nodeProperty, childProperty);
+
+        if (nodeProperty.managedReferenceValue is TargetNode)
+            return ShouldDrawTargetProperty(nodeProperty, childProperty);
+
         if (nodeProperty.managedReferenceValue is not ParameterNode)
             return true;
 
@@ -273,6 +316,138 @@ public class AbilityNodeDrawer : PropertyDrawer
 
         ParameterType selectedType = (ParameterType)parameterType.enumValueIndex;
         return childName == GetParameterValuePropertyName(selectedType);
+    }
+
+    /// <summary>
+    /// Shows only the movement input field that matches the selected movement direction source.
+    /// </summary>
+    private bool ShouldDrawMovementProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
+    {
+        string childName = childProperty.name;
+        if (childName != "distance"
+            && childName != "actorSelectionMode"
+            && childName != "actorTag"
+            && childName != "actorName"
+            && childName != "actorKey"
+            && childName != "directionSource"
+            && childName != "positionSource"
+            && childName != "positionKey"
+            && childName != "localDirection"
+            && childName != "targetNode")
+            return true;
+
+        TargetSource actorSource = GetMovementActorSource(nodeProperty);
+
+        if (childName == "actorSelectionMode")
+            return UsesTargetSelection(actorSource);
+
+        if (childName == "actorTag")
+            return actorSource == TargetSource.Tag;
+
+        if (childName == "actorName")
+            return actorSource == TargetSource.Name;
+
+        if (childName == "actorKey")
+            return actorSource == TargetSource.ContextTarget;
+
+        SerializedProperty movementMode = nodeProperty.FindPropertyRelative("movementMode");
+        MovementMode selectedMode = movementMode != null
+            ? (MovementMode)movementMode.enumValueIndex
+            : MovementMode.Distance;
+
+        if (childName == "targetNode" && selectedMode == MovementMode.Position)
+            return GetMovementPositionSource(nodeProperty) == MovementPositionSource.TargetNode;
+
+        if (childName == "localDirection" && selectedMode == MovementMode.Position)
+            return GetMovementPositionSource(nodeProperty) == MovementPositionSource.LocalDirection;
+
+        if (childName == "positionKey" && selectedMode == MovementMode.Position)
+            return GetMovementPositionSource(nodeProperty) == MovementPositionSource.ContextVector;
+
+        if (childName == "positionSource")
+            return selectedMode == MovementMode.Position;
+
+        if (selectedMode == MovementMode.Position)
+            return false;
+
+        if (childName == "distance" || childName == "directionSource")
+            return true;
+
+        SerializedProperty directionSource = nodeProperty.FindPropertyRelative("directionSource");
+        if (directionSource == null)
+            return true;
+
+        MovementDirectionSource selectedSource = (MovementDirectionSource)directionSource.enumValueIndex;
+        return childName switch
+        {
+            "localDirection" => selectedSource == MovementDirectionSource.LocalDirection,
+            "targetNode" => selectedSource == MovementDirectionSource.TargetNode,
+            _ => true
+        };
+    }
+
+    /// <summary>
+    /// Reads which object MovementNode will move.
+    /// </summary>
+    private TargetSource GetMovementActorSource(SerializedProperty nodeProperty)
+    {
+        SerializedProperty actorSource = nodeProperty.FindPropertyRelative("actorSource");
+        return actorSource != null
+            ? (TargetSource)actorSource.enumValueIndex
+            : TargetSource.Self;
+    }
+
+    /// <summary>
+    /// Reads the selected source used by MovementNode when it moves by position/vector.
+    /// </summary>
+    private MovementPositionSource GetMovementPositionSource(SerializedProperty nodeProperty)
+    {
+        SerializedProperty positionSource = nodeProperty.FindPropertyRelative("positionSource");
+        return positionSource != null
+            ? (MovementPositionSource)positionSource.enumValueIndex
+            : MovementPositionSource.TargetNode;
+    }
+
+    /// <summary>
+    /// Shows only the TargetNode fields required by the selected target source.
+    /// </summary>
+    private bool ShouldDrawTargetProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
+    {
+        string childName = childProperty.name;
+        if (childName != "targetSelectionMode"
+            && childName != "contextTargetKey"
+            && childName != "targetTag"
+            && childName != "targetName")
+            return true;
+
+        TargetSource targetSource = GetTargetSource(nodeProperty);
+        return childName switch
+        {
+            "targetSelectionMode" => UsesTargetSelection(targetSource),
+            "contextTargetKey" => targetSource == TargetSource.ContextTarget,
+            "targetTag" => targetSource == TargetSource.Tag,
+            "targetName" => targetSource == TargetSource.Name,
+            _ => true
+        };
+    }
+
+    /// <summary>
+    /// Reads the selected source used by TargetNode to gather candidates.
+    /// </summary>
+    private TargetSource GetTargetSource(SerializedProperty nodeProperty)
+    {
+        SerializedProperty targetSource = nodeProperty.FindPropertyRelative("targetSource");
+        return targetSource != null
+            ? (TargetSource)targetSource.enumValueIndex
+            : TargetSource.Self;
+    }
+
+    /// <summary>
+    /// Returns whether a target source can produce multiple candidates and therefore needs selection.
+    /// </summary>
+    private bool UsesTargetSelection(TargetSource targetSource)
+    {
+        return targetSource == TargetSource.Tag || targetSource == TargetSource.Name;
     }
 
     /// <summary>

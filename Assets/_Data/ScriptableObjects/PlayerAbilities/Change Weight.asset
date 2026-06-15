@@ -14,23 +14,23 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Ability
   variables: []
   nodes:
-  - rid: 7721760540625993800
+  - rid: 7721760540625993808
   references:
     version: 2
     RefIds:
-    - rid: 7721760540625993800
+    - rid: 7721760540625993808
       type: {class: WeightNode, ns: , asm: Assembly-CSharp}
       data:
-        nodeType: 0
+        nodeType: 2
         weightParameter:
-          rid: 7721760540625993801
-    - rid: 7721760540625993801
+          rid: 7721760540625993809
+    - rid: 7721760540625993809
       type: {class: ParameterNode, ns: , asm: Assembly-CSharp}
       data:
         key: 
         parameterType: 1
         floatValue: 0
-        intValue: 5
+        intValue: 2
         boolValue: 0
         vector3Value: {x: 0, y: 0, z: 0}
         gameObjectValue: {fileID: 0}

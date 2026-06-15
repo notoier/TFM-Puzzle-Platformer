@@ -21,8 +21,22 @@ MonoBehaviour:
     - rid: 7721760476001992704
       type: {class: MovementNode, ns: , asm: Assembly-CSharp}
       data:
+        movementMode: 0
         distance: 2
         instant: 0
         duration: 0.1
         directionSource: 0
-        direction: {x: 1, y: 1, z: 0}
+        localDirection:
+          rid: 7721760476001992705
+        targetNode:
+          rid: 0
+    - rid: 7721760476001992705
+      type: {class: ParameterNode, ns: , asm: Assembly-CSharp}
+      data:
+        key: 
+        parameterType: 3
+        floatValue: 0
+        intValue: 0
+        boolValue: 0
+        vector3Value: {x: 1, y: 1, z: 0}
+        gameObjectValue: {fileID: 0}
