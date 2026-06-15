@@ -13,13 +13,7 @@ MonoBehaviour:
   m_Name: Test Ability
   m_EditorClassIdentifier: Assembly-CSharp::Ability
   variables: []
-  nodes:
-  - rid: 7721760485400903752
+  nodes: []
   references:
     version: 2
-    RefIds:
-    - rid: 7721760485400903752
-      type: {class: RotateNode, ns: , asm: Assembly-CSharp}
-      data:
-        degrees: 90
-        clockwise: 1
+    RefIds: []
