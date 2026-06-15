@@ -1,6 +1,8 @@
 using System;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -35,6 +37,23 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private LayerMask groundLayer;
 
+    [Header("Check Ramp")]
+    [SerializeField]
+    private Transform slimeTexture;
+    [SerializeField]
+    private SpriteRenderer slimeRender;
+    [SerializeField]
+    private Transform leftPivot;
+    [SerializeField]
+    private Transform rightPivot;
+    [SerializeField]
+    private float slopeRayDistance = 1f;
+    [SerializeField]
+    private float maxSlopeOffset = 0.15f;
+    [SerializeField]
+    private float slopeRotationSpeed = 10f;
+    
+
     [Header("Gravedad")]
     [SerializeField]
     private float fallMultiplier = 2.5f;
@@ -60,6 +79,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     {
         characterRigidbody = GetComponent<Rigidbody2D>();
         Weight = weightDebug;
+        
     }
 
     private void Update()
@@ -72,10 +92,21 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         animator.SetBool(IsGrounded, isGrounded);
 
         //Le damos la vuelta
-        if (characterMovementDirection.x != 0)
+        /*if (characterMovementDirection.x != 0)
         {
             transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+        }*/
+
+        if (characterMovementDirection.x < 0)
+        {
+            slimeRender.flipX=true;
+
         }
+        else if (characterMovementDirection.x > 0)
+        {
+            slimeRender.flipX = false;
+        }
+
 
         //Estamos en el suelo
         Debug.DrawRay(groundCheck.position, Vector2.down * groundRadius, isGrounded ? Color.green : Color.red);
@@ -133,6 +164,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
                 characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime);
                 break;
         }
+
+        UpdateRotationRamp();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -173,5 +206,31 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         Weight += mass;
         weightDebug += mass;
     }
+
+    private void UpdateRotationRamp()
+    {
+        RaycastHit2D lHit = Physics2D.Raycast(leftPivot.position, Vector2.down, slopeRayDistance, groundLayer);
+        RaycastHit2D rHit = Physics2D.Raycast(rightPivot.position, Vector2.down, slopeRayDistance, groundLayer);
+
+        Debug.DrawRay(leftPivot.position, Vector2.down * slopeRayDistance, Color.red);
+        Debug.DrawRay(rightPivot.position, Vector2.down * slopeRayDistance, Color.blue);
+        if (!lHit || !rHit)
+        {
+            
+            slimeTexture.localRotation = Quaternion.Lerp(slimeTexture.localRotation, Quaternion.identity, slopeRotationSpeed * Time.deltaTime);
+            return;
+        }
+
+        Vector2 slopeDirection = rHit.point - lHit.point;
+        float angle = Mathf.Atan2(slopeDirection.y, slopeDirection.x) *Mathf.Rad2Deg;
+        
+
+        slimeTexture.localRotation = Quaternion.Lerp(slimeTexture.localRotation, Quaternion.Euler(0f,0f,angle), slopeRotationSpeed * Time.deltaTime);
+
+
+
+    }
+
+
 }
 
