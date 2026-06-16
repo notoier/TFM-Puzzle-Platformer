@@ -9,8 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4621545310070540695}
-  - component: {fileID: 1629495215431731744}
-  - component: {fileID: 1120984358978044507}
   - component: {fileID: 2427062172477227524}
   m_Layer: 4
   m_Name: WaterPurple
@@ -35,64 +33,6 @@ Transform:
   - {fileID: 3977332070692292914}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!61 &1629495215431731744
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5557693381725530327}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_CompositeOperation: 0
-  m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 1.5}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0, y: 0}
-    oldSize: {x: 0, y: 0}
-    newSize: {x: 0, y: 0}
-    adaptiveTilingThreshold: 0
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  m_Size: {x: 10, y: 3.0500002}
-  m_EdgeRadius: 0
---- !u!114 &1120984358978044507
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5557693381725530327}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9c542e7f18ff43249f34c277a9321b34, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::WaterBodyController
 --- !u!114 &2427062172477227524
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -782,9 +722,9 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 0, y: 3.017496, z: 0.1}
+    m_Position: {x: 0, y: 2.9932027, z: 0.1}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 9.713036, y: 0.05, z: 0.05}
+    m_Scale: {x: 16.569407, y: 0.05, z: 0.05}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -982,7 +922,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 4.856518
+      scalar: 8.284703
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4962,6 +4902,7 @@ GameObject:
   - component: {fileID: 7016135712531488189}
   - component: {fileID: 399035526999678180}
   - component: {fileID: 5926532869113841689}
+  - component: {fileID: 3773615563181501201}
   m_Layer: 4
   m_Name: PF Pixel Water - Poisonous
   m_TagString: Untagged
@@ -4978,7 +4919,7 @@ Transform:
   m_GameObject: {fileID: 7016135712531488160}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.4506352, y: -0.07570648, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5088,7 +5029,7 @@ MonoBehaviour:
   onSplash:
     m_PersistentCalls:
       m_Calls: []
-  size: {x: 9.713036, y: 3.017496}
+  size: {x: 16.569407, y: 2.9932027}
   fill: 1
 --- !u!23 &7016135712531488188
 MeshRenderer:
@@ -5160,7 +5101,7 @@ BuoyancyEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 2147483647
-  m_SurfaceLevel: 3.017496
+  m_SurfaceLevel: 2.9932027
   m_Density: 20
   m_LinearDamping: 5
   m_AngularDamping: 0
@@ -5201,7 +5142,7 @@ BoxCollider2D:
   m_UsedByEffector: 1
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 1.5087482}
+  m_Offset: {x: 0, y: 1.4966013}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -5211,8 +5152,20 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 9.713036, y: 3.017496}
+  m_Size: {x: 16.569407, y: 2.9932027}
   m_EdgeRadius: 0
+--- !u!114 &3773615563181501201
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7016135712531488160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c542e7f18ff43249f34c277a9321b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterBodyController
 --- !u!1 &7982223585756557436
 GameObject:
   m_ObjectHideFlags: 0
@@ -5896,9 +5849,9 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 0, y: 1.508748, z: -0.1}
+    m_Position: {x: 0, y: 1.4966013, z: -0.1}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 9.713036, y: 3.017496, z: 0.05}
+    m_Scale: {x: 16.569407, y: 2.9932027, z: 0.05}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -6096,7 +6049,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 14.654524
+      scalar: 24.797796
       minScalar: 10
       maxCurve:
         serializedVersion: 2
