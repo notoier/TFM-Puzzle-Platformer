@@ -1,5 +1,3 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,7 +34,7 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
                 a?.Activate();
         });
         
-        if (activationSound) AudioManager.Instance?.PlayEffect(activationSound, transform.position, activationSoundVolume);
+        if (activationSound) AudioManager.Instance?.PlayEffect(activationSound, transform, activationSoundVolume);
     }
 
     public void Deactivate()
@@ -48,7 +46,7 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
                 a?.Deactivate();
         });
         
-        if (deactivationSound) AudioManager.Instance?.PlayEffect(deactivationSound, this.transform.position, deactivationSoundVolume);
+        if (deactivationSound) AudioManager.Instance?.PlayEffect(deactivationSound, transform, deactivationSoundVolume);
     }
 
     
