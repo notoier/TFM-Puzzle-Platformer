@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 {
@@ -43,7 +44,6 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     [SerializeField] private float lockedSoundVolume;
     private bool _isMovingSoundPlaying;
     
-    
     private Vector3 _startPosition;
     private Vector3 _currentTargetPosition;
     private Coroutine _movementCoroutine;
@@ -53,6 +53,13 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private bool _hasCompletedForwardMove;
     private bool _isWaitingAtStart;
     
+    private readonly HashSet<Rigidbody2D> _riders = new();
+    private readonly Dictionary<Rigidbody2D, Vector2> _appliedPlatformVelocities = new();
+    private readonly Dictionary<Rigidbody2D, int> _riderColliderCounts = new();
+
+    private Vector2 _lastPhysicsPosition;
+    private Vector2 _platformLinearVelocity;
+    
     /// <summary>
     /// Stores the platform's initial position and initializes its first target.
     /// </summary>
@@ -61,6 +68,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         _startPosition = transform.position;
         _currentTargetPosition = _startPosition;
         _hasTarget = true;
+        
+        _lastPhysicsPosition = transform.position;
     }
 
     public ControlMode GetControlMode()
@@ -85,6 +94,31 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         SetNormalizedOffset(normalizedOffset);
     }
 
+    private void ApplyVelocityToRiders()
+    {
+        foreach (Rigidbody2D rider in _riders)
+        {
+            if (!rider)
+                continue;
+
+            Vector2 previousContribution = Vector2.zero;
+
+            if (_appliedPlatformVelocities.TryGetValue(rider, out Vector2 appliedVelocity))
+                previousContribution = appliedVelocity;
+
+            // Remove velocity set in previous physics frame
+            Vector2 riderOwnVelocity =
+                rider.linearVelocity - previousContribution;
+            
+            rider.linearVelocity =
+                riderOwnVelocity + _platformLinearVelocity;
+            
+            Debug.LogWarning("Rider: " + rider.name + "Speed: " + rider.linearVelocity);
+
+            _appliedPlatformVelocities[rider] = _platformLinearVelocity;
+        }
+    }
+    
     /// <summary>
     /// Moves the platform using a normalized offset between 0 and 1.
     /// This is mainly used by independent platforms.
@@ -287,11 +321,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
         while (Vector3.Distance(transform.position, targetPosition) > 0.01f)
         {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                targetPosition,
-                config.movementSpeed * Time.deltaTime
-            );
+            MovePlatformTowards(targetPosition);
 
             yield return null;
         }
@@ -308,6 +338,38 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             OnReachedEnd();
     }
 
+    private void MovePlatformTowards(Vector3 targetPosition)
+    {
+        Vector2 previousPosition = transform.position;
+
+        transform.position = Vector3.MoveTowards(
+            transform.position,
+            targetPosition,
+            config.movementSpeed * Time.deltaTime
+        );
+
+        Vector2 currentPosition = transform.position;
+        Vector2 platformDelta = currentPosition - previousPosition;
+
+        _platformLinearVelocity = platformDelta / Time.deltaTime;
+
+        MoveRiders(platformDelta);
+    }
+    
+    private void MoveRiders(Vector2 platformDelta)
+    {
+        if (platformDelta.sqrMagnitude <= Mathf.Epsilon)
+            return;
+
+        foreach (Rigidbody2D rider in _riders)
+        {
+            if (!rider)
+                continue;
+
+            rider.position += platformDelta;
+        }
+    }
+    
     /// <summary>
     /// Handles the logic executed when the platform reaches the end of its movement.
     /// If configured, the platform starts returning to its original position.
@@ -331,7 +393,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private void PlayLockSound()
     {
         if (lockedSound)
-            AudioManager.Instance?.PlayEffect(lockedSound, transform.position, lockedSoundVolume);
+            AudioManager.Instance?.PlayEffect(lockedSound, transform, lockedSoundVolume);
     }
 
     /// <summary>
@@ -349,11 +411,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         
         while (Vector3.Distance(transform.position, _startPosition) > 0.01f)
         {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                _startPosition,
-                config.movementSpeed * Time.deltaTime
-            );
+            MovePlatformTowards(_startPosition);
 
             yield return null;
         }
@@ -447,6 +505,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
         if (weightProvider != null)
             RegisterWeight(weightProvider);
+        
+        RegisterRider(other);
     }
 
     /// <summary>
@@ -459,6 +519,45 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
 
         if (weightProvider != null)
             UnregisterWeight(weightProvider);
+        
+        UnregisterRider(other);
+    }
+    
+    private void RegisterRider(Collider2D other)
+    {
+        Rigidbody2D rider = other.attachedRigidbody;
+
+        if (!rider || rider.bodyType != RigidbodyType2D.Dynamic)
+            return;
+
+        if (_riderColliderCounts.TryGetValue(rider, out int count))
+        {
+            _riderColliderCounts[rider] = count + 1;
+            return;
+        }
+
+        _riderColliderCounts[rider] = 1;
+        
+        _riders.Add(rider);
+    }
+    
+    private void UnregisterRider(Collider2D other)
+    {
+        Rigidbody2D rider = other.attachedRigidbody;
+
+        if (!rider || !_riderColliderCounts.TryGetValue(rider, out int count))
+            return;
+
+        count--;
+
+        if (count > 0)
+        {
+            _riderColliderCounts[rider] = count;
+            return;
+        }
+
+        _riderColliderCounts.Remove(rider);
+        _riders.Remove(rider);
     }
     
     /// <summary>
@@ -489,7 +588,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (_isMovingSoundPlaying || !movingSound)
             return;
 
-        AudioManager.Instance?.PlayLoopEffect(movingSound, transform.position, movingSoundVolume);
+        AudioManager.Instance?.PlayLoopEffect(movingSound, transform, movingSoundVolume);
         _isMovingSoundPlaying = true;
     }
 
@@ -498,7 +597,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (!_isMovingSoundPlaying || !movingSound)
             return;
 
-        AudioManager.Instance?.StopSound(movingSound.name);
+        AudioManager.Instance?.StopSound(movingSound, transform);
         _isMovingSoundPlaying = false;
     }
 }
