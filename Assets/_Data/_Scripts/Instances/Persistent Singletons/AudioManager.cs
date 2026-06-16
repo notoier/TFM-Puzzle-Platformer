@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 /// <summary>
 /// 
@@ -12,23 +14,40 @@ public class AudioManager : PersistentSingleton<AudioManager>
     private readonly Dictionary<string, AudioSource> _audioSources = new Dictionary<string, AudioSource>();
     public bool isSfxOn, isMusicOn;
     
+    [Header("Distant Volume")]
+    [SerializeField] private AnimationCurve distanceVolumeCurve;
+    [SerializeField] private float maxAudibleDistance = 12f;
+    [SerializeField, Range(0f, 1f)] private float minimumVolume = 0.1f;
+    
+    private readonly Dictionary<AudioSource, float> _baseEffectVolumes = new();
     private float _masterVolume, _effectVolume, _musicVolume;
     
-    // ReSharper disable Unity.PerformanceAnalysis
-    public void StopSound(string soundName)
+    [Header("Debug")]
+    [SerializeField] private AudioClip debugSound;
+    [SerializeField] private AudioClip debugMusic;
+    [SerializeField] private bool playDebugEffect;
+    [SerializeField] private bool playDebugMusic;
+
+    private void Start()
     {
-        if (_audioSources.TryGetValue(soundName, out AudioSource source))
+        if (playDebugEffect && debugSound) PlayLoopEffect(debugSound, transform);
+        if (playDebugMusic &&  debugMusic) PlayMusic(debugMusic);
+    }
+
+    // ReSharper disable Unity.PerformanceAnalysis
+    public void StopSound(AudioClip clip, Transform emitter)
+    {
+        if (!clip || !emitter)
+            return;
+
+        string key = $"{emitter.GetInstanceID()}_{clip.name}";
+
+        if (_audioSources.TryGetValue(key, out AudioSource source) && source)
         {
-            if (source)
-            {
-                source.Stop();
-            }
+            source.Stop();
+            source.loop = false;
         }
-        else
-        {
-            Debug.LogWarning("Sound not found: " + soundName);
-        }
-    }// Stops sounds found inside "audioSources" dictionary when called
+    }
     public void StopAllSounds()
     {
         foreach (var pair in _audioSources)
@@ -37,62 +56,110 @@ public class AudioManager : PersistentSingleton<AudioManager>
         }
     }// Stops every sound found inside "audioSources" dictionary
 
+    private float GetDistanceVolume(Vector3 soundPosition)
+    {
+        float distance =
+            GameController.Instance.GetDistanceToPlayer(soundPosition);
+
+        float normalizedDistance = Mathf.Clamp01(
+            distance / maxAudibleDistance
+        );
+
+        float curveValue = Mathf.Clamp01(
+            distanceVolumeCurve.Evaluate(normalizedDistance)
+        );
+
+        float result = Mathf.Lerp(
+            minimumVolume,
+            1f,
+            curveValue
+        );
+        
+        return result;
+    }
+    
     public void PlayEffect(
         AudioClip clip,
-        Vector3 soundPosition = default,
-        float volume = 1.0f,
+        Transform emitter,
+        float volume = 1f,
         float minPitch = 1f,
         float maxPitch = 1f)
     {
-        if (!clip || !isSfxOn)
+        if (!clip || !isSfxOn || !emitter)
             return;
 
-        AudioSource source = GetOrCreateAudioSource(clip, soundPosition);
+        AudioSource source = GetOrCreateAudioSource(clip, emitter);
+
+        _baseEffectVolumes[source] = volume;
+        
+        float distanceVolume =
+            GetDistanceVolume(emitter.position);
 
         source.loop = false;
-        source.transform.position = soundPosition;
-        source.volume = _masterVolume * _effectVolume * volume;
-        source.pitch = Random.Range(minPitch, maxPitch);
+        source.volume =
+            _masterVolume *
+            _effectVolume *
+            volume *
+            distanceVolume;
 
+        source.pitch = Random.Range(minPitch, maxPitch);
         source.PlayOneShot(clip);
     }
 
     public void PlayLoopEffect(
         AudioClip clip,
-        Vector3 soundPosition = default,
-        float volume = 1.0f,
+        Transform emitter,
+        float volume = 1f,
         float minPitch = 1f,
         float maxPitch = 1f)
     {
-        if (!clip || !isSfxOn)
+        if (!clip || !isSfxOn || !emitter)
             return;
 
-        AudioSource source = GetOrCreateAudioSource(clip, soundPosition);
+        AudioSource source = GetOrCreateAudioSource(clip, emitter);
 
         source.clip = clip;
         source.loop = true;
-        source.transform.position = soundPosition;
-        source.volume = _masterVolume * _effectVolume * volume;
         source.pitch = Random.Range(minPitch, maxPitch);
+
+        float distanceVolume =
+            GetDistanceVolume(emitter.position);
+
+        source.volume =
+            _masterVolume *
+            _effectVolume *
+            volume *
+            distanceVolume;
+        
+        _baseEffectVolumes[source] = volume;
 
         if (!source.isPlaying)
             source.Play();
     }
     
     // ReSharper disable Unity.PerformanceAnalysis
-    private AudioSource GetOrCreateAudioSource(AudioClip clip, Vector3 soundPosition)
+    private AudioSource GetOrCreateAudioSource(
+        AudioClip clip,
+        Transform emitter)
     {
-        string soundName = clip.name;
+        string key = $"{emitter.GetInstanceID()}_{clip.name}";
 
-        if (_audioSources.TryGetValue(soundName, out AudioSource existingSource) && existingSource)
+        if (_audioSources.TryGetValue(
+                key,
+                out AudioSource existingSource) &&
+            existingSource)
+        {
             return existingSource;
+        }
 
-        AudioSource newSource = gameObject.AddComponent<AudioSource>();
+        AudioSource newSource =
+            emitter.gameObject.AddComponent<AudioSource>();
+
         newSource.clip = clip;
-        newSource.transform.position = soundPosition;
         newSource.playOnAwake = false;
+        newSource.spatialBlend = 0f;
 
-        _audioSources[soundName] = newSource;
+        _audioSources[key] = newSource;
 
         return newSource;
     }
@@ -138,7 +205,32 @@ public class AudioManager : PersistentSingleton<AudioManager>
     }// Activates/deactivates musicSource
     private void Update()
     {
-        //if (Input.GetKeyDown(KeyCode.F8)) StopAllSounds();
+        List<AudioSource> finishedSources = null;
+
+        foreach ((AudioSource source, float baseVolume) in _baseEffectVolumes)
+        {
+            if (!source || !source.isPlaying)
+            {
+                finishedSources ??= new List<AudioSource>();
+                finishedSources.Add(source);
+                continue;
+            }
+
+            float distanceVolume =
+                GetDistanceVolume(source.transform.position);
+
+            source.volume =
+                _masterVolume *
+                _effectVolume *
+                baseVolume *
+                distanceVolume;
+        }
+
+        if (finishedSources == null)
+            return;
+
+        foreach (AudioSource source in finishedSources)
+            _baseEffectVolumes.Remove(source);
     }
     
     public void UpdateSoundVolumes(float masterVolume, float effectVolume, float musicVolume)
