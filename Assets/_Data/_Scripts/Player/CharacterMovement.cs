@@ -74,6 +74,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private float lowJumpMultiplier = 2f;
 
+    [Header("Status")] 
+    [SerializeField] private float jumpDebuffOnWater = 0.2f;
+    
     [Header("Debug")] 
     [SerializeField] private float weightDebug = 1f;
     public bool isTryingToMove;
@@ -82,6 +85,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private Rigidbody2D characterRigidbody;
     private bool isGrounded;
     public bool isWalled = false;
+    private bool isInsideWater;
 
     //Timers salto
     private float coyoteTimeCounter;
@@ -95,7 +99,6 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     {
         characterRigidbody = GetComponent<Rigidbody2D>();
         Weight = weightDebug;
-        
     }
 
     private void Update()
@@ -167,7 +170,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f && !hasJumped)
         {
           
-            characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, jumpForce);
+            characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, 
+                                                            isInsideWater ? jumpForce * jumpDebuffOnWater 
+                                                                          : jumpForce);
             animator.SetTrigger(JumpTrigger);
             animator.SetBool(IsGrounded, false);
 
@@ -213,9 +218,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             jumpPressed = false;
 
             //Corta el salto
-            if(characterRigidbody.linearVelocity.y >0)
+            if(characterRigidbody.linearVelocity.y > 0)
             {
-                characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, characterRigidbody.linearVelocity.y* 0.5f);
+                characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, characterRigidbody.linearVelocity.y * 0.5f);
             }
         }
     }
@@ -224,7 +229,17 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     {
         return characterMovementDirection;
     }
-    
+
+    public void WaterEntered()
+    {
+        isInsideWater = true;
+    }
+
+    public void WaterExited()
+    {
+        isInsideWater = false;
+    }
+
     public float Weight { get; set; } = 2;
 
     public void AddWeight(float mass)

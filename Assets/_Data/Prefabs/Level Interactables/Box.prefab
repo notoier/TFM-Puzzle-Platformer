@@ -218,6 +218,7 @@ MonoBehaviour:
   snapMode: 1
   snapOffset: {x: 0, y: 0.2}
   snapAfterMoveDelay: 0.25
+  platform: {fileID: 0}
 --- !u!114 &2906266343516149814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -230,6 +231,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26eebb2d38864614a8bfc0ddc4d9bc56, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Box
+  draggingSound: {fileID: 8300000, guid: 91746b38bb7609f4e8ce176eab41523e, type: 3}
+  dragging: 0
+  draggingVolume: 1
   debugWeight: 5
   debugWeightRequired: 2
   debugMoveSpeed: 5
