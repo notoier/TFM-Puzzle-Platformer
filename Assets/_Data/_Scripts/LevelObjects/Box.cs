@@ -13,6 +13,11 @@ public class Box : MonoBehaviour, IMovable, IProvidesWeight
     
     private Rigidbody2D _rb;
     
+    [Header("Sound")]
+    [SerializeField] private AudioClip draggingSound;
+    [SerializeField] private bool dragging;
+    [SerializeField] private float draggingVolume = 1f;
+    
     [Header("Debug")]
     [SerializeField] private float debugWeight;
     [SerializeField] private float debugWeightRequired;
@@ -45,6 +50,13 @@ public class Box : MonoBehaviour, IMovable, IProvidesWeight
         UnlockHorizontalMovement();
 
         Vector2 dir = other.gameObject.GetComponent<CharacterMovement>()?.GetMovementDirection() ?? Vector2.zero;
+        
+        if (!dragging &&  dir != Vector2.zero)
+        {
+            dragging = true;
+            AudioManager.Instance?.PlayLoopEffect(draggingSound, transform, draggingVolume);
+        }
+        
         ((IMovable)this).Move(dir);
     }
 
@@ -53,6 +65,12 @@ public class Box : MonoBehaviour, IMovable, IProvidesWeight
         if (other.gameObject.GetComponent<IProvidesWeight>() == null) return;
 
         LockHorizontalMovement();
+
+        if (dragging)
+        {
+            dragging = false;
+            AudioManager.Instance?.StopSound(draggingSound, transform);
+        }
     }
 
     private void LockHorizontalMovement()
