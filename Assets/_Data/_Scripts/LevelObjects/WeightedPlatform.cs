@@ -331,7 +331,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     private void PlayLockSound()
     {
         if (lockedSound)
-            AudioManager.Instance?.PlayEffect(lockedSound, transform.position, lockedSoundVolume);
+            AudioManager.Instance?.PlayEffect(lockedSound, transform, lockedSoundVolume);
     }
 
     /// <summary>
@@ -489,7 +489,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (_isMovingSoundPlaying || !movingSound)
             return;
 
-        AudioManager.Instance?.PlayLoopEffect(movingSound, transform.position, movingSoundVolume);
+        AudioManager.Instance?.PlayLoopEffect(movingSound, transform, movingSoundVolume);
         _isMovingSoundPlaying = true;
     }
 
@@ -498,7 +498,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (!_isMovingSoundPlaying || !movingSound)
             return;
 
-        AudioManager.Instance?.StopSound(movingSound.name);
+        AudioManager.Instance?.StopSound(movingSound, transform);
         _isMovingSoundPlaying = false;
     }
 }
