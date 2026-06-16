@@ -1,6 +1,8 @@
 using System;
+using UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering;
 
 
 [RequireComponent(typeof(Rigidbody2D))]
@@ -8,6 +10,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 {
     private static readonly int JumpTrigger = Animator.StringToHash("JumpTrigger");
     private static readonly int IsGrounded = Animator.StringToHash("IsGrounded");
+    private static readonly int IsWalled = Animator.StringToHash("IsWalled");
     private static readonly int Speed1 = Animator.StringToHash("Speed");
 
     [SerializeField]
@@ -25,6 +28,15 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private float jumpBufferTime = 0.1f;
 
+    [Header("Particle Configuration")]
+    [SerializeField]
+    private GameObject SplashParticles;
+    [SerializeField]
+    private Transform particleSpawnPosition1;
+    [SerializeField]
+    private Transform particleSpawnPosition2;
+
+
     [Header("Check Ground")]
     [SerializeField]
     private Transform groundCheck;
@@ -32,6 +44,29 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private float groundRadius = 0.15f;
     [SerializeField]
     private LayerMask groundLayer;
+
+    [Header("Check Wall")]
+    [SerializeField]
+    private Transform wallCheck;
+    [SerializeField]
+    private float wallRadius = 0.15f;
+
+    [Header("Check Ramp")]
+    [SerializeField]
+    private Transform slimeTexture;
+    [SerializeField]
+    private SpriteRenderer slimeRender;
+    [SerializeField]
+    private Transform leftPivot;
+    [SerializeField]
+    private Transform rightPivot;
+    [SerializeField]
+    private float slopeRayDistance = 1f;
+    [SerializeField]
+    private float maxSlopeOffset = 0.15f;
+    [SerializeField]
+    private float slopeRotationSpeed = 10f;
+    
 
     [Header("Gravedad")]
     [SerializeField]
@@ -44,10 +79,12 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     
     [Header("Debug")] 
     [SerializeField] private float weightDebug = 1f;
+    public bool isTryingToMove;
 
     private Vector3 characterMovementDirection;
     private Rigidbody2D characterRigidbody;
     private bool isGrounded;
+    public bool isWalled = false;
     private bool isInsideWater;
 
     //Timers salto
@@ -72,15 +109,32 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         //Animations
         animator.SetFloat(Speed1, Mathf.Abs(characterRigidbody.linearVelocity.x));
         animator.SetBool(IsGrounded, isGrounded);
+        animator.SetBool(IsWalled, isWalled);
 
         //Le damos la vuelta
-        if (characterMovementDirection.x != 0)
+        /*if (characterMovementDirection.x != 0)
         {
             transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+        }*/
+
+        if (characterMovementDirection.x < 0)
+        {
+            slimeRender.flipX=false;
+            slimeTexture.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+
         }
+        else if (characterMovementDirection.x > 0)
+        {
+            slimeRender.flipX = true;
+            slimeTexture.localScale = new Vector3(Mathf.Sign(-characterMovementDirection.x), 1, 1);
+        }
+        
+
 
         //Estamos en el suelo
         Debug.DrawRay(groundCheck.position, Vector2.down * groundRadius, isGrounded ? Color.green : Color.red);
+        //Estamos contra pared
+        Debug.DrawRay(wallCheck.position, Vector2.down * wallRadius, isWalled ? Color.blue : Color.red);
 
         //CoyoteTime
         if (isGrounded)
@@ -96,6 +150,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         
         jumpBufferCounter -= Time.deltaTime;
 
+        if (isWalled && Input.GetKeyDown(KeyCode.D) || isWalled && Input.GetKeyDown(KeyCode.A))
+            animator.SetTrigger("IsTryingToMove");
 
     }
 
@@ -103,6 +159,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     {
         characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * speed, characterRigidbody.linearVelocity.y);
 
+        isWalled = Physics2D.OverlapCircle(wallCheck.position, wallRadius, groundLayer);
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
         if (isGrounded)
         {
@@ -137,6 +194,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
                 characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime);
                 break;
         }
+
+        UpdateRotationRamp();
     }
 
     public void OnMove(InputAction.CallbackContext context)
@@ -152,6 +211,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         {
             jumpBufferCounter = jumpBufferTime;
             jumpPressed = true;
+            //spawnParticles();
         }
         else if (context.canceled)
         {
@@ -187,5 +247,38 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         Weight += mass;
         weightDebug += mass;
     }
+
+    private void UpdateRotationRamp()
+    {
+        RaycastHit2D lHit = Physics2D.Raycast(leftPivot.position, Vector2.down, slopeRayDistance, groundLayer);
+        RaycastHit2D rHit = Physics2D.Raycast(rightPivot.position, Vector2.down, slopeRayDistance, groundLayer);
+
+        Debug.DrawRay(leftPivot.position, Vector2.down * slopeRayDistance, Color.red);
+        Debug.DrawRay(rightPivot.position, Vector2.down * slopeRayDistance, Color.blue);
+        if (!lHit || !rHit)
+        {
+            
+            slimeTexture.localRotation = Quaternion.Lerp(slimeTexture.localRotation, Quaternion.identity, slopeRotationSpeed * Time.deltaTime);
+            return;
+        }
+
+        Vector2 slopeDirection = rHit.point - lHit.point;
+        float angle = Mathf.Atan2(slopeDirection.y, slopeDirection.x) *Mathf.Rad2Deg;
+        
+
+        slimeTexture.localRotation = Quaternion.Lerp(slimeTexture.localRotation, Quaternion.Euler(0f,0f,angle), slopeRotationSpeed * Time.deltaTime);
+
+    }
+
+    public void spawnParticles()
+    {
+        if (!isGrounded)
+            return;
+
+        Instantiate(SplashParticles, particleSpawnPosition1.position, Quaternion.identity);
+        Instantiate(SplashParticles, particleSpawnPosition2.position, Quaternion.identity);
+    }
+
+
 }
 
