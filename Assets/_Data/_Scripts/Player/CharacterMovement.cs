@@ -76,7 +76,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         //Le damos la vuelta
         if (characterMovementDirection.x != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(-characterMovementDirection.x), 1, 1);
+            transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
         }
 
         //Estamos en el suelo
@@ -117,6 +117,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
                                                             isInsideWater ? jumpForce * jumpDebuffOnWater 
                                                                           : jumpForce);
             animator.SetTrigger(JumpTrigger);
+            animator.SetBool(IsGrounded, false);
 
             jumpBufferCounter = 0f;
             coyoteTimeCounter = 0f;
