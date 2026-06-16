@@ -180,7 +180,7 @@ public class ScaleController : MonoBehaviour
     {
         _isWaitingAfterLoad = true;
 
-        if (unloadDelay >= 5 && tickingSound) AudioManager.Instance.StopSound(tickingSound.name);
+        if (unloadDelay >= 5 && tickingSound) AudioManager.Instance.StopSound(tickingSound, transform);
         if (loadDelay > 0f)
             yield return new WaitForSeconds(loadDelay);
 
@@ -195,9 +195,9 @@ public class ScaleController : MonoBehaviour
     {
         _isWaitingAfterUnload = true;
 
-        if (unloadDelay >= 5f && tickingSound) AudioManager.Instance.PlayEffect(tickingSound, centerPoint.position, tickingSoundVolume); 
+        if (unloadDelay >= 5f && tickingSound) AudioManager.Instance.PlayEffect(tickingSound, centerPoint, tickingSoundVolume); 
         if (unloadDelay > 0f) yield return new WaitForSeconds(unloadDelay);
-        if (unloadDelay >= 5f && tickingSound)AudioManager.Instance.StopSound(tickingSound.name);
+        if (unloadDelay >= 5f && tickingSound)AudioManager.Instance.StopSound(tickingSound, centerPoint);
         _isWaitingAfterUnload = false;
         _unloadDelayCoroutine = null;
     }

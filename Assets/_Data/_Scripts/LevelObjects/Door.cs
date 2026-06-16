@@ -44,7 +44,7 @@ public class Door : MonoBehaviour, IActivable
         doorClosed?.SetActive(true);
         doorOpen?.SetActive(false);
         
-        if (closeSound) AudioManager.Instance?.PlayEffect(closeSound, this.transform.position, closeSoundVolume);
+        if (closeSound) AudioManager.Instance?.PlayEffect(closeSound, transform, closeSoundVolume);
     }
 
     private void Open()
@@ -52,7 +52,7 @@ public class Door : MonoBehaviour, IActivable
         doorClosed?.SetActive(false);
         doorOpen?.SetActive(true);
         
-        if (openSound) AudioManager.Instance?.PlayEffect(openSound, this.transform.position, openSoundVolume);
+        if (openSound) AudioManager.Instance?.PlayEffect(openSound, transform, openSoundVolume);
     }
 
     public void Deactivate()

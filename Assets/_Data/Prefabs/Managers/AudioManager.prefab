@@ -13,7 +13,7 @@ GameObject:
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 3306451490063965843, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -47,4 +47,43 @@ MonoBehaviour:
   musicSource: {fileID: 0}
   effectSource: {fileID: 0}
   isSfxOn: 1
-  isMusicOn: 0
+  isMusicOn: 1
+  distanceVolumeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: -4.195488
+      outSlope: -4.195488
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.05238129
+    - serializedVersion: 3
+      time: 0.3
+      value: 0.1
+      inSlope: -0.40095654
+      outSlope: -0.40095654
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.20799313
+      outWeight: 0.16518278
+    - serializedVersion: 3
+      time: 1
+      value: -0.0018310547
+      inSlope: -0.047033526
+      outSlope: -0.047033526
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.14008865
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  maxAudibleDistance: 12
+  minimumVolume: 0.1
+  debugSound: {fileID: 8300000, guid: 937909793fe136346ac1060bd586f22c, type: 3}
+  debugMusic: {fileID: 0}
+  playDebugEffect: 0
+  playDebugMusic: 0
