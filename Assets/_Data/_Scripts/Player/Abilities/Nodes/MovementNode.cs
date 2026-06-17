@@ -355,8 +355,21 @@ public class MovementNode : ActionNode
         return directionSource switch
         {
             MovementDirectionSource.ContextDirection => context.direction,
+            MovementDirectionSource.ActorFacing => GetActorFacingDirection(context),
             _ => localDirection != null ? localDirection.GetValue<Vector3>(context) : Vector3.zero
         };
+    }
+
+    private Vector3 GetActorFacingDirection(AbilityContext context)
+    {
+        if (context.actor == null)
+            return Vector3.zero;
+
+        float xSign = Mathf.Sign(context.actor.transform.localScale.x);
+        if (Mathf.Approximately(xSign, 0f))
+            xSign = 1f;
+
+        return new Vector3(xSign, 0f, 0f);
     }
 }
 
@@ -364,7 +377,8 @@ public enum MovementDirectionSource
 {
     LocalDirection,
     ContextDirection,
-    TargetNode
+    TargetNode,
+    ActorFacing
 }
 
 public enum MovementMode

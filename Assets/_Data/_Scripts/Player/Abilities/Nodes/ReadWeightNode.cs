@@ -6,13 +6,10 @@ using UnityEditorInternal;
 #endif
 
 [Serializable]
-public class WeightNode : ActionNode
+public class ReadWeightNode : DataNode
 {
     [SerializeField]
     private TargetSource targetSource;
-
-    [SerializeField]
-    private WeightNodeType nodeType;
 
     [SerializeField]
     private TargetSelectionMode targetSelectionMode;
@@ -26,41 +23,38 @@ public class WeightNode : ActionNode
     [SerializeField]
     private string contextTargetKey;
 
-    [SerializeReference]
-    private ParameterNode weightParameter;
+    [SerializeField]
+    private string outputKey = "weight";
+
+    [SerializeField]
+    private ReadWeightOutputType outputType = ReadWeightOutputType.Int;
+
+    [SerializeField]
+    private float divideBy = 1f;
 
     public override void Execute(AbilityContext context)
     {
         if (!TryGetWeightTarget(context, out IProvidesWeight weightTarget))
         {
-            Debug.LogError("IProvidesWeight component not found on weight target.");
+            Debug.LogError("IProvidesWeight component not found on read weight target.");
             Fail(context);
             return;
         }
 
-        int weightValue = weightParameter.GetValue<int>(context);
-        if (nodeType == WeightNodeType.Divide && weightValue == 0)
+        if (Mathf.Approximately(divideBy, 0f))
         {
-            Debug.LogError("Weight node cannot divide by zero.");
+            Debug.LogError("Read weight node cannot divide by zero.");
             Fail(context);
             return;
         }
 
-        switch (nodeType)
-        {
-            case WeightNodeType.Sum:
-                weightTarget.AddWeight(weightValue);
-                break;
-            case WeightNodeType.Rest:
-                weightTarget.AddWeight(-weightValue);
-                break;
-            case WeightNodeType.Set:
-                weightTarget.Weight = weightValue;
-                break;
-            case WeightNodeType.Divide:
-                weightTarget.Weight /= weightValue;
-                break;
-        }
+        float resolvedWeight = weightTarget.Weight / divideBy;
+        if (outputType == ReadWeightOutputType.Float)
+            context.SetFloat(outputKey, resolvedWeight);
+        else
+            context.SetInt(outputKey, Mathf.RoundToInt(resolvedWeight));
+
+        Complete(context);
     }
 
     public override AbilityValidationResult Validate(AbilityValidationContext context)
@@ -69,15 +63,24 @@ public class WeightNode : ActionNode
         if (targetValidation.BlocksUse)
             return targetValidation;
 
-        if (weightParameter == null)
-            return AbilityValidationResult.Incomplete("Weight node needs a weight parameter.");
+        if (string.IsNullOrWhiteSpace(outputKey))
+            return AbilityValidationResult.Incomplete("Read weight node needs an output key.");
 
-        AbilityValidationResult validation = weightParameter.ValidateValue(context, AbilityValueType.Int);
-        if (validation.BlocksUse)
-            return validation;
+        if (Mathf.Approximately(divideBy, 0f))
+            return AbilityValidationResult.Invalid("Read weight node cannot divide by zero.");
 
-        if (nodeType == WeightNodeType.Divide && weightParameter.GetValue<int>() == 0)
-            return AbilityValidationResult.Invalid("Weight node cannot divide by zero.");
+        AbilityValueType expectedType = outputType == ReadWeightOutputType.Float
+            ? AbilityValueType.Float
+            : AbilityValueType.Int;
+
+        if (context != null)
+        {
+            if (!context.TryGetVariable(outputKey, out AbilityVariableDefinition variable))
+                return AbilityValidationResult.Invalid($"Read weight node writes undeclared variable '{outputKey}'.");
+
+            if (variable.type != expectedType)
+                return AbilityValidationResult.Invalid($"Variable '{outputKey}' is {variable.type}, but Read weight node writes {expectedType}.");
+        }
 
         return AbilityValidationResult.Complete();
     }
@@ -185,7 +188,7 @@ public class WeightNode : ActionNode
         if (targetSource == TargetSource.Tag)
         {
             if (string.IsNullOrWhiteSpace(targetTag))
-                return AbilityValidationResult.Incomplete("Weight node needs a target tag.");
+                return AbilityValidationResult.Incomplete("Read weight node needs a target tag.");
 
             bool tagExists = Array.Exists(InternalEditorUtility.tags, tag => tag == targetTag);
             if (!tagExists)
@@ -194,25 +197,23 @@ public class WeightNode : ActionNode
 #endif
 
         if (targetSource == TargetSource.Name && string.IsNullOrWhiteSpace(targetName))
-            return AbilityValidationResult.Incomplete("Weight node needs a target name.");
+            return AbilityValidationResult.Incomplete("Read weight node needs a target name.");
 
         if (targetSource == TargetSource.ContextTarget && string.IsNullOrWhiteSpace(contextTargetKey))
-            return AbilityValidationResult.Incomplete("Weight node needs a context target key.");
+            return AbilityValidationResult.Incomplete("Read weight node needs a context target key.");
 
         if (targetSource != TargetSource.Self
             && targetSource != TargetSource.Tag
             && targetSource != TargetSource.Name
             && targetSource != TargetSource.ContextTarget)
-            return AbilityValidationResult.Incomplete($"Weight target source '{targetSource}' is not implemented yet.");
+            return AbilityValidationResult.Incomplete($"Read weight target source '{targetSource}' is not implemented yet.");
 
         return AbilityValidationResult.Complete();
     }
 }
 
-public enum WeightNodeType
+public enum ReadWeightOutputType
 {
-    Sum,
-    Rest,
-    Set,
-    Divide
+    Float,
+    Int
 }

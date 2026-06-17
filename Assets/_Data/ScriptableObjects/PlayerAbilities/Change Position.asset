@@ -57,7 +57,7 @@ MonoBehaviour:
         actorSource: 3
         actorSelectionMode: 0
         actorTag: 
-        actorName: Player Clone
+        actorName: Player Clone(Clone)
         actorKey: 
         distance: 0
         instant: 1
@@ -76,5 +76,5 @@ MonoBehaviour:
         targetSelectionMode: 0
         outputVectorKey: 
         targetTag: 
-        targetName: Player Clone
+        targetName: Player Clone(Clone)
         contextTargetKey: 
