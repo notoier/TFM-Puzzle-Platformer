@@ -112,11 +112,12 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         animator.SetBool(IsWalled, isWalled);
 
         //Le damos la vuelta
-        /*if (characterMovementDirection.x != 0)
+        if (characterMovementDirection.x != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
-        }*/
+            slimeTexture.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+        }
 
+        /*
         if (characterMovementDirection.x < 0)
         {
             slimeRender.flipX=false;
@@ -125,9 +126,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         }
         else if (characterMovementDirection.x > 0)
         {
-            slimeRender.flipX = true;
-            slimeTexture.localScale = new Vector3(Mathf.Sign(-characterMovementDirection.x), 1, 1);
-        }
+            slimeRender.flipX = false;
+            slimeTexture.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+        }*/
         
 
 
