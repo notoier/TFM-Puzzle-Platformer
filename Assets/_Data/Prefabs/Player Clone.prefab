@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4690921252025013440}
   - component: {fileID: 6487287070720705312}
   - component: {fileID: 3701516198593204704}
+  - component: {fileID: 7760322462490262485}
+  - component: {fileID: 2468024680246802468}
   m_Layer: 0
   m_Name: Player Clone
   m_TagString: Player
@@ -98,6 +100,33 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &2468024680246802468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4580933739473770688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5878554172e043b5893e48dfb412fc3d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HorizontalSlideLimiter
+  deceleration: 12
+  stopThreshold: 0.05
+--- !u!114 &7760322462490262485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4580933739473770688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1635a93bf671cc84586e15834aa7322f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WeightProvider
+  weight: 1
 --- !u!1 &5830531837092572344
 GameObject:
   m_ObjectHideFlags: 0
