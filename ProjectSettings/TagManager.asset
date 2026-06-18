@@ -41,5 +41,23 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 774804653
+    locked: 0
+  - name: Level
+    uniqueID: 3170929219
+    locked: 0
+  - name: Player
+    uniqueID: 3341655653
+    locked: 0
+  - name: Water
+    uniqueID: 3246727101
+    locked: 0
+  - name: WaterFX
+    uniqueID: 4269165513
+    locked: 0
+  - name: Foreground
+    uniqueID: 295265133
+    locked: 0
   m_RenderingLayers:
   - Default
