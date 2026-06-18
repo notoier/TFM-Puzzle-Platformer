@@ -2,13 +2,14 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
 [RequireComponent(typeof(Rigidbody2D))]
 public class CharacterMovement : MonoBehaviour, IProvidesWeight
 {
     private static readonly int JumpTrigger = Animator.StringToHash("JumpTrigger");
     private static readonly int IsGrounded = Animator.StringToHash("IsGrounded");
+    private static readonly int IsWalled = Animator.StringToHash("IsWalled");
     private static readonly int Speed1 = Animator.StringToHash("Speed");
+    private static readonly int IsTryingToMove = Animator.StringToHash("IsTryingToMove");
 
     [SerializeField]
     private Animator animator;
@@ -25,6 +26,15 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private float jumpBufferTime = 0.1f;
 
+    [Header("Particle Configuration")]
+    [SerializeField]
+    private GameObject splashParticles;
+    [SerializeField]
+    private Transform particleSpawnPosition1;
+    [SerializeField]
+    private Transform particleSpawnPosition2;
+
+
     [Header("Check Ground")]
     [SerializeField]
     private Transform groundCheck;
@@ -33,6 +43,28 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField]
     private LayerMask groundLayer;
 
+    [Header("Check Wall")]
+    [SerializeField]
+    private Transform wallCheck;
+    [SerializeField]
+    private float wallRadius = 0.15f;
+
+    [Header("Check Ramp")]
+    [SerializeField]
+    private Transform slimeTexture;
+    [SerializeField]
+    private SpriteRenderer slimeRender;
+    [SerializeField]
+    private Transform leftPivot;
+    [SerializeField]
+    private Transform rightPivot;
+    [SerializeField]
+    private float slopeRayDistance = 1f;
+    [SerializeField]
+    private float maxSlopeOffset = 0.15f;
+    [SerializeField]
+    private float slopeRotationSpeed = 10f;
+    
     [Header("Gravedad")]
     [SerializeField]
     private float fallMultiplier = 2.5f;
@@ -41,13 +73,25 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
     [Header("Status")] 
     [SerializeField] private float jumpDebuffOnWater = 0.2f;
+
+    [Header("Slope Movement")] 
+    [SerializeField] private float groundCheckDistance;
+    [SerializeField] private float groundStickSpeed;
+    [SerializeField] private float maxSlopeAngle;
+    [SerializeField] private float groundDetectionDisableTime = 0.1f;
+    private float groundDetectionDisableCounter;
+    
+    private Vector2 groundN = Vector2.up;
+    private bool jumpStarted;
     
     [Header("Debug")] 
     [SerializeField] private float weightDebug = 1f;
+    public bool isTryingToMove;
 
     private Vector3 characterMovementDirection;
     private Rigidbody2D characterRigidbody;
     private bool isGrounded;
+    public bool isWalled;
     private bool isInsideWater;
 
     //Timers salto
@@ -72,73 +116,201 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         //Animations
         animator.SetFloat(Speed1, Mathf.Abs(characterRigidbody.linearVelocity.x));
         animator.SetBool(IsGrounded, isGrounded);
+        animator.SetBool(IsWalled, isWalled);
 
         //Le damos la vuelta
         if (characterMovementDirection.x != 0)
         {
-            transform.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+            slimeTexture.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
         }
+
+        /*
+        if (characterMovementDirection.x < 0)
+        {
+            slimeRender.flipX=false;
+            slimeTexture.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+
+        }
+        else if (characterMovementDirection.x > 0)
+        {
+            slimeRender.flipX = false;
+            slimeTexture.localScale = new Vector3(Mathf.Sign(characterMovementDirection.x), 1, 1);
+        }*/
+        
+
 
         //Estamos en el suelo
         Debug.DrawRay(groundCheck.position, Vector2.down * groundRadius, isGrounded ? Color.green : Color.red);
-
-        //CoyoteTime
-        if (isGrounded)
-        {
-            coyoteTimeCounter=coyoteTime;
-        }
-        else
-        {
-            coyoteTimeCounter-=Time.deltaTime;
-        }
-
-        //Buffer para detectar si el jugador ha saltado antes de timepo
+        //Estamos contra pared
+        Debug.DrawRay(wallCheck.position, Vector2.down * wallRadius, isWalled ? Color.blue : Color.red);
+        
+        //Buffer para detectar si el jugador ha saltado antes de tiempo
         
         jumpBufferCounter -= Time.deltaTime;
 
+        if (isWalled && Input.GetKeyDown(KeyCode.D) || isWalled && Input.GetKeyDown(KeyCode.A))
+            animator.SetTrigger(IsTryingToMove);
 
     }
 
     private void FixedUpdate()
     {
-        characterRigidbody.linearVelocity = new Vector2(characterMovementDirection.x * speed, characterRigidbody.linearVelocity.y);
-
-        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundRadius, groundLayer);
-        if (isGrounded)
+        if (groundDetectionDisableCounter > 0f)
         {
-            hasJumped = false;
+            groundDetectionDisableCounter -= Time.fixedDeltaTime;
         }
 
-        //Buffering jump and coyote time
-        if (jumpBufferCounter > 0f && coyoteTimeCounter > 0f && !hasJumped)
+        isWalled = Physics2D.OverlapCircle(
+            wallCheck.position,
+            wallRadius,
+            groundLayer);
+
+        if (groundDetectionDisableCounter <= 0f)
         {
-          
-            characterRigidbody.linearVelocity = new Vector2(characterRigidbody.linearVelocity.x, 
-                                                            isInsideWater ? jumpForce * jumpDebuffOnWater 
-                                                                          : jumpForce);
-            animator.SetTrigger(JumpTrigger);
-            animator.SetBool(IsGrounded, false);
-
-            jumpBufferCounter = 0f;
-            coyoteTimeCounter = 0f;
-
-            //No Doble Salto
-            hasJumped = true;
-
+            DetectGround();
+        }
+        else
+        {
+            isGrounded = false;
+            groundN = Vector2.up;
         }
 
-        switch (characterRigidbody.linearVelocity.y)
+        if (isGrounded && characterRigidbody.linearVelocity.y <= 0.1f) hasJumped = false;
+        
+        HandleJump();
+        UpdateCoyoteTime();
+        
+        ApplyHorizontalMovement();
+        ApplyGravity();
+        
+        UpdateRotationRamp();
+    }
+
+    private void UpdateCoyoteTime()
+    {
+        if (isGrounded && !hasJumped)
         {
-            //Mejorar la gravedad y la relaci�n con el salto
-            case < 0:
-                characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (fallMultiplier - 1) * Time.fixedDeltaTime);
-                break;
-            case > 0 when !jumpPressed:
-                characterRigidbody.linearVelocity += Vector2.up * (Physics2D.gravity.y * (lowJumpMultiplier - 1) * Time.fixedDeltaTime);
-                break;
+            coyoteTimeCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteTimeCounter = Math.Max(0f, coyoteTimeCounter - Time.fixedDeltaTime);
         }
     }
 
+    private void ApplyGravity()
+    {
+        if (isInsideWater) return;
+        
+        if (characterRigidbody.linearVelocity.y < 0f)
+        {
+            characterRigidbody.linearVelocity += Vector2.up *
+                                                 (Physics2D.gravity.y *
+                                                  (fallMultiplier - 1f) *
+                                                  Time.fixedDeltaTime);
+        }
+        else if (characterRigidbody.linearVelocity.y > 0f && !jumpPressed)
+        {
+            characterRigidbody.linearVelocity += Vector2.up *
+                                                 (Physics2D.gravity.y *
+                                                  (lowJumpMultiplier - 1f) *
+                                                  Time.fixedDeltaTime);
+        }
+    }
+    
+    
+    private void HandleJump()
+    {
+        if (jumpBufferCounter <= 0f ||
+            coyoteTimeCounter <= 0f ||
+            hasJumped)
+        {
+            return;
+        }
+
+        float finalJumpForce = isInsideWater
+            ? jumpForce * jumpDebuffOnWater
+            : jumpForce;
+
+        characterRigidbody.linearVelocity = new Vector2(
+            characterRigidbody.linearVelocity.x,
+            finalJumpForce
+        );
+
+        jumpBufferCounter = 0f;
+        coyoteTimeCounter = 0f;
+
+        hasJumped = true;
+        isGrounded = false;
+
+        groundDetectionDisableCounter = groundDetectionDisableTime;
+        
+        animator.SetTrigger(JumpTrigger);
+        animator.SetBool(IsGrounded, false);
+    }
+    
+    private void DetectGround()
+    {
+        RaycastHit2D hit = Physics2D.Raycast(
+            groundCheck.position,
+            Vector2.down,
+            groundCheckDistance,
+            groundLayer);
+
+        isGrounded = hit.collider != null;
+
+        groundN = isGrounded ? hit.normal : Vector2.up;
+        
+        Debug.DrawRay(
+            groundCheck.position,
+            Vector2.down * groundCheckDistance,
+            isGrounded ? Color.green : Color.red
+        );
+    }
+    
+    private void ApplyHorizontalMovement()
+    {
+        float horizontalInput = characterMovementDirection.x;
+
+        if (!isGrounded || hasJumped || isInsideWater)
+        {
+            characterRigidbody.linearVelocity = new Vector2(
+                horizontalInput * speed,
+                characterRigidbody.linearVelocity.y
+            );
+
+            return;
+        }
+
+        float slopeAngle = Vector2.Angle(groundN, Vector2.up);
+
+        if (slopeAngle > maxSlopeAngle)
+        {
+            characterRigidbody.linearVelocity = new Vector2(
+                horizontalInput * speed,
+                characterRigidbody.linearVelocity.y
+            );
+
+            return;
+        }
+
+        // Dirección tangente a la superficie.
+        Vector2 slopeDirection = new Vector2(
+            groundN.y,
+            -groundN.x
+        ).normalized;
+
+        // Evita que la dirección se invierta según la normal detectada.
+        if (slopeDirection.x < 0f)
+        {
+            slopeDirection = -slopeDirection;
+        }
+
+        Vector2 targetVelocity = slopeDirection * (horizontalInput * speed);
+
+        characterRigidbody.linearVelocity = targetVelocity;
+    }
+    
     public void OnMove(InputAction.CallbackContext context)
     {
         Vector2 vectorInput = context.ReadValue<Vector2>();
@@ -152,6 +324,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         {
             jumpBufferCounter = jumpBufferTime;
             jumpPressed = true;
+            //spawnParticles();
         }
         else if (context.canceled)
         {
@@ -187,5 +360,38 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         Weight += mass;
         weightDebug += mass;
     }
+
+    private void UpdateRotationRamp()
+    {
+        RaycastHit2D lHit = Physics2D.Raycast(leftPivot.position, Vector2.down, slopeRayDistance, groundLayer);
+        RaycastHit2D rHit = Physics2D.Raycast(rightPivot.position, Vector2.down, slopeRayDistance, groundLayer);
+
+        Debug.DrawRay(leftPivot.position, Vector2.down * slopeRayDistance, Color.red);
+        Debug.DrawRay(rightPivot.position, Vector2.down * slopeRayDistance, Color.blue);
+        if (!lHit || !rHit)
+        {
+            
+            slimeTexture.localRotation = Quaternion.Lerp(slimeTexture.localRotation, Quaternion.identity, slopeRotationSpeed * Time.deltaTime);
+            return;
+        }
+
+        Vector2 slopeDirection = rHit.point - lHit.point;
+        float angle = Mathf.Atan2(slopeDirection.y, slopeDirection.x) *Mathf.Rad2Deg;
+        
+
+        slimeTexture.localRotation = Quaternion.Lerp(slimeTexture.localRotation, Quaternion.Euler(0f,0f,angle), slopeRotationSpeed * Time.deltaTime);
+
+    }
+
+    public void SpawnParticles()
+    {
+        if (!isGrounded)
+            return;
+
+        Instantiate(splashParticles, particleSpawnPosition1.position, Quaternion.identity);
+        Instantiate(splashParticles, particleSpawnPosition2.position, Quaternion.identity);
+    }
+
+
 }
 
