@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a292160de25e449489aa7bb3320959d7, type: 3}
   m_Name: Test Ability
   m_EditorClassIdentifier: Assembly-CSharp::Ability
+  variables: []
   nodes: []
-  canActivate: 1
   references:
     version: 2
     RefIds: []

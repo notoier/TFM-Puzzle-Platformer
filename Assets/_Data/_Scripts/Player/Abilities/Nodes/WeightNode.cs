@@ -6,13 +6,13 @@ using UnityEditorInternal;
 #endif
 
 [Serializable]
-public class ScaleNode : ActionNode
+public class WeightNode : ActionNode
 {
     [SerializeField]
-    private ScaleNodeType nodeType;
+    private TargetSource targetSource;
 
     [SerializeField]
-    private TargetSource targetSource;
+    private WeightNodeType nodeType;
 
     [SerializeField]
     private TargetSelectionMode targetSelectionMode;
@@ -26,33 +26,41 @@ public class ScaleNode : ActionNode
     [SerializeField]
     private string contextTargetKey;
 
-    public float scale;
-
-    [SerializeField]
-    private ScaleValueSource valueSource;
-
     [SerializeReference]
-    private ParameterNode scaleParameter;
+    private ParameterNode weightParameter;
 
     public override void Execute(AbilityContext context)
     {
-        if (!TryGetScaleTarget(context, out Transform scaleTarget))
+        if (!TryGetWeightTarget(context, out IProvidesWeight weightTarget))
         {
+            Debug.LogError("IProvidesWeight component not found on weight target.");
             Fail(context);
             return;
         }
 
-        float resolvedScale = GetScale(context);
-        Vector3 currentScale = scaleTarget.localScale;
-        float xSign = Mathf.Sign(currentScale.x);
-        if (Mathf.Approximately(xSign, 0f))
-            xSign = 1f;
+        int weightValue = weightParameter.GetValue<int>(context);
+        if (nodeType == WeightNodeType.Divide && weightValue == 0)
+        {
+            Debug.LogError("Weight node cannot divide by zero.");
+            Fail(context);
+            return;
+        }
 
-        float targetScale = nodeType == ScaleNodeType.Multiply
-            ? Mathf.Abs(currentScale.y) * resolvedScale
-            : resolvedScale;
-
-        scaleTarget.localScale = new Vector3(xSign * targetScale, targetScale, currentScale.z);
+        switch (nodeType)
+        {
+            case WeightNodeType.Sum:
+                weightTarget.AddWeight(weightValue);
+                break;
+            case WeightNodeType.Rest:
+                weightTarget.AddWeight(-weightValue);
+                break;
+            case WeightNodeType.Set:
+                weightTarget.Weight = weightValue;
+                break;
+            case WeightNodeType.Divide:
+                weightTarget.Weight /= weightValue;
+                break;
+        }
     }
 
     public override AbilityValidationResult Validate(AbilityValidationContext context)
@@ -61,33 +69,28 @@ public class ScaleNode : ActionNode
         if (targetValidation.BlocksUse)
             return targetValidation;
 
-        if (valueSource == ScaleValueSource.ParameterNode)
-        {
-            if (scaleParameter == null)
-                return AbilityValidationResult.Incomplete("Scale node needs a scale parameter.");
+        if (weightParameter == null)
+            return AbilityValidationResult.Incomplete("Weight node needs a weight parameter.");
 
-            return scaleParameter.ValidateValue(context, AbilityValueType.Float);
-        }
+        AbilityValidationResult validation = weightParameter.ValidateValue(context, AbilityValueType.Int);
+        if (validation.BlocksUse)
+            return validation;
 
-        return AbilityValidationResult.Complete();  
+        if (nodeType == WeightNodeType.Divide && weightParameter.GetValue<int>() == 0)
+            return AbilityValidationResult.Invalid("Weight node cannot divide by zero.");
+
+        return AbilityValidationResult.Complete();
     }
 
-    private float GetScale(AbilityContext context)
+    private bool TryGetWeightTarget(AbilityContext context, out IProvidesWeight weightTarget)
     {
-        return valueSource == ScaleValueSource.ParameterNode && scaleParameter != null
-            ? scaleParameter.GetValue<float>(context)
-            : scale;
-    }
-
-    private bool TryGetScaleTarget(AbilityContext context, out Transform scaleTarget)
-    {
-        scaleTarget = null;
+        weightTarget = null;
 
         if (!TryGetTargetObject(context, out GameObject targetObject) || targetObject == null)
             return false;
 
-        scaleTarget = targetObject.transform;
-        return true;
+        weightTarget = targetObject.GetComponent<IProvidesWeight>();
+        return weightTarget != null;
     }
 
     private bool TryGetTargetObject(AbilityContext context, out GameObject targetObject)
@@ -182,7 +185,7 @@ public class ScaleNode : ActionNode
         if (targetSource == TargetSource.Tag)
         {
             if (string.IsNullOrWhiteSpace(targetTag))
-                return AbilityValidationResult.Incomplete("Scale node needs a target tag.");
+                return AbilityValidationResult.Incomplete("Weight node needs a target tag.");
 
             bool tagExists = Array.Exists(InternalEditorUtility.tags, tag => tag == targetTag);
             if (!tagExists)
@@ -191,29 +194,25 @@ public class ScaleNode : ActionNode
 #endif
 
         if (targetSource == TargetSource.Name && string.IsNullOrWhiteSpace(targetName))
-            return AbilityValidationResult.Incomplete("Scale node needs a target name.");
+            return AbilityValidationResult.Incomplete("Weight node needs a target name.");
 
         if (targetSource == TargetSource.ContextTarget && string.IsNullOrWhiteSpace(contextTargetKey))
-            return AbilityValidationResult.Incomplete("Scale node needs a context target key.");
+            return AbilityValidationResult.Incomplete("Weight node needs a context target key.");
 
         if (targetSource != TargetSource.Self
             && targetSource != TargetSource.Tag
             && targetSource != TargetSource.Name
             && targetSource != TargetSource.ContextTarget)
-            return AbilityValidationResult.Incomplete($"Scale target source '{targetSource}' is not implemented yet.");
+            return AbilityValidationResult.Incomplete($"Weight target source '{targetSource}' is not implemented yet.");
 
         return AbilityValidationResult.Complete();
     }
 }
 
-public enum ScaleValueSource
+public enum WeightNodeType
 {
-    LocalValue,
-    ParameterNode
-}
-
-public enum ScaleNodeType
-{
+    Sum,
+    Rest,
     Set,
-    Multiply
+    Divide
 }
