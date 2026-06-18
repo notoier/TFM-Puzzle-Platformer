@@ -1,0 +1,155 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a292160de25e449489aa7bb3320959d7, type: 3}
+  m_Name: Divide
+  m_EditorClassIdentifier: Assembly-CSharp::Ability
+  variables:
+  - key: New Weight
+    type: 1
+  nodes:
+  - rid: 7721760597818736712
+  - rid: 7721760597818736721
+  - rid: 7721760597818736713
+  - rid: 7721760597818736714
+  - rid: 7721760597818736715
+  - rid: 7721760597818736717
+  - rid: 7721760597818736725
+  - rid: 7721760597818736723
+  - rid: 7721760597818736718
+  - rid: 7721760597818736719
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
+    - rid: 7721760597818736712
+      type: {class: CancelNode, ns: , asm: Assembly-CSharp}
+      data:
+        cancelMode: 1
+        targetSource: 3
+        targetTag: 
+        targetName: Player Clone
+        contextTargetKey: 
+    - rid: 7721760597818736713
+      type: {class: VisibilityNode, ns: , asm: Assembly-CSharp}
+      data:
+        isVisible: 0
+        valueSource: 0
+        visibilityParameter:
+          rid: -2
+    - rid: 7721760597818736714
+      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeType: 1
+        scale: 0.5
+        valueSource: 0
+        scaleParameter:
+          rid: -2
+    - rid: 7721760597818736715
+      type: {class: WeightNode, ns: , asm: Assembly-CSharp}
+      data:
+        targetSource: 0
+        nodeType: 3
+        targetSelectionMode: 0
+        targetTag: 
+        targetName: 
+        contextTargetKey: 
+        weightParameter:
+          rid: 7721760597818736716
+    - rid: 7721760597818736716
+      type: {class: ParameterNode, ns: , asm: Assembly-CSharp}
+      data:
+        key: 
+        parameterType: 1
+        floatValue: 0
+        intValue: 2
+        boolValue: 0
+        vector3Value: {x: 0, y: 0, z: 0}
+        gameObjectValue: {fileID: 0}
+    - rid: 7721760597818736717
+      type: {class: SpawnNode, ns: , asm: Assembly-CSharp}
+      data:
+        prefab: {fileID: 4580933739473770688, guid: 1fb96ee1f44b79c4a9df2945d8ff06a8, type: 3}
+        positionSource: 1
+        position: {x: 0, y: 0, z: 0}
+        outputObjectKey: Player Clone
+    - rid: 7721760597818736718
+      type: {class: VisibilityNode, ns: , asm: Assembly-CSharp}
+      data:
+        isVisible: 1
+        valueSource: 0
+        visibilityParameter:
+          rid: -2
+    - rid: 7721760597818736719
+      type: {class: MovementNode, ns: , asm: Assembly-CSharp}
+      data:
+        movementMode: 0
+        actorSource: 0
+        actorSelectionMode: 0
+        actorTag: 
+        actorName: 
+        actorKey: 
+        distance: 0.2
+        instant: 1
+        duration: 0.2
+        directionSource: 3
+        positionSource: 0
+        positionKey: 
+        localDirection:
+          rid: -2
+        targetNode:
+          rid: -2
+    - rid: 7721760597818736721
+      type: {class: ReadWeightNode, ns: , asm: Assembly-CSharp}
+      data:
+        targetSource: 0
+        targetSelectionMode: 0
+        targetTag: 
+        targetName: 
+        contextTargetKey: 
+        outputKey: New Weight
+        outputType: 1
+        divideBy: 2
+    - rid: 7721760597818736723
+      type: {class: WeightNode, ns: , asm: Assembly-CSharp}
+      data:
+        targetSource: 9
+        nodeType: 2
+        targetSelectionMode: 0
+        targetTag: 
+        targetName: Player Clone
+        contextTargetKey: Player Clone
+        weightParameter:
+          rid: 7721760597818736724
+    - rid: 7721760597818736724
+      type: {class: ParameterNode, ns: , asm: Assembly-CSharp}
+      data:
+        key: New Weight
+        parameterType: 1
+        floatValue: 0
+        intValue: 0
+        boolValue: 0
+        vector3Value: {x: 0, y: 0, z: 0}
+        gameObjectValue: {fileID: 0}
+    - rid: 7721760597818736725
+      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeType: 1
+        targetSource: 9
+        targetSelectionMode: 0
+        targetTag: 
+        targetName: 
+        contextTargetKey: Player Clone
+        scale: 0.5
+        valueSource: 0
+        scaleParameter:
+          rid: -2

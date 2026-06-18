@@ -6,11 +6,8 @@ using UnityEditorInternal;
 #endif
 
 [Serializable]
-public class ScaleNode : ActionNode
+public class ReadWeightNode : DataNode
 {
-    [SerializeField]
-    private ScaleNodeType nodeType;
-
     [SerializeField]
     private TargetSource targetSource;
 
@@ -26,33 +23,38 @@ public class ScaleNode : ActionNode
     [SerializeField]
     private string contextTargetKey;
 
-    public float scale;
+    [SerializeField]
+    private string outputKey = "weight";
 
     [SerializeField]
-    private ScaleValueSource valueSource;
+    private ReadWeightOutputType outputType = ReadWeightOutputType.Int;
 
-    [SerializeReference]
-    private ParameterNode scaleParameter;
+    [SerializeField]
+    private float divideBy = 1f;
 
     public override void Execute(AbilityContext context)
     {
-        if (!TryGetScaleTarget(context, out Transform scaleTarget))
+        if (!TryGetWeightTarget(context, out IProvidesWeight weightTarget))
         {
+            Debug.LogError("IProvidesWeight component not found on read weight target.");
             Fail(context);
             return;
         }
 
-        float resolvedScale = GetScale(context);
-        Vector3 currentScale = scaleTarget.localScale;
-        float xSign = Mathf.Sign(currentScale.x);
-        if (Mathf.Approximately(xSign, 0f))
-            xSign = 1f;
+        if (Mathf.Approximately(divideBy, 0f))
+        {
+            Debug.LogError("Read weight node cannot divide by zero.");
+            Fail(context);
+            return;
+        }
 
-        float targetScale = nodeType == ScaleNodeType.Multiply
-            ? Mathf.Abs(currentScale.y) * resolvedScale
-            : resolvedScale;
+        float resolvedWeight = weightTarget.Weight / divideBy;
+        if (outputType == ReadWeightOutputType.Float)
+            context.SetFloat(outputKey, resolvedWeight);
+        else
+            context.SetInt(outputKey, Mathf.RoundToInt(resolvedWeight));
 
-        scaleTarget.localScale = new Vector3(xSign * targetScale, targetScale, currentScale.z);
+        Complete(context);
     }
 
     public override AbilityValidationResult Validate(AbilityValidationContext context)
@@ -61,33 +63,37 @@ public class ScaleNode : ActionNode
         if (targetValidation.BlocksUse)
             return targetValidation;
 
-        if (valueSource == ScaleValueSource.ParameterNode)
-        {
-            if (scaleParameter == null)
-                return AbilityValidationResult.Incomplete("Scale node needs a scale parameter.");
+        if (string.IsNullOrWhiteSpace(outputKey))
+            return AbilityValidationResult.Incomplete("Read weight node needs an output key.");
 
-            return scaleParameter.ValidateValue(context, AbilityValueType.Float);
+        if (Mathf.Approximately(divideBy, 0f))
+            return AbilityValidationResult.Invalid("Read weight node cannot divide by zero.");
+
+        AbilityValueType expectedType = outputType == ReadWeightOutputType.Float
+            ? AbilityValueType.Float
+            : AbilityValueType.Int;
+
+        if (context != null)
+        {
+            if (!context.TryGetVariable(outputKey, out AbilityVariableDefinition variable))
+                return AbilityValidationResult.Invalid($"Read weight node writes undeclared variable '{outputKey}'.");
+
+            if (variable.type != expectedType)
+                return AbilityValidationResult.Invalid($"Variable '{outputKey}' is {variable.type}, but Read weight node writes {expectedType}.");
         }
 
-        return AbilityValidationResult.Complete();  
+        return AbilityValidationResult.Complete();
     }
 
-    private float GetScale(AbilityContext context)
+    private bool TryGetWeightTarget(AbilityContext context, out IProvidesWeight weightTarget)
     {
-        return valueSource == ScaleValueSource.ParameterNode && scaleParameter != null
-            ? scaleParameter.GetValue<float>(context)
-            : scale;
-    }
-
-    private bool TryGetScaleTarget(AbilityContext context, out Transform scaleTarget)
-    {
-        scaleTarget = null;
+        weightTarget = null;
 
         if (!TryGetTargetObject(context, out GameObject targetObject) || targetObject == null)
             return false;
 
-        scaleTarget = targetObject.transform;
-        return true;
+        weightTarget = targetObject.GetComponent<IProvidesWeight>();
+        return weightTarget != null;
     }
 
     private bool TryGetTargetObject(AbilityContext context, out GameObject targetObject)
@@ -182,7 +188,7 @@ public class ScaleNode : ActionNode
         if (targetSource == TargetSource.Tag)
         {
             if (string.IsNullOrWhiteSpace(targetTag))
-                return AbilityValidationResult.Incomplete("Scale node needs a target tag.");
+                return AbilityValidationResult.Incomplete("Read weight node needs a target tag.");
 
             bool tagExists = Array.Exists(InternalEditorUtility.tags, tag => tag == targetTag);
             if (!tagExists)
@@ -191,29 +197,23 @@ public class ScaleNode : ActionNode
 #endif
 
         if (targetSource == TargetSource.Name && string.IsNullOrWhiteSpace(targetName))
-            return AbilityValidationResult.Incomplete("Scale node needs a target name.");
+            return AbilityValidationResult.Incomplete("Read weight node needs a target name.");
 
         if (targetSource == TargetSource.ContextTarget && string.IsNullOrWhiteSpace(contextTargetKey))
-            return AbilityValidationResult.Incomplete("Scale node needs a context target key.");
+            return AbilityValidationResult.Incomplete("Read weight node needs a context target key.");
 
         if (targetSource != TargetSource.Self
             && targetSource != TargetSource.Tag
             && targetSource != TargetSource.Name
             && targetSource != TargetSource.ContextTarget)
-            return AbilityValidationResult.Incomplete($"Scale target source '{targetSource}' is not implemented yet.");
+            return AbilityValidationResult.Incomplete($"Read weight target source '{targetSource}' is not implemented yet.");
 
         return AbilityValidationResult.Complete();
     }
 }
 
-public enum ScaleValueSource
+public enum ReadWeightOutputType
 {
-    LocalValue,
-    ParameterNode
-}
-
-public enum ScaleNodeType
-{
-    Set,
-    Multiply
+    Float,
+    Int
 }

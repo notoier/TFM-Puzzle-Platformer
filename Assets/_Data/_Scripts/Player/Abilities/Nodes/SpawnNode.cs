@@ -4,30 +4,58 @@ using UnityEngine;
 [Serializable]
 public class SpawnNode : ActionNode
 {
-    [SerializeReference]
-    public ParameterNode spawnable, positon;
+    [SerializeField]
+    private GameObject prefab;
 
+    [SerializeField]
+    private SpawnPositionSource positionSource;
+
+    [SerializeField]
+    private Vector3 position;
+
+    [SerializeField]
+    private string outputObjectKey = "spawnedObject";
 
     public override void Execute(AbilityContext context)
     {
-        if(positon.parameterType != ParameterType.Vector3) 
+        if (prefab == null)
         {
-            Debug.LogError("SpawnNode requires a Vector3 parameter for the spawn position.");
-            context.success = false;
+            Fail(context);
             return;
         }
 
-        if(spawnable.parameterType != ParameterType.GameObject) 
+        Vector3 spawnPosition = GetSpawnPosition(context);
+        GameObject spawnedObject = GameObject.Instantiate(prefab, spawnPosition, Quaternion.identity);
+        if (spawnedObject != null)
         {
-            Debug.LogError("SpawnNode requires a GameObject parameter for the spawnable object.");
-            context.success = false;
-            return;
+            context.SetGameObject(outputObjectKey, spawnedObject);
+            Complete(context);
         }
-
-        GameObject prefab = spawnable.GetValue<GameObject>();   
-        Vector3 pos = positon.GetValue<Vector3>();         
-
-        GameObject spawnedObject = GameObject.Instantiate(prefab, pos, Quaternion.identity);
-        context.success = spawnedObject != null;
+        else
+        {
+            Fail(context);
+        }
     }
+
+    public override AbilityValidationResult Validate()
+    {
+        if (prefab == null)
+            return AbilityValidationResult.Incomplete("Spawn node needs a prefab.");
+
+        return AbilityValidationResult.Complete();
+    }
+
+    private Vector3 GetSpawnPosition(AbilityContext context)
+    {
+        if (positionSource == SpawnPositionSource.ActorPosition && context.actor != null)
+            return context.actor.transform.position;
+
+        return position;
+    }
+}
+
+public enum SpawnPositionSource
+{
+    LocalPosition,
+    ActorPosition
 }
