@@ -4902,7 +4902,7 @@ GameObject:
   - component: {fileID: 7016135712531488189}
   - component: {fileID: 399035526999678180}
   - component: {fileID: 5926532869113841689}
-  - component: {fileID: 3773615563181501201}
+  - component: {fileID: 7370231068760285679}
   m_Layer: 4
   m_Name: PF Pixel Water - Poisonous
   m_TagString: Untagged
@@ -5154,7 +5154,7 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 16.569407, y: 2.9932027}
   m_EdgeRadius: 0
---- !u!114 &3773615563181501201
+--- !u!114 &7370231068760285679
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
