@@ -231,7 +231,7 @@ public class AbilityNodeDrawer : PropertyDrawer
                 break;
             case VisibilityNode:
                 ClearUnusedVisibilityFields(nodeProperty, changedPropertyName);
-                break;
+                break;git 
             case WeightNode:
                 ClearUnusedWeightFields(nodeProperty, changedPropertyName);
                 break;
