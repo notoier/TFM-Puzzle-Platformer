@@ -6,6 +6,6 @@ public class AnimationController : MonoBehaviour
 
     public void CreateSplash()
     {
-        characterMovement.spawnParticles();
+        characterMovement.SpawnParticles();
     }
 }
