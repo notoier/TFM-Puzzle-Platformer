@@ -79,6 +79,7 @@ GameObject:
   - component: {fileID: 1234803918880746085}
   - component: {fileID: 5085699856996187800}
   - component: {fileID: 2159706016782779664}
+  - component: {fileID: 5029608530178048062}
   m_Layer: 4
   m_Name: PF Pixel Water - Acid
   m_TagString: Untagged
@@ -95,7 +96,7 @@ Transform:
   m_GameObject: {fileID: 8499732222615038753}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0.15150452, y: -0.7618456, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -199,7 +200,7 @@ MonoBehaviour:
   onSplash:
     m_PersistentCalls:
       m_Calls: []
-  size: {x: 10.200157, y: 6.7302523}
+  size: {x: 10.503162, y: 7.492098}
   fill: 1
 --- !u!23 &8499732222615038781
 MeshRenderer:
@@ -271,7 +272,7 @@ BuoyancyEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 2147483647
-  m_SurfaceLevel: 6.7302523
+  m_SurfaceLevel: 7.492098
   m_Density: 20
   m_LinearDamping: 5
   m_AngularDamping: 0
@@ -312,7 +313,7 @@ BoxCollider2D:
   m_UsedByEffector: 1
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 3.3651261}
+  m_Offset: {x: 0, y: 3.746049}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -322,7 +323,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 10.200157, y: 6.7302523}
+  m_Size: {x: 10.503162, y: 7.492098}
   m_EdgeRadius: 0
 --- !u!114 &2159706016782779664
 MonoBehaviour:
@@ -338,3 +339,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MeshSortingLayer
   sortingLayerName: Water
   orderInLayer: 0
+--- !u!114 &5029608530178048062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8499732222615038753}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c542e7f18ff43249f34c277a9321b34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WaterBodyController

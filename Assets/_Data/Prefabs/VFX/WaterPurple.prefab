@@ -722,9 +722,9 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 0, y: 3.017496, z: 0.1}
+    m_Position: {x: 0, y: 2.9932027, z: 0.1}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 9.713036, y: 0.05, z: 0.05}
+    m_Scale: {x: 16.569407, y: 0.05, z: 0.05}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -922,7 +922,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 4.856518
+      scalar: 8.284703
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -4853,8 +4853,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -25801783
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_RenderMode: 0
@@ -4919,7 +4919,7 @@ Transform:
   m_GameObject: {fileID: 7016135712531488160}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.4506352, y: -0.07570648, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -5029,7 +5029,7 @@ MonoBehaviour:
   onSplash:
     m_PersistentCalls:
       m_Calls: []
-  size: {x: 9.713036, y: 3.017496}
+  size: {x: 16.569407, y: 2.9932027}
   fill: 1
 --- !u!23 &7016135712531488188
 MeshRenderer:
@@ -5101,7 +5101,7 @@ BuoyancyEffector2D:
   m_ColliderMask:
     serializedVersion: 2
     m_Bits: 2147483647
-  m_SurfaceLevel: 3.017496
+  m_SurfaceLevel: 2.9932027
   m_Density: 20
   m_LinearDamping: 5
   m_AngularDamping: 0
@@ -5142,7 +5142,7 @@ BoxCollider2D:
   m_UsedByEffector: 1
   m_CompositeOperation: 0
   m_CompositeOrder: 0
-  m_Offset: {x: 0, y: 1.5087482}
+  m_Offset: {x: 0, y: 1.4966013}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0, y: 0}
@@ -5152,7 +5152,7 @@ BoxCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Size: {x: 9.713036, y: 3.017496}
+  m_Size: {x: 16.569407, y: 2.9932027}
   m_EdgeRadius: 0
 --- !u!114 &7370231068760285679
 MonoBehaviour:
@@ -5849,9 +5849,9 @@ ParticleSystem:
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
     donutRadius: 0.2
-    m_Position: {x: 0, y: 1.508748, z: -0.1}
+    m_Position: {x: 0, y: 1.4966013, z: -0.1}
     m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 9.713036, y: 3.017496, z: 0.05}
+    m_Scale: {x: 16.569407, y: 2.9932027, z: 0.05}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -6049,7 +6049,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 14.654524
+      scalar: 24.797796
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -9980,8 +9980,8 @@ ParticleSystemRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -25801783
+  m_SortingLayer: 5
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_RenderMode: 0

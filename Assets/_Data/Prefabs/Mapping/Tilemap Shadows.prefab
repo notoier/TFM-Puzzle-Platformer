@@ -29,7 +29,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3443840828622146205}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -3912,16 +3912,6 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
-  - first: {x: 90, y: 9, z: 0}
-    second:
-      serializedVersion: 2
-      m_TileIndex: 2
-      m_TileSpriteIndex: 2
-      m_TileMatrixIndex: 0
-      m_TileColorIndex: 2
-      m_TileObjectToInstantiateIndex: 65535
-      dummyAlignment: 0
-      m_AllTileFlags: 1073741825
   - first: {x: 107, y: 9, z: 0}
     second:
       serializedVersion: 2
@@ -6758,17 +6748,17 @@ Tilemap:
     m_Data: {fileID: 0}
   - m_RefCount: 0
     m_Data: {fileID: 0}
-  - m_RefCount: 667
+  - m_RefCount: 666
     m_Data: {fileID: 11400000, guid: 84123c1808dc9ae4dbfcd1f050d5a888, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 0
     m_Data: {fileID: 0}
   - m_RefCount: 1
     m_Data: {fileID: 0}
-  - m_RefCount: 667
+  - m_RefCount: 666
     m_Data: {fileID: -7101336801068735496, guid: a82391bc4586d694f9f8f9b03862b7c7, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 668
+  - m_RefCount: 667
     m_Data:
       e00: 1
       e01: 0
@@ -6790,8 +6780,8 @@ Tilemap:
   - m_RefCount: 0
     m_Data: {r: 5e-44, g: 5e-44, b: 5e-44, a: 5e-44}
   - m_RefCount: 1
-    m_Data: {r: 0.9048467, g: 0.42141083, b: 0.56689304, a: 1}
-  - m_RefCount: 667
+    m_Data: {r: 0.7853742, g: 0.42864057, b: 0.50568604, a: 1}
+  - m_RefCount: 666
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
@@ -6862,8 +6852,8 @@ TilemapRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1124038077
+  m_SortingLayer: 2
   m_SortingOrder: -1
   m_MaskInteraction: 0
   m_ChunkSize: {x: 32, y: 32, z: 32}
@@ -6893,7 +6883,7 @@ MonoBehaviour:
   m_CastsShadows: 1
   m_SelfShadows: 0
   m_AlphaCutoff: 0.1
-  m_ApplyToSortingLayers: 00000000
+  m_ApplyToSortingLayers: 00000000ad942e2e438a00bd659e2dc7bd1f85c1c94b76fe6d639911
   m_ShapePath:
   - {x: -9, y: -5, z: 0}
   - {x: -9, y: 17, z: 0}
@@ -6908,8 +6898,8 @@ MonoBehaviour:
   m_ShadowMesh:
     m_Mesh: {fileID: 0}
     m_LocalBounds:
-      m_Center: {x: 61.5, y: -1, z: 0}
-      m_Extent: {x: 70.5, y: 38, z: 0}
+      m_Center: {x: 0.5, y: -2.5, z: 0}
+      m_Extent: {x: 1.5, y: 0.5, z: 0}
     m_EdgeProcessing: 1
     m_TrimEdge: 0
     m_FlipX: 0
