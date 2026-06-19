@@ -1,70 +1,603 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Tilemaps;
 
+[RequireComponent(typeof(Tilemap))]
+[RequireComponent(typeof(TilemapRenderer))]
 public class TilemapDarknessShader : MonoBehaviour
 {
-    [Header("References")]
-    [SerializeField] private Tilemap tilemap;
+    private const float DiagonalCost = 1.41421356f;
+    private const float InfiniteDistance = 999999f;
 
-    [Header("Depth")] 
-    [SerializeField] private int maxDepth = 6;
-    [SerializeField, Range(0f, 1f)] private float maxDarkness = 0.9f;
-    [SerializeField] private AnimationCurve darknessCurve = AnimationCurve.Linear(0, 0, 1, 1);
+    [Header("References")]
+    [SerializeField]
+    private Tilemap tilemap;
+
+    [SerializeField]
+    private TilemapRenderer tilemapRenderer;
+
+    [SerializeField]
+    private Material darknessMaterial;
+
+    [Header("Depth")]
+    [Tooltip("Distancia, medida aproximadamente en tiles, a la que se alcanza la oscuridad máxima.")]
+    [SerializeField, Min(2f)]
+    private float maxDepth = 12f;
+
+    [Tooltip("Oscuridad máxima. Con 0.6, el color conserva como mínimo el 40 % de su luminosidad.")]
+    [SerializeField, Range(0f, 1f)]
+    private float maxDarkness = 0.6f;
+
+    [Tooltip("Transforma la profundidad normalizada en oscuridad.")]
+    [SerializeField]
+    private AnimationCurve darknessCurve = new AnimationCurve(
+        new Keyframe(0f, 0f),
+        new Keyframe(0.4f, 0.05f),
+        new Keyframe(0.7f, 0.3f),
+        new Keyframe(1f, 1f)
+    );
+
+    [Header("Mask")]
+    [Tooltip("Margen añadido alrededor del Tilemap para representar explícitamente el aire exterior.")]
+    [SerializeField, Min(1)]
+    private int boundsPadding = 1;
     
+    [Header("Mask Resolution")]
+    [SerializeField, Range(1, 16)]
+    private int pixelsPerTile = 4;
+
+    [SerializeField] private bool highResActive;
+
+    [Header("Debug")]
+    [SerializeField] private bool showRawDistanceMask;
+    
+    [Tooltip("Bilinear suaviza la máscara. Point permite depurar sus valores por tile.")]
+    [SerializeField]
+    private FilterMode maskFilterMode = FilterMode.Bilinear;
+
+    private static readonly int DepthTextureId =
+        Shader.PropertyToID("_DepthTexture");
+
+    private static readonly int TilemapWorldMinId =
+        Shader.PropertyToID("_TilemapWorldMin");
+
+    private static readonly int TilemapWorldSizeId =
+        Shader.PropertyToID("_TilemapWorldSize");
+
     private int _width;
     private int _height;
     private int _minX;
     private int _minY;
-    
+
     private bool[,] _tilemapData;
-    private int[,] _depthMap;
+    private float[,] _distanceMap;
+    
+    private bool[,] _highResolutionSolidMap;
+    private float[,] _highResolutionDistanceMap;
+
+    private int _textureWidth;
+    private int _textureHeight;
+    
+    private Texture2D _depthTexture;
+    //private MaterialPropertyBlock _propertyBlock;
+    private Material _runtimeMaterial;
+    
+    [SerializeField, Range(0.1f, 2f)]
+    private float darknessExponent = 0.55f;
+
+    private float CalculateDarkness(int x, int y)
+    {
+        if (!_tilemapData[x, y])
+            return 0f;
+
+        float distance = _distanceMap[x, y];
+
+        float normalizedDepth = Mathf.InverseLerp(
+            1f,
+            maxDepth,
+            distance
+        );
+
+        float shapedDepth = Mathf.Pow(
+            normalizedDepth,
+            darknessExponent
+        );
+
+        return Mathf.Clamp01(
+            shapedDepth * maxDarkness
+        );
+    }
     
     private void Awake()
     {
-        if (!tilemap) tilemap = GetComponent<Tilemap>();
-        
-        _width = tilemap.cellBounds.size.x;
-        _height = tilemap.cellBounds.size.y;
-        _minX = tilemap.cellBounds.min.x;
-        _minY = tilemap.cellBounds.min.y;
+        InitializeReferences();
 
-        _tilemapData = new bool[_width, _height];
-        _depthMap = new int[_width, _height];
+        if (!ValidateReferences())
+        {
+            enabled = false;
+            return;
+        }
 
-        InitTilemapData();
-        CalculateDepthMap();
-        //DebugDepthMapValues();
+        GenerateDarkness();
     }
 
-    private void InitTilemapData()
+    private void InitializeReferences()
     {
-        for (int matrixX = 0; matrixX < _width; matrixX++)
+        if (!tilemap)
+            tilemap = GetComponent<Tilemap>();
+
+        if (!tilemapRenderer)
+            tilemapRenderer = GetComponent<TilemapRenderer>();
+    }
+    
+    private bool ValidateReferences()
+    {
+        if (!tilemap)
         {
-            for (int matrixY = 0; matrixY < _height; matrixY++)
+            Debug.LogError("No se ha encontrado un componente Tilemap.", this);
+            return false;
+        }
+
+        if (!tilemapRenderer)
+        {
+            Debug.LogError("No se ha encontrado un TilemapRenderer.", this);
+            return false;
+        }
+
+        if (!darknessMaterial)
+        {
+            Debug.LogError(
+                "No se ha asignado el material de oscurecimiento.",
+                this
+            );
+
+            return false;
+        }
+
+        return true;
+    }
+
+    public void GenerateDarkness()
+    {
+        AssignMaterial();
+        CalculateBounds();
+        CreateDataArrays();
+
+        InitializeTilemapData();
+        ResetTileColors();
+        
+        if (highResActive)
+        {
+            InitializeHighResolutionMap();
+
+            ForwardHighResolutionPass();
+            BackwardHighResolutionPass();
+            DebugHighResDistanceRange();
+            
+            GenerateHighResolutionDepthTexture();
+        }
+        else
+        {
+
+            InitializeDistanceMap();
+            CalculateDistanceTransform();
+            DebugDistanceRange();
+
+            GenerateDepthTexture();  
+        }
+        
+        ApplyTextureToShader();
+    }
+
+    private void AssignMaterial()
+    {
+        if (_runtimeMaterial != null)
+        {
+            Destroy(_runtimeMaterial);
+        }
+
+        _runtimeMaterial = new Material(darknessMaterial)
+        {
+            name = $"{darknessMaterial.name} ({name} Instance)"
+        };
+
+        tilemapRenderer.material = _runtimeMaterial;
+    }
+
+    private void CalculateBounds()
+    {
+        tilemap.CompressBounds();
+
+        BoundsInt tileBounds = tilemap.cellBounds;
+
+        /*
+         * Ampliamos los bounds para que el aire exterior esté representado
+         * dentro de la propia matriz. De esta forma, el cálculo no depende
+         * de tratar directamente los índices externos como aire.
+         */
+        _minX = tileBounds.xMin - boundsPadding;
+        _minY = tileBounds.yMin - boundsPadding;
+
+        _width = tileBounds.size.x + boundsPadding * 2;
+        _height = tileBounds.size.y + boundsPadding * 2;
+    }
+
+    private void CreateDataArrays()
+    {
+        _tilemapData = new bool[_width, _height];
+        _distanceMap = new float[_width, _height];
+    }
+
+    private void InitializeTilemapData()
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            for (int y = 0; y < _height; y++)
             {
-                Vector3Int cellPosition = new Vector3Int(matrixX + _minX, matrixY + _minY, 0);
-                
-                bool hasTile = tilemap.HasTile(cellPosition);
+                Vector3Int cellPosition = MatrixToCell(x, y);
 
-                _tilemapData[matrixX, matrixY] = hasTile;
-
-                _depthMap[matrixX, matrixY] = hasTile ? 0 : -1;
-
+                _tilemapData[x, y] =
+                    tilemap.HasTile(cellPosition);
             }
         }
     }
 
-    private void CalculateDepthMap()
+    private void InitializeHighResolutionMap()
     {
-        PropagateDepthBFS();
-        FillRemainingSolidTiles();
-        ApplyDepthDarkness();
+        _textureWidth = _width * pixelsPerTile;
+        _textureHeight = _height * pixelsPerTile;
+
+        _highResolutionSolidMap =
+            new bool[_textureWidth, _textureHeight];
+
+        _highResolutionDistanceMap =
+            new float[_textureWidth, _textureHeight];
+
+        for (int tileX = 0; tileX < _width; tileX++)
+        {
+            for (int tileY = 0; tileY < _height; tileY++)
+            {
+                bool isSolid = _tilemapData[tileX, tileY];
+
+                int startX = tileX * pixelsPerTile;
+                int startY = tileY * pixelsPerTile;
+
+                for (int localX = 0; localX < pixelsPerTile; localX++)
+                {
+                    for (int localY = 0; localY < pixelsPerTile; localY++)
+                    {
+                        int pixelX = startX + localX;
+                        int pixelY = startY + localY;
+
+                        _highResolutionSolidMap[pixelX, pixelY] =
+                            isSolid;
+
+                        _highResolutionDistanceMap[pixelX, pixelY] =
+                            isSolid ? InfiniteDistance : 0f;
+                    }
+                }
+            }
+        }
     }
     
-    private void PropagateDepthBFS()
+    private void ResetTileColors()
     {
-        Queue<Vector2Int> queue = new Queue<Vector2Int>();
+        for (int x = 0; x < _width; x++)
+        {
+            for (int y = 0; y < _height; y++)
+            {
+                if (!_tilemapData[x, y])
+                    continue;
+
+                Vector3Int cellPosition = MatrixToCell(x, y);
+
+                tilemap.SetTileFlags(
+                    cellPosition,
+                    TileFlags.None
+                );
+
+                tilemap.SetColor(
+                    cellPosition,
+                    Color.white
+                );
+            }
+        }
+    }
+
+    private void InitializeDistanceMap()
+    {
+        for (int x = 0; x < _width; x++)
+        {
+            for (int y = 0; y < _height; y++)
+            {
+                /*
+                 * El aire es el origen de la distancia.
+                 * Los tiles sólidos empiezan con distancia infinita.
+                 */
+                _distanceMap[x, y] =
+                    _tilemapData[x, y]
+                        ? InfiniteDistance
+                        : 0f;
+            }
+        }
+    }
+
+    private void CalculateDistanceTransform()
+    {
+        ForwardDistancePass();
+        BackwardDistancePass();
+    }
+
+    private void ForwardDistancePass()
+    {
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                if (!_tilemapData[x, y])
+                    continue;
+
+                float best = _distanceMap[x, y];
+
+                best = Mathf.Min(best, GetDistance(x - 1, y) + 1f);
+                best = Mathf.Min(best, GetDistance(x, y - 1) + 1f);
+
+                best = Mathf.Min(
+                    best,
+                    GetDistance(x - 1, y - 1) + DiagonalCost
+                );
+
+                best = Mathf.Min(
+                    best,
+                    GetDistance(x + 1, y - 1) + DiagonalCost
+                );
+
+                _distanceMap[x, y] = best;
+            }
+        }
+    }
+    
+    private void ForwardHighResolutionPass()
+    {
+        for (int y = 0; y < _textureHeight; y++)
+        {
+            for (int x = 0; x < _textureWidth; x++)
+            {
+                if (!_highResolutionSolidMap[x, y])
+                    continue;
+
+                float best = _highResolutionDistanceMap[x, y];
+
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x - 1, y) + 1f
+                );
+
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x, y - 1) + 1f
+                );
+
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x - 1, y - 1)
+                    + DiagonalCost
+                );
+
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x + 1, y - 1)
+                    + DiagonalCost
+                );
+
+                _highResolutionDistanceMap[x, y] = best;
+            }
+        }
+    }
+
+    private void BackwardDistancePass()
+    {
+        for (int y = _height - 1; y >= 0; y--)
+        {
+            for (int x = _width - 1; x >= 0; x--)
+            {
+                if (!_tilemapData[x, y])
+                    continue;
+
+                float best = _distanceMap[x, y];
+
+                best = Mathf.Min(best, GetDistance(x + 1, y) + 1f);
+                best = Mathf.Min(best, GetDistance(x, y + 1) + 1f);
+
+                best = Mathf.Min(
+                    best,
+                    GetDistance(x + 1, y + 1) + DiagonalCost
+                );
+
+                best = Mathf.Min(
+                    best,
+                    GetDistance(x - 1, y + 1) + DiagonalCost
+                );
+
+                _distanceMap[x, y] = best;
+            }
+        }
+    }
+    
+    private void BackwardHighResolutionPass()
+    {
+        for (int y = _textureHeight - 1; y >= 0; y--)
+        {
+            for (int x = _textureWidth - 1; x >= 0; x--)
+            {
+                if (!_highResolutionSolidMap[x, y])
+                    continue;
+
+                float best = _highResolutionDistanceMap[x, y];
+
+                // Derecha
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x + 1, y) + 1f
+                );
+
+                // Arriba
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x, y + 1) + 1f
+                );
+
+                // Diagonal superior derecha
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x + 1, y + 1)
+                    + DiagonalCost
+                );
+
+                // Diagonal superior izquierda
+                best = Mathf.Min(
+                    best,
+                    GetHighResolutionDistance(x - 1, y + 1)
+                    + DiagonalCost
+                );
+
+                _highResolutionDistanceMap[x, y] = best;
+            }
+        }
+    }
+
+    private float GetDistance(int x, int y)
+    {
+        if (!IsInsideMap(x, y))
+            return InfiniteDistance;
+
+        return _distanceMap[x, y];
+    }
+
+    private float GetHighResolutionDistance(int x, int y)
+    {
+        if (x < 0 || x >= _textureWidth ||
+            y < 0 || y >= _textureHeight)
+        {
+            return InfiniteDistance;
+        }
+
+        return _highResolutionDistanceMap[x, y];
+    }
+    
+    private float CalculateHighResolutionDarkness(int x, int y)
+    {
+        if (!_highResolutionSolidMap[x, y])
+            return 0f;
+
+        float distance =
+            _highResolutionDistanceMap[x, y];
+
+        if (distance >= InfiniteDistance * 0.5f)
+            return 0f;
+
+        float maxDepthInPixels =
+            maxDepth * pixelsPerTile;
+
+        float normalizedDepth = Mathf.InverseLerp(
+            1f,
+            maxDepthInPixels,
+            distance
+        );
+
+        float shapedDepth = Mathf.Pow(
+            normalizedDepth,
+            darknessExponent
+        );
+
+        return Mathf.Clamp01(
+            shapedDepth * maxDarkness
+        );
+    }
+    
+    private void GenerateDepthTexture()
+    {
+        DestroyDepthTexture();
+
+        _depthTexture = new Texture2D(
+            _width,
+            _height,
+            TextureFormat.R8,
+            false,
+            true
+        )
+        {
+            name = $"{name}_DepthMask",
+            filterMode = maskFilterMode,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        Color[] pixels = new Color[_width * _height];
+
+        for (int y = 0; y < _height; y++)
+        {
+            for (int x = 0; x < _width; x++)
+            {
+                float darkness = CalculateDarkness(x, y);
+
+                pixels[y * _width + x] = new Color(
+                    darkness,
+                    darkness,
+                    darkness,
+                    1f
+                );
+            }
+        }
+
+        _depthTexture.SetPixels(pixels);
+        _depthTexture.Apply(false, false);
+    }
+    
+    private void GenerateHighResolutionDepthTexture()
+    {
+        DestroyDepthTexture();
+
+        _depthTexture = new Texture2D(
+            _textureWidth,
+            _textureHeight,
+            TextureFormat.R8,
+            false,
+            true
+        )
+        {
+            name = $"{name}_HighResolutionDepthMask",
+            filterMode = FilterMode.Bilinear,
+            wrapMode = TextureWrapMode.Clamp
+        };
+
+        Color[] pixels =
+            new Color[_textureWidth * _textureHeight];
+
+        for (int y = 0; y < _textureHeight; y++)
+        {
+            for (int x = 0; x < _textureWidth; x++)
+            {
+                float darkness =
+                    CalculateHighResolutionDarkness(x, y);
+
+                pixels[y * _textureWidth + x] =
+                    new Color(
+                        darkness,
+                        darkness,
+                        darkness,
+                        1f
+                    );
+            }
+        }
+
+        _depthTexture.SetPixels(pixels);
+        _depthTexture.Apply(false, false);
+    }
+    
+    private void DebugDistanceRange()
+    {
+        float minDistance = float.MaxValue;
+        float maxDistance = float.MinValue;
+        int solidTiles = 0;
 
         for (int x = 0; x < _width; x++)
         {
@@ -73,206 +606,136 @@ public class TilemapDarknessShader : MonoBehaviour
                 if (!_tilemapData[x, y])
                     continue;
 
-                if (HasAirNeighbour(x, y))
-                {
-                    _depthMap[x, y] = 1;
-                    queue.Enqueue(new Vector2Int(x, y));
-                }
+                float distance = _distanceMap[x, y];
+
+                minDistance = Mathf.Min(minDistance, distance);
+                maxDistance = Mathf.Max(maxDistance, distance);
+                solidTiles++;
             }
         }
 
-        while (queue.Count > 0)
-        {
-            Vector2Int current = queue.Dequeue();
-
-            int currentDepth = _depthMap[current.x, current.y];
-
-            if (currentDepth >= maxDepth)
-                continue;
-
-            TrySetDepth(current.x + 1, current.y, currentDepth + 1, queue);
-            TrySetDepth(current.x - 1, current.y, currentDepth + 1, queue);
-            TrySetDepth(current.x, current.y + 1, currentDepth + 1, queue);
-            TrySetDepth(current.x, current.y - 1, currentDepth + 1, queue);
-        }
+        Debug.Log(
+            $"Distance map | Solids: {solidTiles} | " +
+            $"Min: {minDistance:F2} | Max: {maxDistance:F2}",
+            this
+        );
     }
-    
-    private void TrySetDepth(int x, int y, int depth, Queue<Vector2Int> queue)
+
+    private void DebugHighResDistanceRange()
     {
-        if (!IsInsideMap(x, y))
-            return;
+        float minDistance = float.MaxValue;
+        float maxDistance = float.MinValue;
+        int solidCount = 0;
+        int infiniteCount = 0;
 
-        if (!_tilemapData[x, y])
-            return;
-
-        if (_depthMap[x, y] != 0)
-            return;
-
-        _depthMap[x, y] = depth;
-        queue.Enqueue(new Vector2Int(x, y));
-    }
-    
-    private void MarkBorderTiles()
-    {
-        for (int x = 0; x < _width; x++)
+        for (int y = 0; y < _textureHeight; y++)
         {
-            for (int y = 0; y < _height; y++)
+            for (int x = 0; x < _textureWidth; x++)
             {
-                if (_depthMap[x, y] != 0)
+                if (!_highResolutionSolidMap[x, y])
                     continue;
 
-                if (HasAirNeighbour(x, y))
-                {
-                    _depthMap[x, y] = 1;
-                }
-            }
-        }
-    }
+                float distance = _highResolutionDistanceMap[x, y];
+                solidCount++;
 
-    private void PropagateDepth()
-    {
-        for (int currentDepth = 1; currentDepth < maxDepth; currentDepth++)
-        {
-            for (int x = 0; x < _width; x++)
-            {
-                for (int y = 0; y < _height; y++)
+                if (distance >= InfiniteDistance * 0.5f)
                 {
-                    if (_depthMap[x, y] != 0)
-                        continue;
-
-                    if (HasNeighbourWithDepth(x, y))
-                    {
-                        _depthMap[x, y] = currentDepth + 1;
-                    }
-                }
-            }
-        }
-    }
-    
-    private void FillRemainingSolidTiles()
-    {
-        for (int x = 0; x < _width; x++)
-        {
-            for (int y = 0; y < _height; y++)
-            {
-                if (_depthMap[x, y] == 0)
-                {
-                    _depthMap[x, y] = maxDepth;
-                }
-            }
-        }
-    }
-    
-    private void ApplyDepthDarkness()
-    {
-        for (int x = 0; x < _width; x++)
-        {
-            for (int y = 0; y < _height; y++)
-            {
-                int depth = _depthMap[x, y];
-
-                if (depth == -1)
+                    infiniteCount++;
                     continue;
+                }
 
-                Vector3Int cellPosition = new Vector3Int(
-                    x + _minX,
-                    y + _minY,
-                    0
-                );
-
-                float normalizedDepth = Mathf.InverseLerp(1, maxDepth, depth);
-                float curvedDepth = darknessCurve.Evaluate(normalizedDepth);
-                float lightMultiplier = Mathf.Lerp(1f, 1f - maxDarkness, curvedDepth);
-
-                Color color = new Color(
-                    lightMultiplier,
-                    lightMultiplier,
-                    lightMultiplier,
-                    1f
-                );
-
-                tilemap.SetTileFlags(cellPosition, TileFlags.None);
-                tilemap.SetColor(cellPosition, color);
+                minDistance = Mathf.Min(minDistance, distance);
+                maxDistance = Mathf.Max(maxDistance, distance);
             }
         }
-    }
-    
-    private bool HasNeighbourWithDepth(int x, int y)
-    {
-        return HasDepth(x + 1, y) ||
-               HasDepth(x - 1, y) ||
-               HasDepth(x, y + 1) ||
-               HasDepth(x, y - 1);
-    }
-    
-    private bool HasDepth(int x, int y)
-    {
-        if (!IsInsideMap(x, y))
-            return false;
 
-        return !_tilemapData[x, y];
+        Debug.Log(
+            $"HighRes Distance | Solids: {solidCount} | Infinite: {infiniteCount} | Min: {minDistance:F2} | Max: {maxDistance:F2}",
+            this
+        );
+    }
+    
+    private void ApplyTextureToShader()
+    {
+        Vector3 worldMin = tilemap.CellToWorld(
+            new Vector3Int(_minX, _minY, 0)
+        );
+
+        Vector3 worldMax = tilemap.CellToWorld(
+            new Vector3Int(
+                _minX + _width,
+                _minY + _height,
+                0
+            )
+        );
+
+        Vector2 worldSize = new Vector2(
+            worldMax.x - worldMin.x,
+            worldMax.y - worldMin.y
+        );
+
+        if (!_runtimeMaterial)
+        {
+            Debug.LogError("Runtime material has not been created.", this);
+            return;
+        }
+
+        _runtimeMaterial.SetTexture(
+            DepthTextureId,
+            _depthTexture
+        );
+
+        _runtimeMaterial.SetVector(
+            TilemapWorldMinId,
+            new Vector4(worldMin.x, worldMin.y, 0f, 0f)
+        );
+
+        _runtimeMaterial.SetVector(
+            TilemapWorldSizeId,
+            new Vector4(worldSize.x, worldSize.y, 0f, 0f)
+        );
+    }
+
+    private Vector3Int MatrixToCell(int x, int y)
+    {
+        return new Vector3Int(
+            x + _minX,
+            y + _minY,
+            0
+        );
     }
 
     private bool IsInsideMap(int x, int y)
     {
-        return x >= 0 && x < _width &&
-               y >= 0 && y < _height;
+        return x >= 0 &&
+               x < _width &&
+               y >= 0 &&
+               y < _height;
     }
     
-    private bool IsAir(int x, int y)
+    private void OnValidate()
     {
-        if (!IsInsideMap(x, y))
-            return true;
+        maxDepth = Mathf.Max(2f, maxDepth);
+        boundsPadding = Mathf.Max(1, boundsPadding);
+    }
 
-        return _depthMap[x, y] == -1;
-    }
-    
-    private bool HasAirNeighbour(int x, int y)
+    private void OnDestroy()
     {
-        return IsAir(x + 1, y) ||
-               IsAir(x - 1, y) ||
-               IsAir(x, y + 1) ||
-               IsAir(x, y - 1);
-    }
-    
-    
-    /* DEBUG 
-    
-    private void DebugDepthMapValues()
-    {
-        int[] counts = new int[maxDepth + 1];
-        int airCount = 0;
-        int pendingCount = 0;
+        DestroyDepthTexture();
 
-        for (int x = 0; x < _width; x++)
+        if (_runtimeMaterial != null)
         {
-            for (int y = 0; y < _height; y++)
-            {
-                int depth = _depthMap[x, y];
-
-                if (depth == -1)
-                {
-                    airCount++;
-                }
-                else if (depth == 0)
-                {
-                    pendingCount++;
-                }
-                else if (depth >= 1 && depth <= maxDepth)
-                {
-                    counts[depth]++;
-                }
-            }
-        }
-
-        Debug.Log($"Air: {airCount}");
-        Debug.Log($"Pending 0: {pendingCount}");
-
-        for (int i = 1; i <= maxDepth; i++)
-        {
-            Debug.Log($"Depth {i}: {counts[i]}");
+            Destroy(_runtimeMaterial);
+            _runtimeMaterial = null;
         }
     }
-    
-    */
+
+    private void DestroyDepthTexture()
+    {
+        if (!_depthTexture)
+            return;
+
+        Destroy(_depthTexture);
+        _depthTexture = null;
+    }
 }
