@@ -45,3 +45,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameController
   player: {fileID: 0}
+  sewerAreaAmbienceMusic: {fileID: 8300000, guid: 43c8fc5ab1294004f8cdc33e2ba740c3, type: 3}
+  sewerAreaAmbienceVolume: 1
+  caveAreaAmbienceMusic: {fileID: 8300000, guid: e98c9df2e9339ce40a8802bfbde78e95, type: 3}
+  caveAreaAmbienceVolume: 1
+  boxAreaAmbienceMusic: {fileID: 0}
+  boxAreaAmbienceVolume: 1
+  currentArea: 0
