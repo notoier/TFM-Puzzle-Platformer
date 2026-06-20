@@ -178,6 +178,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             wallRadius,
             groundLayer
         );
+        
     }
     
     private void DetectGround()
