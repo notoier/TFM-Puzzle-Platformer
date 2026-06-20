@@ -9,21 +9,24 @@ public class CameraController : MonoBehaviour
     public float lookAheadDistance;
     public float smoothTimeX = 0.2f;
 
-    [Header("X")]
-    public float lookUpDistance;
+    [Header("y")]
+    public float lookUpDistance = 2f;
     public float smoothTimeY = 0.2f;
-    [Header("Y")]
+    //[Header("Y")]
     public float verticalThreshold = 3f;
 
     private float currentOffsetX;
     private float velocityX;
-
+    private float lookVelocityY;
     private float currentOffsetY;
     private float baseY;
-    private float velocityY;
 
-    private bool isLookingUp = false;
+    private float targetBaseY;
+    private float deadZoneVelocity;
 
+
+
+    public float debugWidth = 8f;
     private void Start()
     {
         baseY = player.position.y;
@@ -43,40 +46,31 @@ public class CameraController : MonoBehaviour
 
         basePosition.x += currentOffsetX;
 
-        //LOOKUP/DOWN (Moviemiento en y)
-
-        float inputY = GetInputY();
-        if (isLookingUp)
-        { 
-            float targetOffsetY = inputY * lookUpDistance;
-            currentOffsetY = Mathf.SmoothDamp(currentOffsetY, targetOffsetY, ref velocityY, smoothTimeY);
-
-            basePosition.y += currentOffsetY;
-        }
-        
 
         //DEADZONE JUMP (Movimietno en y)
 
-        float deadZoneY = player.position.y - baseY;
+        float deadZoneY = player.position.y - targetBaseY;
 
         if (deadZoneY > verticalThreshold)
         {
-            baseY = player.position.y - verticalThreshold;
+            targetBaseY = player.position.y - verticalThreshold;
         }
         else if (deadZoneY < -verticalThreshold)
         {
-            baseY = player.position.y + verticalThreshold;
+            targetBaseY = player.position.y + verticalThreshold;
         }
+        baseY = Mathf.SmoothDamp(baseY, targetBaseY, ref deadZoneVelocity, 0.12f);
 
-        if (!isLookingUp)
-        {
-            basePosition.y = baseY;
-        }
-            
+        //LOOKUP/DOWN (Moviemiento en y)
+
+        float inputY = GetInputY();
+        
+        float targetOffsetY = inputY * lookUpDistance;
+        currentOffsetY = Mathf.SmoothDamp(currentOffsetY, targetOffsetY, ref lookVelocityY, smoothTimeY);
+
+        basePosition.y = baseY + currentOffsetY;
         transform.position = basePosition;
 
-        Debug.DrawLine(new Vector3(player.position.x - 5, baseY, 0), new Vector3(player.position.x + 5, baseY, 0), Color.red, 0.1f);
-        Debug.DrawRay(new Vector3(player.position.x, baseY, 0), Vector3.up * 0.5f, Color.green);
     }
 
     public float GetInputX()
@@ -102,20 +96,23 @@ public class CameraController : MonoBehaviour
 
         if (Keyboard.current.sKey.isPressed)
         {
-            isLookingUp = true;
-            value -= 1;
-            Debug.Log("S");
+            value = -1;  
         }
         else if (Keyboard.current.wKey.isPressed)
         {
-            isLookingUp = true;
-            value += 1; ;
-            Debug.Log("w");
+            value = 1; ;
         }
-        else
-        {
-            isLookingUp = false;
-        }
+
         return value;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Vector3 center = new Vector3 (player.position.x, baseY, transform.position.z);
+
+        Vector3 size = new Vector3(debugWidth, verticalThreshold * 2f, 0f);
+
+        Gizmos.DrawWireCube(center, size);
     }
 }
