@@ -169,7 +169,6 @@ GameObject:
   - component: {fileID: 8294094944122179484}
   - component: {fileID: 524551957039536644}
   - component: {fileID: 1610969634305353374}
-  - component: {fileID: 5888752749270855837}
   m_Layer: 7
   m_Name: Sprite
   m_TagString: Untagged
@@ -276,19 +275,6 @@ Animator:
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1610969634305353374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3726608349725393533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5913991015ee0049b149e001b72f9c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationController
-  characterMovement: {fileID: 4226739494265616928}
---- !u!114 &5888752749270855837
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -520,11 +506,6 @@ MonoBehaviour:
   splashParticles: {fileID: 2384036333798542363, guid: 171bd2911ea1f644bb90407c0c7509b2, type: 3}
   particleSpawnPosition1: {fileID: 9059777092281050729}
   particleSpawnPosition2: {fileID: 3659393838860549648}
-  groundCheck: {fileID: 1060500521697069407}
-  groundRadius: 0.15
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 336
   wallCheck: {fileID: 4357242728179955238}
   wallRadius: 0.1
   slimeTexture: {fileID: 422177647858439552}
@@ -537,10 +518,17 @@ MonoBehaviour:
   fallMultiplier: 2.5
   lowJumpMultiplier: 2
   jumpDebuffOnWater: 0.5
-  groundCheckDistance: 0.3
   groundStickSpeed: 2.5
   maxSlopeAngle: 50
   groundDetectionDisableTime: 0.1
+  groundCheck: {fileID: 1060500521697069407}
+  groundCheckDistance: 0.3
+  groundRadius: 0.15
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 336
+  groundProbeDistance: 0.3
+  groundedContactDistance: 0.05
   weightDebug: 1
   isTryingToMove: 0
   isWalled: 0

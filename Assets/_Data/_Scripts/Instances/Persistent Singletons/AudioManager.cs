@@ -1,6 +1,5 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,18 +8,31 @@ using Random = UnityEngine.Random;
 /// </summary>
 public class AudioManager : PersistentSingleton<AudioManager>
 {
-    public AudioSource musicSource, effectSource;
-    public static bool IsMusicLoop, IsLoopActive;
-    private readonly Dictionary<string, AudioSource> _audioSources = new Dictionary<string, AudioSource>();
-    public bool isSfxOn, isMusicOn;
+    private readonly Dictionary<string, AudioSource> audioSources = new Dictionary<string, AudioSource>();
     
+    [Header("General Audio")]
+    [SerializeField] private bool isSfxOn = true;
+    [SerializeField] private bool isMusicOn = true;
+
+    [SerializeField, Range(0f, 1f)] private float masterVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float effectVolume = 1f;
+    [SerializeField, Range(0f, 1f)] private float musicVolume = 1f;
+        
     [Header("Distant Volume")]
     [SerializeField] private AnimationCurve distanceVolumeCurve;
     [SerializeField] private float maxAudibleDistance = 12f;
     [SerializeField, Range(0f, 1f)] private float minimumVolume = 0.1f;
     
-    private readonly Dictionary<AudioSource, float> _baseEffectVolumes = new();
-    private float _masterVolume, _effectVolume, _musicVolume;
+    private readonly Dictionary<AudioSource, float> baseEffectVolumes = new();
+    private float activeMusicBaseVolume = 1f;
+    
+    [Header("Music Fade")]
+    [SerializeField] private AudioSource musicSourceA;
+    [SerializeField] private AudioSource musicSourceB;
+    [SerializeField] private float defaultMusicFadeDuration = 1.5f;
+
+    private AudioSource activeMusicSource;
+    private Coroutine musicFadeCoroutine;
     
     [Header("Debug")]
     [SerializeField] private AudioClip debugSound;
@@ -28,10 +40,40 @@ public class AudioManager : PersistentSingleton<AudioManager>
     [SerializeField] private bool playDebugEffect;
     [SerializeField] private bool playDebugMusic;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        if (!musicSourceA || !musicSourceB)
+        {
+            Debug.LogError(
+                "AudioManager: musicSourceA y musicSourceB deben estar asignados.",
+                this
+            );
+
+            return;
+        }
+
+        activeMusicSource = musicSourceA;
+
+        ConfigureMusicSource(musicSourceA);
+        ConfigureMusicSource(musicSourceB);
+    }
+
     private void Start()
     {
-        if (playDebugEffect && debugSound) PlayLoopEffect(debugSound, transform);
-        if (playDebugMusic &&  debugMusic) PlayMusic(debugMusic);
+        if (playDebugEffect && debugSound)
+            PlayLoopEffect(debugSound, transform);
+
+        if (playDebugMusic && debugMusic)
+            PlayMusic(debugMusic);
+    }
+
+    private void ConfigureMusicSource(AudioSource source)
+    {
+        source.playOnAwake = false;
+        source.loop = true;
+        source.spatialBlend = 0f;
+        source.mute = !isMusicOn;
     }
 
     // ReSharper disable Unity.PerformanceAnalysis
@@ -42,7 +84,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
 
         string key = $"{emitter.GetInstanceID()}_{clip.name}";
 
-        if (_audioSources.TryGetValue(key, out AudioSource source) && source)
+        if (audioSources.TryGetValue(key, out AudioSource source) && source)
         {
             source.Stop();
             source.loop = false;
@@ -50,7 +92,7 @@ public class AudioManager : PersistentSingleton<AudioManager>
     }
     public void StopAllSounds()
     {
-        foreach (var pair in _audioSources)
+        foreach (var pair in audioSources)
         {
             pair.Value.Stop();
         }
@@ -90,15 +132,15 @@ public class AudioManager : PersistentSingleton<AudioManager>
 
         AudioSource source = GetOrCreateAudioSource(clip, emitter);
 
-        _baseEffectVolumes[source] = volume;
+        baseEffectVolumes[source] = volume;
         
         float distanceVolume =
             GetDistanceVolume(emitter.position);
 
         source.loop = false;
         source.volume =
-            _masterVolume *
-            _effectVolume *
+            masterVolume *
+            effectVolume *
             volume *
             distanceVolume;
 
@@ -126,25 +168,23 @@ public class AudioManager : PersistentSingleton<AudioManager>
             GetDistanceVolume(emitter.position);
 
         source.volume =
-            _masterVolume *
-            _effectVolume *
+            masterVolume *
+            effectVolume *
             volume *
             distanceVolume;
         
-        _baseEffectVolumes[source] = volume;
+        baseEffectVolumes[source] = volume;
 
         if (!source.isPlaying)
             source.Play();
     }
     
     // ReSharper disable Unity.PerformanceAnalysis
-    private AudioSource GetOrCreateAudioSource(
-        AudioClip clip,
-        Transform emitter)
+    private AudioSource GetOrCreateAudioSource(AudioClip clip, Transform emitter)
     {
         string key = $"{emitter.GetInstanceID()}_{clip.name}";
 
-        if (_audioSources.TryGetValue(
+        if (audioSources.TryGetValue(
                 key,
                 out AudioSource existingSource) &&
             existingSource)
@@ -159,55 +199,66 @@ public class AudioManager : PersistentSingleton<AudioManager>
         newSource.playOnAwake = false;
         newSource.spatialBlend = 0f;
 
-        _audioSources[key] = newSource;
+        audioSources[key] = newSource;
 
         return newSource;
     }
-
-
-    public void PlayMusic(AudioClip clip, float volume = 1.0f)
+    
+    public void PlayMusic(AudioClip newClip, float volume = 1f, float fadeDuration = -1f)
     {
-        if (clip == null) return;
+        activeMusicBaseVolume = volume;
+        
+        if (!newClip)
+            return;
 
-        // Use the clip name as the key in the dictionary
-        string soundName = clip.name;
+        if (fadeDuration < 0f)
+            fadeDuration = defaultMusicFadeDuration;
 
-        // Check if the sound is already in the dictionary
-        if (!_audioSources.ContainsKey(soundName))
+        if (activeMusicSource &&
+            activeMusicSource.clip == newClip &&
+            activeMusicSource.isPlaying)
         {
-            // Create a new AudioSource, assign the clip, and add it to the dictionary
-            AudioSource newSource = gameObject.AddComponent<AudioSource>();
-            if (IsMusicLoop)
-            {
-                newSource.loop = true;
-                IsLoopActive = true;
-            }
-            newSource.clip = clip;
-            _audioSources.Add(soundName, newSource);
+            return;
         }
 
-        // Play the sound
-        _audioSources[soundName].Play();
-        _audioSources[soundName].volume = _masterVolume * _musicVolume * volume;
-        if (!_audioSources[soundName].isPlaying) IsLoopActive = false;
-    }// Plays a sound through "musicSource" audio source
-    
-    public void ToggleSFX()
-    {
-        effectSource.mute = !effectSource.mute;
-        isSfxOn = !isSfxOn;
-    }// Activates/deactivates effectSource
+        if (musicFadeCoroutine != null)
+        {
+            StopCoroutine(musicFadeCoroutine);
+            musicFadeCoroutine = null;
+        }
 
+        musicFadeCoroutine = StartCoroutine(
+            CrossFadeMusic(newClip, volume, fadeDuration)
+        );
+    }
+    
+    public void ToggleSfx()
+    {
+        isSfxOn = !isSfxOn;
+
+        foreach (AudioSource source in audioSources.Values)
+        {
+            if (source)
+                source.mute = !isSfxOn;
+        }
+    }
+    
     public void ToggleMusic()
     {
-        musicSource.mute = !musicSource.mute;
         isMusicOn = !isMusicOn;
-    }// Activates/deactivates musicSource
+
+        if (musicSourceA)
+            musicSourceA.mute = !isMusicOn;
+
+        if (musicSourceB)
+            musicSourceB.mute = !isMusicOn;
+    }
+    
     private void Update()
     {
         List<AudioSource> finishedSources = null;
 
-        foreach ((AudioSource source, float baseVolume) in _baseEffectVolumes)
+        foreach ((AudioSource source, float baseVolume) in baseEffectVolumes)
         {
             if (!source || !source.isPlaying)
             {
@@ -220,8 +271,8 @@ public class AudioManager : PersistentSingleton<AudioManager>
                 GetDistanceVolume(source.transform.position);
 
             source.volume =
-                _masterVolume *
-                _effectVolume *
+                masterVolume *
+                effectVolume *
                 baseVolume *
                 distanceVolume;
         }
@@ -230,13 +281,130 @@ public class AudioManager : PersistentSingleton<AudioManager>
             return;
 
         foreach (AudioSource source in finishedSources)
-            _baseEffectVolumes.Remove(source);
+            baseEffectVolumes.Remove(source);
     }
     
-    public void UpdateSoundVolumes(float masterVolume, float effectVolume, float musicVolume)
+    public void UpdateSoundVolumes(float newMasterVolume, float newEffectVolume, float newMusicVolume)
     {
-        _masterVolume = masterVolume;
-        _effectVolume = effectVolume;
-        _musicVolume = musicVolume;
+        masterVolume = newMasterVolume;
+        effectVolume = newEffectVolume;
+        musicVolume = newMusicVolume;
+
+        if (musicFadeCoroutine == null &&
+            activeMusicSource &&
+            activeMusicSource.isPlaying)
+        {
+            activeMusicSource.volume =
+                masterVolume *
+                musicVolume *
+                activeMusicBaseVolume;
+        }
+    }
+    
+    private IEnumerator CrossFadeMusic(
+        AudioClip newClip,
+        float targetVolume,
+        float duration)
+    {
+        AudioSource oldSource = GetLoudestMusicSource();
+
+        AudioSource newSource =
+            oldSource == musicSourceA
+                ? musicSourceB
+                : musicSourceA;
+
+        // La fuente secundaria podría seguir reproduciendo un fade anterior.
+        newSource.Stop();
+        newSource.clip = newClip;
+        newSource.loop = true;
+        newSource.volume = 0f;
+        newSource.mute = !isMusicOn;
+        newSource.Play();
+
+        float oldStartVolume =
+            oldSource && oldSource.isPlaying
+                ? oldSource.volume
+                : 0f;
+
+        float finalVolume =
+            masterVolume *
+            musicVolume *
+            targetVolume;
+
+        if (duration <= 0f)
+        {
+            StopAndClearMusicSource(oldSource);
+
+            newSource.volume = finalVolume;
+            activeMusicSource = newSource;
+            musicFadeCoroutine = null;
+
+            yield break;
+        }
+
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+
+            float progress = Mathf.Clamp01(elapsed / duration);
+
+            if (oldSource)
+            {
+                oldSource.volume = Mathf.Lerp(
+                    oldStartVolume,
+                    0f,
+                    progress
+                );
+            }
+
+            newSource.volume = Mathf.Lerp(
+                0f,
+                finalVolume,
+                progress
+            );
+
+            yield return null;
+        }
+
+        StopAndClearMusicSource(oldSource);
+
+        newSource.volume = finalVolume;
+        activeMusicSource = newSource;
+        musicFadeCoroutine = null;
+    }
+    
+    private AudioSource GetLoudestMusicSource()
+    {
+        bool aIsPlaying = musicSourceA && musicSourceA.isPlaying;
+        bool bIsPlaying = musicSourceB && musicSourceB.isPlaying;
+
+        if (aIsPlaying && bIsPlaying)
+        {
+            return musicSourceA.volume >= musicSourceB.volume
+                ? musicSourceA
+                : musicSourceB;
+        }
+
+        if (aIsPlaying)
+            return musicSourceA;
+
+        if (bIsPlaying)
+            return musicSourceB;
+
+        return activeMusicSource
+            ? activeMusicSource
+            : musicSourceA;
+    }
+
+    private static void StopAndClearMusicSource(AudioSource source)
+    {
+        if (!source)
+            return;
+
+        source.Stop();
+        source.clip = null;
+        source.volume = 0f;
     }
 }
