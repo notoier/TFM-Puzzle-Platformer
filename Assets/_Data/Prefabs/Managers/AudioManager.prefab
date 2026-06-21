@@ -46,10 +46,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dd7852d5fbfa474babcf911c818b71a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AudioManager
-  musicSource: {fileID: 0}
-  effectSource: {fileID: 0}
   isSfxOn: 1
-  isMusicOn: 0
+  isMusicOn: 1
+  masterVolume: 1
+  effectVolume: 1
+  musicVolume: 1
   distanceVolumeCurve:
     serializedVersion: 2
     m_Curve:
