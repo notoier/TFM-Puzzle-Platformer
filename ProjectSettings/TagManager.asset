@@ -44,9 +44,6 @@ TagManager:
   - name: Background
     uniqueID: 774804653
     locked: 0
-  - name: TerrainVisual
-    uniqueID: 3674870373
-    locked: 0
   - name: LevelObjects
     uniqueID: 198442843
     locked: 0
@@ -55,6 +52,9 @@ TagManager:
     locked: 0
   - name: Water
     uniqueID: 3246727101
+    locked: 0
+  - name: TerrainVisual
+    uniqueID: 3674870373
     locked: 0
   - name: Level
     uniqueID: 3170929219

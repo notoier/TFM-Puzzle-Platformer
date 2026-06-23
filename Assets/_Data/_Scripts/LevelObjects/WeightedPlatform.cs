@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,6 +43,10 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     [SerializeField] private float movingSoundVolume;
     [SerializeField] private AudioClip lockedSound;
     [SerializeField] private float lockedSoundVolume;
+    
+    [Header("References")]
+    [SerializeField] private Rigidbody2D ChainAnchor;
+    
     private bool _isMovingSoundPlaying;
     
     private Vector3 _startPosition;
@@ -71,7 +76,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         
         _lastPhysicsPosition = transform.position;
     }
-
+    
     public ControlMode GetControlMode()
     {
         return controlMode;
@@ -348,6 +353,12 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             config.movementSpeed * Time.deltaTime
         );
 
+        ChainAnchor.transform.position = Vector3.MoveTowards(
+            transform.position,
+            ChainAnchor.position + (Vector2) targetPosition,
+            config.movementSpeed * Time.deltaTime
+        );
+        
         Vector2 currentPosition = transform.position;
         Vector2 platformDelta = currentPosition - previousPosition;
 
