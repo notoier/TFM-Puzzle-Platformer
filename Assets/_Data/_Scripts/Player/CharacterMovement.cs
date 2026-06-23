@@ -189,8 +189,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             return;
         }
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(
+        RaycastHit2D[] hits = Physics2D.CircleCastAll(
             groundCheck.position,
+            groundRadius,
             Vector2.down,
             groundProbeDistance,
             groundLayer
@@ -206,15 +207,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
         groundN = groundHit.normal;
 
-        bool movingDownward =
-            characterRigidbody.linearVelocity.y <= 0.1f;
-
-        bool touchingGround =
-            groundHit.distance <= groundedContactDistance;
-
-        isGrounded =
-            movingDownward &&
-            touchingGround;
+        isGrounded = groundHit.distance <= groundedContactDistance;
 
         if (isGrounded)
         {
