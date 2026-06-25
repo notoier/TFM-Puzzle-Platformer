@@ -577,6 +577,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     /// <param name="platformSize">Final platform size in local units.</param>
     public void UpdateColliders(Vector2 platformSize)
     {
+        /*
         if (solidCollider)
         {
             solidCollider.size = platformSize;
@@ -592,6 +593,7 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
             0f,
             platformSize.y * 0.5f + triggerHeight * 0.5f
         );
+        */
     }
     
     private void StartMovingSound()
