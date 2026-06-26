@@ -47,6 +47,14 @@ public class TilemapDarknessShader : MonoBehaviour
 
     [SerializeField] private bool highResActive;
 
+    [Header("Edge Lighting")]
+
+    [SerializeField, Range(0f, 1f)]
+    private float lightEdgeStart = 0f;
+
+    [SerializeField, Range(0f, 1f)]
+    private float lightEdgeEnd = 0.04f;
+    
     [Header("Debug")]
     [SerializeField] private bool showRawDistanceMask;
     
@@ -62,6 +70,12 @@ public class TilemapDarknessShader : MonoBehaviour
 
     private static readonly int TilemapWorldSizeId =
         Shader.PropertyToID("_TilemapWorldSize");
+    
+    private static readonly int LightEdgeStartId =
+        Shader.PropertyToID("_LightEdgeStart");
+
+    private static readonly int LightEdgeEndId =
+        Shader.PropertyToID("_LightEdgeEnd");
 
     private int _width;
     private int _height;
@@ -514,6 +528,42 @@ public class TilemapDarknessShader : MonoBehaviour
         );
     }
     
+    private float CalculateNormalizedDepth(int x, int y)
+    {
+        if (!_tilemapData[x, y])
+            return 0f;
+
+        float distance = _distanceMap[x, y];
+
+        if (distance >= InfiniteDistance * 0.5f)
+            return 0f;
+
+        return Mathf.InverseLerp(
+            1f,
+            maxDepth,
+            distance
+        );
+    }
+    
+    private float CalculateHighResolutionNormalizedDepth(int x, int y)
+    {
+        if (!_highResolutionSolidMap[x, y])
+            return 0f;
+
+        float distance = _highResolutionDistanceMap[x, y];
+
+        if (distance >= InfiniteDistance * 0.5f)
+            return 0f;
+
+        float maxDepthInPixels = maxDepth * pixelsPerTile;
+
+        return Mathf.InverseLerp(
+            1f,
+            maxDepthInPixels,
+            distance
+        );
+    }
+    
     private void GenerateDepthTexture()
     {
         DestroyDepthTexture();
@@ -521,7 +571,7 @@ public class TilemapDarknessShader : MonoBehaviour
         _depthTexture = new Texture2D(
             _width,
             _height,
-            TextureFormat.R8,
+            TextureFormat.RG16,
             false,
             true
         )
@@ -537,14 +587,19 @@ public class TilemapDarknessShader : MonoBehaviour
         {
             for (int x = 0; x < _width; x++)
             {
-                float darkness = CalculateDarkness(x, y);
+                float normalizedDepth =
+                    CalculateNormalizedDepth(x, y);
 
-                pixels[y * _width + x] = new Color(
-                    darkness,
-                    darkness,
-                    darkness,
-                    1f
-                );
+                float darkness =
+                    CalculateDarkness(x, y);
+
+                pixels[y * _width + x] =
+                    new Color(
+                        normalizedDepth,
+                        darkness,
+                        0f,
+                        1f
+                    );
             }
         }
 
@@ -559,13 +614,13 @@ public class TilemapDarknessShader : MonoBehaviour
         _depthTexture = new Texture2D(
             _textureWidth,
             _textureHeight,
-            TextureFormat.R8,
+            TextureFormat.RG16,
             false,
             true
         )
         {
             name = $"{name}_HighResolutionDepthMask",
-            filterMode = FilterMode.Bilinear,
+            filterMode = maskFilterMode,
             wrapMode = TextureWrapMode.Clamp
         };
 
@@ -579,13 +634,15 @@ public class TilemapDarknessShader : MonoBehaviour
                 float darkness =
                     CalculateHighResolutionDarkness(x, y);
 
-                pixels[y * _textureWidth + x] =
-                    new Color(
-                        darkness,
-                        darkness,
-                        darkness,
-                        1f
-                    );
+                float normalizedDepth =
+                    CalculateHighResolutionNormalizedDepth(x, y);
+
+                pixels[y * _textureWidth + x] = new Color(
+                    normalizedDepth,        // R: profundidad para la máscara de luz
+                    darkness, // G: oscurecimiento que ya funcionaba
+                    0f,
+                    1f
+                );
             }
         }
 
@@ -693,6 +750,16 @@ public class TilemapDarknessShader : MonoBehaviour
         _runtimeMaterial.SetVector(
             TilemapWorldSizeId,
             new Vector4(worldSize.x, worldSize.y, 0f, 0f)
+        );
+        
+        _runtimeMaterial.SetFloat(
+            LightEdgeStartId,
+            lightEdgeStart
+        );
+
+        _runtimeMaterial.SetFloat(
+            LightEdgeEndId,
+            lightEdgeEnd
         );
     }
 
