@@ -976,10 +976,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 0}
     - target: {fileID: 3267940106129335712, guid: 41fe3f8f03224504a92ac66e1fac33fb, type: 3}
-      propertyPath: centerSprite
-      value: 
-      objectReference: {fileID: -1176908766, guid: 695456ca1db926d46bebb0a0a7785fac, type: 3}
-    - target: {fileID: 3267940106129335712, guid: 41fe3f8f03224504a92ac66e1fac33fb, type: 3}
       propertyPath: sortingLayerName
       value: Level
       objectReference: {fileID: 0}
