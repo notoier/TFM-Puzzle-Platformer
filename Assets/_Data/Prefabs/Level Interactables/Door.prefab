@@ -77,8 +77,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 198442843
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 0}
@@ -144,6 +144,7 @@ MonoBehaviour:
   snapMode: 1
   snapOffset: {x: 0, y: -0.5}
   snapAfterMoveDelay: 0.25
+  platform: {fileID: 0}
 --- !u!114 &7773161154863756722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,6 +159,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Door
   doorClosed: {fileID: 8184021271010404476}
   doorOpen: {fileID: 1410640235136376994}
+  startsOpen: 0
   openSound: {fileID: 8300000, guid: a72101be2b952e840a3ccb81fcca6b65, type: 3}
   openSoundVolume: 0.1
   closeSound: {fileID: 8300000, guid: d59fd086eb882a74cade41359618d45c, type: 3}
@@ -240,8 +242,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 198442843
+  m_SortingLayer: 3
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -9095717837082945937, guid: 207ee8102dd4143d288186ef0be518ee, type: 3}
