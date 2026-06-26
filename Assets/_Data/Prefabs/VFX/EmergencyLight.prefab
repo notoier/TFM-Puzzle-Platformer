@@ -80,10 +80,6 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 0.8436657
       objectReference: {fileID: 0}
-    - target: {fileID: 1221358105052969460, guid: c1ab977855c635d4083c85a316ff2196, type: 3}
-      propertyPath: m_WasSpriteAssigned
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2814104555263895926, guid: c1ab977855c635d4083c85a316ff2196, type: 3}
       propertyPath: frameColor.a
       value: 1
@@ -146,7 +142,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5470206860403110760, guid: c1ab977855c635d4083c85a316ff2196, type: 3}
       propertyPath: m_WasSpriteAssigned
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7609363301143436078, guid: c1ab977855c635d4083c85a316ff2196, type: 3}
       propertyPath: m_LocalScale.x
