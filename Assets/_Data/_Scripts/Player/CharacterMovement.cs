@@ -20,6 +20,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField] private float jumpForce =14;
     [SerializeField] private float coyoteTime = 0.1f;
     [SerializeField] private float jumpBufferTime = 0.1f;
+    
+    
+    [Header("Audio")]
+    [SerializeField] private AudioClip jumpSFX;
+    [SerializeField] private float jumpVolume;
 
     [Header("Particle Configuration")]
     [SerializeField] private GameObject splashParticles;
@@ -177,8 +182,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             wallCheck.position,
             wallRadius,
             groundLayer
+            
         );
-        
     }
     
     private void DetectGround()
@@ -285,6 +290,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         groundDetectionDisableCounter =
             groundDetectionDisableTime;
 
+        AudioManager.Instance.PlayEffect(jumpSFX, transform, jumpVolume);
         animator.SetTrigger(JumpTrigger);
         animator.SetBool(IsGroundedParameter, false);
     }
