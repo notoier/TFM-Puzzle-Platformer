@@ -3,19 +3,18 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags:
-  - Player Clone
+  tags: [Player Clone]
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Background
   - Water
   - UI
   - Ground
   - Player
   - LevelObject
-  - 
+  - WaterFX
   - 
   - 
   - 
@@ -45,14 +44,20 @@ TagManager:
   - name: Background
     uniqueID: 774804653
     locked: 0
-  - name: Level
-    uniqueID: 3170929219
+  - name: LevelObjects
+    uniqueID: 198442843
     locked: 0
   - name: Player
     uniqueID: 3341655653
     locked: 0
   - name: Water
     uniqueID: 3246727101
+    locked: 0
+  - name: TerrainVisual
+    uniqueID: 3674870373
+    locked: 0
+  - name: Level
+    uniqueID: 3170929219
     locked: 0
   - name: WaterFX
     uniqueID: 4269165513
