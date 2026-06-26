@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,6 +21,15 @@ public class PlatformVisualBuilder : MonoBehaviour
     [SerializeField] private string sortingLayerName = "Default";
     [SerializeField] private int sortingOrder = 0;
 
+    [Header("Chain")] 
+    [SerializeField] private Sprite twoSpaceRope;
+    [SerializeField] private Sprite threeSpaceRope;
+    [SerializeField] private Sprite fourSpaceRope;
+    
+    [SerializeField] private List<SpriteRenderer> chainSegments;
+    [SerializeField] private SpriteRenderer rope;
+    [SerializeField] private int startHidden;
+    
     [Header("References")]
     [SerializeField] private Transform visualRoot;
     
@@ -34,6 +44,11 @@ public class PlatformVisualBuilder : MonoBehaviour
     private void OnValidate()
     {
         QueueBuildPlatform();
+    }
+
+    public float GetSize()
+    {
+        return centerPieces + 2;
     }
 
     private void QueueBuildPlatform()
@@ -114,6 +129,19 @@ public class PlatformVisualBuilder : MonoBehaviour
         CreatePiece("Right", rightSprite, rightX);
         
         UpdateWeightedPlatformColliders();
+        
+        rope.sprite = GetSize() switch
+        {
+            2 => twoSpaceRope,
+            3 => threeSpaceRope,
+            4 => fourSpaceRope,
+            _ => threeSpaceRope
+        };
+
+        for (int i = 0; i <= startHidden; ++i)
+        {
+            chainSegments[i].enabled = false;
+        }
     }
 
     private void CreatePiece(string pieceName, Sprite sprite, float localX)
