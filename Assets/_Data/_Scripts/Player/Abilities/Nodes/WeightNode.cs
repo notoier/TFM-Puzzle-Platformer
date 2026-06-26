@@ -26,6 +26,12 @@ public class WeightNode : ActionNode
     [SerializeField]
     private string contextTargetKey;
 
+    [SerializeField]
+    private WeightValueSource valueSource;
+
+    [SerializeField]
+    private int weightValue = 1;
+
     [SerializeReference]
     private ParameterNode weightParameter;
 
@@ -38,8 +44,8 @@ public class WeightNode : ActionNode
             return;
         }
 
-        int weightValue = weightParameter.GetValue<int>(context);
-        if (nodeType == WeightNodeType.Divide && weightValue == 0)
+        int resolvedWeight = GetWeightValue(context);
+        if (nodeType == WeightNodeType.Divide && resolvedWeight == 0)
         {
             Debug.LogError("Weight node cannot divide by zero.");
             Fail(context);
@@ -49,16 +55,19 @@ public class WeightNode : ActionNode
         switch (nodeType)
         {
             case WeightNodeType.Sum:
-                weightTarget.AddWeight(weightValue);
+                weightTarget.AddWeight(resolvedWeight);
                 break;
             case WeightNodeType.Rest:
-                weightTarget.AddWeight(-weightValue);
+                weightTarget.AddWeight(-resolvedWeight);
                 break;
             case WeightNodeType.Set:
-                weightTarget.Weight = weightValue;
+                weightTarget.Weight = resolvedWeight;
                 break;
             case WeightNodeType.Divide:
-                weightTarget.Weight /= weightValue;
+                weightTarget.Weight /= resolvedWeight;
+                break;
+            case WeightNodeType.Multiply:
+                weightTarget.Weight *= resolvedWeight;
                 break;
         }
     }
@@ -68,6 +77,14 @@ public class WeightNode : ActionNode
         AbilityValidationResult targetValidation = ValidateTargetSource();
         if (targetValidation.BlocksUse)
             return targetValidation;
+
+        if (valueSource == WeightValueSource.LocalValue)
+        {
+            if (nodeType == WeightNodeType.Divide && weightValue == 0)
+                return AbilityValidationResult.Invalid("Weight node cannot divide by zero.");
+
+            return AbilityValidationResult.Complete();
+        }
 
         if (weightParameter == null)
             return AbilityValidationResult.Incomplete("Weight node needs a weight parameter.");
@@ -80,6 +97,13 @@ public class WeightNode : ActionNode
             return AbilityValidationResult.Invalid("Weight node cannot divide by zero.");
 
         return AbilityValidationResult.Complete();
+    }
+
+    private int GetWeightValue(AbilityContext context)
+    {
+        return valueSource == WeightValueSource.LocalValue
+            ? weightValue
+            : weightParameter.GetValue<int>(context);
     }
 
     private bool TryGetWeightTarget(AbilityContext context, out IProvidesWeight weightTarget)
@@ -214,5 +238,12 @@ public enum WeightNodeType
     Sum,
     Rest,
     Set,
-    Divide
+    Divide,
+    Multiply
+}
+
+public enum WeightValueSource
+{
+    ParameterNode,
+    LocalValue
 }
