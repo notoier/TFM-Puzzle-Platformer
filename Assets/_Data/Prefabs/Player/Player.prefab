@@ -95,37 +95,6 @@ Transform:
   - {fileID: 3659393838860549648}
   m_Father: {fileID: 4599501691189525817}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &3329272386434805142
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3138490886833842944}
-  m_Layer: 7
-  m_Name: WallCheck
-  m_TagString: Untagged
-  m_Icon: {fileID: 3443629218296621865, guid: 0000000000000000d000000000000000, type: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3138490886833842944
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3329272386434805142}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.7, y: 0.45, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 422177647858439552}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3380435550903448219
 GameObject:
   m_ObjectHideFlags: 0
@@ -151,7 +120,7 @@ Transform:
   m_GameObject: {fileID: 3380435550903448219}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.7, y: 0.37, z: 0}
+  m_LocalPosition: {x: 0.529, y: 0.543, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -169,7 +138,6 @@ GameObject:
   - component: {fileID: 8294094944122179484}
   - component: {fileID: 524551957039536644}
   - component: {fileID: 1610969634305353374}
-  - component: {fileID: 5888752749270855837}
   m_Layer: 7
   m_Name: Sprite
   m_TagString: Untagged
@@ -190,7 +158,6 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3138490886833842944}
   - {fileID: 4357242728179955238}
   m_Father: {fileID: 4599501691189525817}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -276,19 +243,6 @@ Animator:
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
 --- !u!114 &1610969634305353374
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3726608349725393533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5913991015ee0049b149e001b72f9c5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::AnimationController
-  characterMovement: {fileID: 4226739494265616928}
---- !u!114 &5888752749270855837
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -520,11 +474,6 @@ MonoBehaviour:
   splashParticles: {fileID: 2384036333798542363, guid: 171bd2911ea1f644bb90407c0c7509b2, type: 3}
   particleSpawnPosition1: {fileID: 9059777092281050729}
   particleSpawnPosition2: {fileID: 3659393838860549648}
-  groundCheck: {fileID: 1060500521697069407}
-  groundRadius: 0.15
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 336
   wallCheck: {fileID: 4357242728179955238}
   wallRadius: 0.1
   slimeTexture: {fileID: 422177647858439552}
@@ -537,10 +486,17 @@ MonoBehaviour:
   fallMultiplier: 2.5
   lowJumpMultiplier: 2
   jumpDebuffOnWater: 0.5
-  groundCheckDistance: 0.3
   groundStickSpeed: 2.5
   maxSlopeAngle: 50
   groundDetectionDisableTime: 0.1
+  groundCheck: {fileID: 1060500521697069407}
+  groundCheckDistance: 0.3
+  groundRadius: 0.15
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 336
+  groundProbeDistance: 0.3
+  groundedContactDistance: 0.05
   weightDebug: 1
   isTryingToMove: 0
   isWalled: 0
