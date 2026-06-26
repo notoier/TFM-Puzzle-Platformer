@@ -17,6 +17,7 @@ MonoBehaviour:
   - rid: 7721760637341401088
   - rid: 7721760637341401089
   - rid: 7721760637341401091
+  - rid: 7721760637341401168
   references:
     version: 2
     RefIds:
@@ -45,3 +46,12 @@ MonoBehaviour:
         contextTargetKey: 
         weightParameter:
           rid: -2
+    - rid: 7721760637341401168
+      type: {class: TargetNode, ns: , asm: Assembly-CSharp}
+      data:
+        targetSource: 3
+        targetSelectionMode: 6
+        outputVectorKey: targetPosition
+        targetTag: 
+        targetName: 
+        contextTargetKey: 
