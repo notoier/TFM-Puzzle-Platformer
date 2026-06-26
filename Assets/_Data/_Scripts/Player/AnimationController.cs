@@ -8,4 +8,9 @@ public class AnimationController : MonoBehaviour
     {
         characterMovement.SpawnParticles();
     }
+
+    public void LittleShake()
+    {
+        CameraShake.Instance.Shake(CameraShake.ShakeType.Small);
+    }
 }
