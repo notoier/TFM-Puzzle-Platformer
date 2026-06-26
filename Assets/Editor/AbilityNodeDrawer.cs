@@ -223,6 +223,9 @@ public class AbilityNodeDrawer : PropertyDrawer
             case TargetNode:
                 ClearUnusedTargetFields(nodeProperty, changedPropertyName);
                 break;
+            case DeathNode:
+                ClearUnusedDeathFields(nodeProperty, changedPropertyName);
+                break;
             case ScaleNode:
                 ClearUnusedScaleFields(nodeProperty, changedPropertyName);
                 break;
@@ -296,6 +299,19 @@ public class AbilityNodeDrawer : PropertyDrawer
             ClearTargetSourceFields(nodeProperty, GetTargetSource(nodeProperty), "targetTag", "targetName", "contextTargetKey", "targetSelectionMode");
     }
 
+    private void ClearUnusedDeathFields(SerializedProperty nodeProperty, string changedPropertyName)
+    {
+        if (changedPropertyName == "targetSource")
+            ClearTargetSourceFields(nodeProperty, GetDeathTargetSource(nodeProperty), "targetTag", "targetName", "contextTargetKey", "targetSelectionMode");
+
+        if (changedPropertyName == "affectAllTargets")
+        {
+            SerializedProperty affectAllTargets = nodeProperty.FindPropertyRelative("affectAllTargets");
+            if (affectAllTargets != null && affectAllTargets.boolValue)
+                ClearRelativeProperty(nodeProperty, "targetSelectionMode");
+        }
+    }
+
     private void ClearUnusedScaleFields(SerializedProperty nodeProperty, string changedPropertyName)
     {
         if (changedPropertyName == "targetSource")
@@ -349,6 +365,19 @@ public class AbilityNodeDrawer : PropertyDrawer
     {
         if (changedPropertyName == "targetSource")
             ClearTargetSourceFields(nodeProperty, GetWeightTargetSource(nodeProperty), "targetTag", "targetName", "contextTargetKey", "targetSelectionMode");
+
+        if (changedPropertyName != "valueSource")
+            return;
+
+        SerializedProperty valueSource = nodeProperty.FindPropertyRelative("valueSource");
+        WeightValueSource selectedSource = valueSource != null
+            ? (WeightValueSource)valueSource.enumValueIndex
+            : WeightValueSource.ParameterNode;
+
+        if (selectedSource == WeightValueSource.LocalValue)
+            ClearRelativeProperty(nodeProperty, "weightParameter");
+        else
+            ClearRelativeProperty(nodeProperty, "weightValue");
     }
 
     private void ClearUnusedReadWeightFields(SerializedProperty nodeProperty, string changedPropertyName)
@@ -368,16 +397,54 @@ public class AbilityNodeDrawer : PropertyDrawer
 
             if (selectedMode == CancelMode.Always)
             {
+                ClearRelativeProperty(nodeProperty, "negateCondition");
                 ClearRelativeProperty(nodeProperty, "targetSource");
+                ClearRelativeProperty(nodeProperty, "targetSelectionMode");
                 ClearRelativeProperty(nodeProperty, "targetTag");
                 ClearRelativeProperty(nodeProperty, "targetName");
                 ClearRelativeProperty(nodeProperty, "contextTargetKey");
+                ClearRelativeProperty(nodeProperty, "contextVariableType");
+                ClearRelativeProperty(nodeProperty, "contextVariableKey");
+                ClearRelativeProperty(nodeProperty, "distanceComparison");
+                ClearRelativeProperty(nodeProperty, "distance");
+                return;
+            }
+
+            if (selectedMode == CancelMode.IfTargetExists)
+            {
+                ClearRelativeProperty(nodeProperty, "contextVariableType");
+                ClearRelativeProperty(nodeProperty, "contextVariableKey");
+                ClearRelativeProperty(nodeProperty, "targetSelectionMode");
+                ClearRelativeProperty(nodeProperty, "distanceComparison");
+                ClearRelativeProperty(nodeProperty, "distance");
+                return;
+            }
+
+            if (selectedMode == CancelMode.IfContextVariableExists)
+            {
+                ClearRelativeProperty(nodeProperty, "targetSource");
+                ClearRelativeProperty(nodeProperty, "targetSelectionMode");
+                ClearRelativeProperty(nodeProperty, "targetTag");
+                ClearRelativeProperty(nodeProperty, "targetName");
+                ClearRelativeProperty(nodeProperty, "contextTargetKey");
+                ClearRelativeProperty(nodeProperty, "distanceComparison");
+                ClearRelativeProperty(nodeProperty, "distance");
+                return;
+            }
+
+            if (selectedMode == CancelMode.IfTargetDistance)
+            {
+                ClearRelativeProperty(nodeProperty, "contextVariableType");
+                ClearRelativeProperty(nodeProperty, "contextVariableKey");
                 return;
             }
         }
 
-        if (changedPropertyName == "targetSource")
-            ClearTargetSourceFields(nodeProperty, GetCancelTargetSource(nodeProperty), "targetTag", "targetName", "contextTargetKey", null);
+        if (changedPropertyName == "targetSource"
+            && (GetCancelMode(nodeProperty) == CancelMode.IfTargetExists || GetCancelMode(nodeProperty) == CancelMode.IfTargetDistance))
+        {
+            ClearTargetSourceFields(nodeProperty, GetCancelTargetSource(nodeProperty), "targetTag", "targetName", "contextTargetKey", "targetSelectionMode");
+        }
     }
 
     private void ClearUnusedParameterFields(SerializedProperty nodeProperty, string changedPropertyName)
@@ -551,6 +618,9 @@ public class AbilityNodeDrawer : PropertyDrawer
 
         if (nodeProperty.managedReferenceValue is TargetNode)
             return ShouldDrawTargetProperty(nodeProperty, childProperty);
+
+        if (nodeProperty.managedReferenceValue is DeathNode)
+            return ShouldDrawDeathProperty(nodeProperty, childProperty);
 
         if (nodeProperty.managedReferenceValue is VisibilityNode)
             return ShouldDrawVisibilityProperty(nodeProperty, childProperty);
@@ -756,16 +826,25 @@ public class AbilityNodeDrawer : PropertyDrawer
         if (childName != "targetSelectionMode"
             && childName != "targetTag"
             && childName != "targetName"
-            && childName != "contextTargetKey")
+            && childName != "contextTargetKey"
+            && childName != "weightValue"
+            && childName != "weightParameter")
             return true;
 
         TargetSource targetSource = GetWeightTargetSource(nodeProperty);
+        SerializedProperty valueSource = nodeProperty.FindPropertyRelative("valueSource");
+        WeightValueSource selectedSource = valueSource != null
+            ? (WeightValueSource)valueSource.enumValueIndex
+            : WeightValueSource.ParameterNode;
+
         return childName switch
         {
             "targetSelectionMode" => UsesTargetSelection(targetSource),
             "targetTag" => targetSource == TargetSource.Tag,
             "targetName" => targetSource == TargetSource.Name,
             "contextTargetKey" => targetSource == TargetSource.ContextTarget,
+            "weightValue" => selectedSource == WeightValueSource.LocalValue,
+            "weightParameter" => selectedSource == WeightValueSource.ParameterNode,
             _ => true
         };
     }
@@ -799,27 +878,70 @@ public class AbilityNodeDrawer : PropertyDrawer
     private bool ShouldDrawCancelProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
     {
         string childName = childProperty.name;
-        if (childName != "targetSource"
+        if (childName != "negateCondition"
+            && childName != "targetSource"
+            && childName != "targetSelectionMode"
             && childName != "targetTag"
             && childName != "targetName"
-            && childName != "contextTargetKey")
+            && childName != "contextTargetKey"
+            && childName != "contextVariableType"
+            && childName != "contextVariableKey"
+            && childName != "distanceComparison"
+            && childName != "distance")
             return true;
 
-        SerializedProperty cancelMode = nodeProperty.FindPropertyRelative("cancelMode");
-        CancelMode selectedMode = cancelMode != null
-            ? (CancelMode)cancelMode.enumValueIndex
-            : CancelMode.Always;
+        CancelMode selectedMode = GetCancelMode(nodeProperty);
 
         if (selectedMode == CancelMode.Always)
             return false;
 
+        if (childName == "negateCondition")
+            return true;
+
+        bool usesTarget = selectedMode == CancelMode.IfTargetExists || selectedMode == CancelMode.IfTargetDistance;
+        bool usesDistance = selectedMode == CancelMode.IfTargetDistance;
+        bool usesContextVariable = selectedMode == CancelMode.IfContextVariableExists;
+
         TargetSource targetSource = GetCancelTargetSource(nodeProperty);
         return childName switch
         {
-            "targetSource" => true,
+            "targetSource" => usesTarget,
+            "targetSelectionMode" => usesDistance && UsesTargetSelection(targetSource),
+            "targetTag" => usesTarget && targetSource == TargetSource.Tag,
+            "targetName" => usesTarget && targetSource == TargetSource.Name,
+            "contextTargetKey" => usesTarget && targetSource == TargetSource.ContextTarget,
+            "contextVariableType" => usesContextVariable,
+            "contextVariableKey" => usesContextVariable,
+            "distanceComparison" => usesDistance,
+            "distance" => usesDistance,
+            _ => true
+        };
+    }
+
+    /// <summary>
+    /// Shows only the DeathNode fields required by the selected target source.
+    /// </summary>
+    private bool ShouldDrawDeathProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
+    {
+        string childName = childProperty.name;
+        if (childName != "targetSelectionMode"
+            && childName != "affectAllTargets"
+            && childName != "contextTargetKey"
+            && childName != "targetTag"
+            && childName != "targetName")
+            return true;
+
+        TargetSource targetSource = GetDeathTargetSource(nodeProperty);
+        bool usesSelection = UsesTargetSelection(targetSource);
+        bool affectAllTargets = GetBool(nodeProperty, "affectAllTargets");
+
+        return childName switch
+        {
+            "targetSelectionMode" => usesSelection && !affectAllTargets,
+            "affectAllTargets" => usesSelection,
+            "contextTargetKey" => targetSource == TargetSource.ContextTarget,
             "targetTag" => targetSource == TargetSource.Tag,
             "targetName" => targetSource == TargetSource.Name,
-            "contextTargetKey" => targetSource == TargetSource.ContextTarget,
             _ => true
         };
     }
@@ -871,6 +993,28 @@ public class AbilityNodeDrawer : PropertyDrawer
     }
 
     /// <summary>
+    /// Reads the selected target source used by DeathNode.
+    /// </summary>
+    private TargetSource GetDeathTargetSource(SerializedProperty nodeProperty)
+    {
+        SerializedProperty targetSource = nodeProperty.FindPropertyRelative("targetSource");
+        return targetSource != null
+            ? (TargetSource)targetSource.enumValueIndex
+            : TargetSource.Self;
+    }
+
+    /// <summary>
+    /// Reads the selected condition used by CancelNode.
+    /// </summary>
+    private CancelMode GetCancelMode(SerializedProperty nodeProperty)
+    {
+        SerializedProperty cancelMode = nodeProperty.FindPropertyRelative("cancelMode");
+        return cancelMode != null
+            ? (CancelMode)cancelMode.enumValueIndex
+            : CancelMode.Always;
+    }
+
+    /// <summary>
     /// Reads the selected target source used by WeightNode.
     /// </summary>
     private TargetSource GetWeightTargetSource(SerializedProperty nodeProperty)
@@ -909,6 +1053,12 @@ public class AbilityNodeDrawer : PropertyDrawer
     private bool UsesTargetSelection(TargetSource targetSource)
     {
         return targetSource == TargetSource.Tag || targetSource == TargetSource.Name;
+    }
+
+    private bool GetBool(SerializedProperty nodeProperty, string propertyName)
+    {
+        SerializedProperty property = nodeProperty.FindPropertyRelative(propertyName);
+        return property != null && property.boolValue;
     }
 
     /// <summary>
