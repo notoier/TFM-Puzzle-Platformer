@@ -61,6 +61,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private float groundRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask wallLayer;
     [Tooltip("Distancia utilizada para buscar una superficie debajo.")]
     [SerializeField] private float groundProbeDistance = 0.3f;
 
@@ -100,6 +101,12 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         UpdateJumpBuffer();
         HandleWallPushAnimation();
         DrawDebugChecks();
+        
+        /* Debug for split */
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            animator.SetTrigger("Splitting");
+        }
     }
 
     private void FixedUpdate()
@@ -133,6 +140,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             IsWalledParameter,
             isWalled
         );
+        
+        
     }
     
     private void UpdateFacingDirection()
@@ -181,7 +190,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         isWalled = Physics2D.OverlapCircle(
             wallCheck.position,
             wallRadius,
-            groundLayer
+            wallLayer
             
         );
     }
