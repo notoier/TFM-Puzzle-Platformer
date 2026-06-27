@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a292160de25e449489aa7bb3320959d7, type: 3}
-  m_Name: Divide
+  m_Name: Divide Spikes
   m_EditorClassIdentifier: Assembly-CSharp::Ability
   variables:
   - key: New Weight
@@ -165,7 +165,7 @@ MonoBehaviour:
         actorTag: 
         actorName: 
         actorKey: 
-        distance: 1
+        distance: 6
         instant: 0
         duration: 0.1
         directionSource: 0
@@ -184,7 +184,7 @@ MonoBehaviour:
         actorTag: Player Clone
         actorName: 
         actorKey: 
-        distance: 1
+        distance: 6
         instant: 0
         duration: 0.1
         directionSource: 0

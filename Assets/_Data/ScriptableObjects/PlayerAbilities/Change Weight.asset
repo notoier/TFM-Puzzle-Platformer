@@ -15,13 +15,23 @@ MonoBehaviour:
   variables: []
   nodes:
   - rid: 7721760540625993808
+  - rid: 7721760814094352469
   references:
     version: 2
     RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
     - rid: 7721760540625993808
       type: {class: WeightNode, ns: , asm: Assembly-CSharp}
       data:
-        nodeType: 2
+        targetSource: 0
+        nodeType: 4
+        targetSelectionMode: 0
+        targetTag: 
+        targetName: 
+        contextTargetKey: 
+        valueSource: 0
+        weightValue: 1
         weightParameter:
           rid: 7721760540625993809
     - rid: 7721760540625993809
@@ -34,3 +44,16 @@ MonoBehaviour:
         boolValue: 0
         vector3Value: {x: 0, y: 0, z: 0}
         gameObjectValue: {fileID: 0}
+    - rid: 7721760814094352469
+      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
+      data:
+        nodeType: 1
+        targetSource: 0
+        targetSelectionMode: 0
+        targetTag: 
+        targetName: 
+        contextTargetKey: 
+        scale: 2
+        valueSource: 0
+        scaleParameter:
+          rid: -2
