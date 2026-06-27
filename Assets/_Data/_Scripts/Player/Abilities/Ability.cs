@@ -43,9 +43,16 @@ public class Ability : ScriptableObject
             coroutineRunner = coroutineRunner
         };
         context.SetFinishCallback(finishCallback);
+        ExecuteNodes(context, 0);
 
-        foreach (var node in nodes)
+        return context;
+    }
+
+    private void ExecuteNodes(AbilityContext context, int startIndex)
+    {
+        for (int i = startIndex; i < nodes.Count; i++)
         {
+            AbilityNode node = nodes[i];
             if (node == null)
             {
                 Debug.LogWarning($"Ability '{name}' contains an empty node. It was skipped.");
@@ -62,10 +69,15 @@ public class Ability : ScriptableObject
             node.Execute(context);
 
             if (context.keepActive)
+            {
+                int nextIndex = i + 1;
+                context.SetResumeCallback(_ => ExecuteNodes(context, nextIndex));
                 break;
+            }
         }
 
-        return context;
+        if (!context.keepActive && !context.finished)
+            context.FinishAbility();
     }
 
     public void End(GameObject actor)

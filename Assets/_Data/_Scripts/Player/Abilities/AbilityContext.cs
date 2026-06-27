@@ -12,6 +12,8 @@ public class AbilityContext
     public bool keepActive;
     public bool finished;
     private Action<AbilityContext> finishCallback;
+    private Action<AbilityContext> resumeCallback;
+    private int pendingAsyncOperations;
 
     Dictionary<string, Vector3> vectors = new Dictionary<string, Vector3>();
     Dictionary<string, float> floats = new Dictionary<string, float>();
@@ -39,6 +41,7 @@ public class AbilityContext
 
     public void KeepActive()
     {
+        pendingAsyncOperations++;
         keepActive = true;
     }
 
@@ -47,14 +50,65 @@ public class AbilityContext
         if (finished)
             return;
 
+        if (pendingAsyncOperations > 0)
+            pendingAsyncOperations--;
+
+        if (pendingAsyncOperations > 0)
+            return;
+
+        keepActive = false;
+        Action<AbilityContext> callback = resumeCallback;
+        resumeCallback = null;
+        callback?.Invoke(this);
+    }
+
+    public void FinishAbility()
+    {
+        if (finished)
+            return;
+
         finished = true;
         keepActive = false;
+        pendingAsyncOperations = 0;
+        resumeCallback = null;
         finishCallback?.Invoke(this);
     }
 
     public void SetFinishCallback(Action<AbilityContext> callback)
     {
         finishCallback = callback;
+    }
+
+    public void SetResumeCallback(Action<AbilityContext> callback)
+    {
+        if (callback == null)
+        {
+            resumeCallback = null;
+            return;
+        }
+
+        Action<AbilityContext> previousCallback = resumeCallback;
+        if (previousCallback == null)
+        {
+            resumeCallback = callback;
+            return;
+        }
+
+        resumeCallback = context =>
+        {
+            previousCallback(context);
+
+            if (context.finished)
+                return;
+
+            if (context.keepActive)
+            {
+                context.SetResumeCallback(callback);
+                return;
+            }
+
+            callback(context);
+        };
     }
 
     public void SetVector(string key, Vector3 value)
