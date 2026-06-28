@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 #if UNITY_EDITOR
 using UnityEditorInternal;
 #endif
@@ -15,7 +16,14 @@ public class TargetNode : DataNode
     private TargetSelectionMode targetSelectionMode;
 
     [SerializeField]
-    private string outputVectorKey = "targetPosition";
+    private TargetOutputMode outputMode;
+
+    [SerializeField]
+    [FormerlySerializedAs("outputVectorKey")]
+    private string outputPositionKey = "targetPosition";
+
+    [SerializeField]
+    private string outputGameObjectKey;
 
     [SerializeField]
     private string targetTag;
@@ -28,13 +36,26 @@ public class TargetNode : DataNode
 
     public override void Execute(AbilityContext context)
     {
-        if (!TryGetTargetPosition(context, out Vector3 targetPosition))
+        if (!TryGetTarget(
+                context,
+                out GameObject target,
+                out Vector3 targetPosition))
         {
             Fail(context);
             return;
         }
 
-        context.SetVector(outputVectorKey, targetPosition);
+        if (OutputsPosition()
+            && !string.IsNullOrWhiteSpace(outputPositionKey))
+        {
+            context.SetVector(outputPositionKey, targetPosition);
+        }
+
+        if (OutputsGameObject()
+            && !string.IsNullOrWhiteSpace(outputGameObjectKey))
+        {
+            context.SetGameObject(outputGameObjectKey, target);
+        }
 
         if (!context.success)
             return;
@@ -49,8 +70,12 @@ public class TargetNode : DataNode
         Complete(context);
     }
 
-    private bool TryGetTargetPosition(AbilityContext context, out Vector3 targetPosition)
+    private bool TryGetTarget(
+        AbilityContext context,
+        out GameObject target,
+        out Vector3 targetPosition)
     {
+        target = null;
         targetPosition = Vector3.zero;
 
         if (context.actor == null)
@@ -58,21 +83,23 @@ public class TargetNode : DataNode
 
         if (targetSource == TargetSource.Self)
         {
-            targetPosition = context.actor.transform.position;
+            target = context.actor;
+            targetPosition = target.transform.position;
             return true;
         }
 
         if (targetSource == TargetSource.ContextTarget)
         {
-            if (!context.TryGetGameObject(contextTargetKey, out GameObject contextTarget) || contextTarget == null)
+            if (!context.TryGetGameObject(contextTargetKey, out target)
+                || target == null)
                 return false;
 
-            targetPosition = contextTarget.transform.position;
+            targetPosition = target.transform.position;
             return true;
         }
 
         List<GameObject> candidates = GetCandidates();
-        GameObject target = SelectTarget(candidates, context.actor.transform.position);
+        target = SelectTarget(candidates, context.actor.transform.position);
         if (target == null)
             return false;
 
@@ -176,6 +203,45 @@ public class TargetNode : DataNode
 
         return AbilityValidationResult.Complete();
     }
+
+    public override AbilityValidationResult ValidateAsRoot(
+        AbilityValidationContext context)
+    {
+        AbilityValidationResult targetValidation = Validate();
+        if (targetValidation.BlocksUse)
+            return targetValidation;
+
+        if (OutputsPosition()
+            && string.IsNullOrWhiteSpace(outputPositionKey))
+            return AbilityValidationResult.Incomplete(
+                "Target node needs a position output key.");
+
+        if (OutputsGameObject()
+            && string.IsNullOrWhiteSpace(outputGameObjectKey))
+            return AbilityValidationResult.Incomplete(
+                "Target node needs a GameObject output key.");
+
+        return AbilityValidationResult.Complete();
+    }
+
+    private bool OutputsPosition()
+    {
+        return outputMode == TargetOutputMode.Position
+               || outputMode == TargetOutputMode.PositionAndGameObject;
+    }
+
+    private bool OutputsGameObject()
+    {
+        return outputMode == TargetOutputMode.GameObject
+               || outputMode == TargetOutputMode.PositionAndGameObject;
+    }
+}
+
+public enum TargetOutputMode
+{
+    Position,
+    GameObject,
+    PositionAndGameObject
 }
 
 //ONLY SELF, TAG & NAME IMPLEMENTED
