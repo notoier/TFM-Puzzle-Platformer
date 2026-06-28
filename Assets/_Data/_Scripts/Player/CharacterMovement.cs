@@ -15,6 +15,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
     [Header("Movement Configuration")]
     [SerializeField] private float speed;
+
+    [Header("SplitConfig")]
+    [SerializeField] bool canSplit;
     
     [Header("Jump Configuration")]
     [SerializeField] private float jumpForce =14;
@@ -102,11 +105,6 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         HandleWallPushAnimation();
         DrawDebugChecks();
         
-        /* Debug for split */
-        if (Input.GetKeyDown(KeyCode.O))
-        {
-            animator.SetTrigger("Splitting");
-        }
     }
 
     private void FixedUpdate()
@@ -428,6 +426,15 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             targetRotation,
             slopeRotationSpeed * Time.fixedDeltaTime
         );
+    }
+
+    public void OnSplit(InputAction.CallbackContext context)
+    {
+        if (canSplit)
+        {
+            canSplit = false;
+            animator.SetTrigger("Splitting");
+        }
     }
     
     public void OnMove(InputAction.CallbackContext context)
