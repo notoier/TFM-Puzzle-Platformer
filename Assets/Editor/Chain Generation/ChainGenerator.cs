@@ -9,7 +9,8 @@ public static class ChainGenerator
         string prefabName,
         GameObject chainRoot,
         GameObject chainSegmentA,
-        GameObject chainSegmentB)
+        GameObject chainSegmentB,
+        GameObject chainHook = null)
     {
         if (chainLength < 1)
             throw new ArgumentOutOfRangeException(
@@ -38,6 +39,9 @@ public static class ChainGenerator
         ValidateRootPrefab(chainRoot);
         ValidateSegmentPrefab(chainSegmentA);
         ValidateSegmentPrefab(chainSegmentB);
+
+        if (chainHook != null)
+            ValidateSegmentPrefab(chainHook);
 
         GameObject newChain = new GameObject(prefabName);
 
@@ -73,6 +77,24 @@ public static class ChainGenerator
 
             hingeJoint.connectedBody = previousLink;
             previousLink = currentLink;
+        }
+
+        if (chainHook != null)
+        {
+            GameObject newHook = UnityEngine.Object.Instantiate(
+                chainHook,
+                newChain.transform);
+
+            newHook.name = "Chain Hook";
+
+            newHook.transform.localPosition =
+                root.transform.localPosition
+                + Vector3.down * ((chainLength + 1) * segmentSpacing);
+
+            HingeJoint2D hookHingeJoint =
+                newHook.GetComponentInChildren<HingeJoint2D>(true);
+
+            hookHingeJoint.connectedBody = previousLink;
         }
 
         return newChain;

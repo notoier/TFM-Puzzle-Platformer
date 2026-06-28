@@ -3,7 +3,9 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 3
-  tags: [Player Clone]
+  tags:
+  - Player Clone
+  - Hook
   layers:
   - Default
   - TransparentFX

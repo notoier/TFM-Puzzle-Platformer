@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6d564e2c23cf65a49952390c30a71dba
+guid: a5da234d2c6df86449151c01d7094650
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1013655110161767793
-    second: chain_piece_end_0
+      213: -7783346469713432288
+    second: Gancho_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,30 +96,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: Android
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: chain_piece_end_0
+      name: Gancho_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 41
-        height: 56
+        width: 265
+        height: 145
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 17d93fdb3f9311e00800000000000000
-      internalID: 1013655110161767793
+      spriteID: 021b0fcaf9ffbf390800000000000000
+      internalID: -7783346469713432288
       vertices: []
       indices: 
       edges: []
@@ -148,7 +135,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      chain_piece_end_0: 1013655110161767793
+      Gancho_0: -7783346469713432288
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
