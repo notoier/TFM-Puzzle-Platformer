@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -70,6 +73,17 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
     [Tooltip("Distancia máxima para considerar que los pies están tocando el suelo.")]
     [SerializeField] private float groundedContactDistance = 0.05f;
+
+    [Header("Weight Configs")] 
+    [SerializeField] private List<WeightConfig> weightConfigs;
+    [SerializeField] private float scaleTweenDuration = 0.25f;
+    [SerializeField] private Ease scaleTweenEase = Ease.OutBack;
+
+    private Tween scaleTween;
+    
+    private float maxWeight;
+    private float minWeight;
+    private WeightConfig currentWeightConfig;
     
     [Header("Debug")] 
     [SerializeField] private float weightDebug = 1f;
@@ -93,11 +107,51 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private float coyoteTimeCounter;
     private float jumpBufferCounter;
     private float groundDetectionDisableCounter;
-    
-    void Awake()
+
+    private void Awake()
     {
         characterRigidbody = GetComponent<Rigidbody2D>();
+        InitWeight();
+        weightDebug = Math.Clamp(weightDebug, minWeight, maxWeight);
         Weight = weightDebug;
+        AdaptWeight();
+    }
+
+    private void InitWeight()
+    {
+        maxWeight = weightConfigs.Max(config => config.neededWeight);
+        minWeight = weightConfigs.Min(config => config.neededWeight);
+    }
+
+    private void AdaptWeight()
+    {
+        WeightConfig newWeightConfig = weightConfigs
+            .OrderBy(config => Mathf.Abs(config.neededWeight - Weight))
+            .FirstOrDefault();
+
+        if (!newWeightConfig)
+            return;
+
+        if (currentWeightConfig == newWeightConfig)
+            return;
+
+        currentWeightConfig = newWeightConfig;
+
+        scaleTween?.Kill();
+
+        Vector3 currentScale = transform.localScale;
+        Vector3 targetScale = new Vector3(
+            currentWeightConfig.scale,
+            currentWeightConfig.scale,
+            currentScale.z
+        );
+
+        scaleTween = transform
+            .DOScale(targetScale, scaleTweenDuration)
+            .SetEase(scaleTweenEase);
+
+        if (characterRigidbody)
+            characterRigidbody.mass = currentWeightConfig.mass;
     }
 
     private void Update()
@@ -282,8 +336,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         }
 
         float finalJumpForce = isInsideWater
-            ? jumpForce * jumpDebuffOnWater
-            : jumpForce;
+            ? jumpForce * jumpDebuffOnWater * currentWeightConfig.jump
+            : jumpForce * currentWeightConfig.jump;
 
         characterRigidbody.linearVelocity = new Vector2(
             characterRigidbody.linearVelocity.x,
@@ -339,7 +393,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private void ApplyAirHorizontalMovement(float horizontalInput)
     {
         characterRigidbody.linearVelocity = new Vector2(
-            horizontalInput * speed,
+            horizontalInput * speed * currentWeightConfig.speed,
             characterRigidbody.linearVelocity.y
         );
     }
@@ -450,6 +504,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         characterMovementDirection = new Vector3(vectorInput.x, 0f, 0f);
     }
 
+    public void SetMovementDirection(Vector3 vectorInput)
+    {
+        characterMovementDirection = vectorInput;
+    }
+
     public void OnJump(InputAction.CallbackContext context)
     {
         if (context.performed)
@@ -479,7 +538,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         {
             Debug.Log("Interacting");
             interactionTrigger.TryInteract(gameObject);
-            animator.SetTrigger("IsShowering");
+            //animator.SetTrigger("IsShowering");
         }
     }
     
@@ -501,7 +560,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     public void AddWeight(float mass)
     {
         Weight += mass;
-        weightDebug += mass;
+        Debug.Log("Min: " + minWeight + "Max: " + maxWeight);
+        Weight = Math.Clamp(Weight, minWeight, maxWeight);
+        
+        weightDebug = Weight;
+        AdaptWeight();
     }
     
     public void SpawnParticles()

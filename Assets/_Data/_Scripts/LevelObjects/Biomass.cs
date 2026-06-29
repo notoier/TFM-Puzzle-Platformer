@@ -14,8 +14,15 @@ public class Biomass : MonoBehaviour, IInteractable
     [SerializeField] private float waterfallDrainDuration = 0.6f;
     [SerializeField] private Ease waterfallDrainEase = Ease.InQuad;
     [SerializeField] private bool deactivateWaterfallAfterDrain = true;
+ 
+    private static readonly int IsShowering = Animator.StringToHash("IsShowering");
+    private static readonly int Idle = Animator.StringToHash("Idle");
+    private static readonly int IsTryingToMove = Animator.StringToHash("IsTryingToMove");
     
     private GameObject activeWaterfall;
+    private PixelWaterfall waterfallController;
+    private Animator interactorAnimator;
+    private Coroutine interactCoroutine;
     
     private bool AddsWeight => mass > 0;
     private bool hasBeenConsumed;
@@ -50,45 +57,56 @@ public class Biomass : MonoBehaviour, IInteractable
         }
     }
     
+
     public void Interact(GameObject interactor)
     {
+        if (hasBeenConsumed) return;
+        if (interactCoroutine != null) return;
+
+        interactCoroutine = StartCoroutine(InteractRoutine(interactor));
+    }
+
+    private IEnumerator InteractRoutine(GameObject interactor)
+    {
+        yield return MovementHelper.MoveTowards(interactor, transform);
+
         DrinkWater(interactor);
+
+        interactCoroutine = null;
     }
 
     private void DrinkWater(GameObject interactor)
     {
-        if (hasBeenConsumed) return;
-        
         interactor?.GetComponent<IProvidesWeight>()?.AddWeight(mass);
 
-        Rigidbody2D d = interactor?.GetComponent<Rigidbody2D>();
-        if (d) d.mass += mass * 20;
-
-        DrainActiveWaterfall();
+        waterfallController = activeWaterfall.GetComponentInChildren<PixelWaterfall>();
+        interactorAnimator = interactor?.GetComponentInChildren<Animator>();
+        
+        StartCoroutine(DrainActiveWaterfall(interactor));
     }
     
-    private void DrainActiveWaterfall()
+    private IEnumerator DrainActiveWaterfall(GameObject interactor)
     {
-        if (activeWaterfall == null)
-            return;
-
-        PixelWaterfall waterfall = activeWaterfall.GetComponentInChildren<PixelWaterfall>();
-
-        if (waterfall == null)
+        if (!activeWaterfall)
+            yield break;
+        
+        if (!waterfallController)
         {
             activeWaterfall.SetActive(false);
-            return;
+            yield break;
         }
 
-        float startHeight = waterfall.Height;
+        float startHeight = waterfallController.Height;
         float endHeight = 0.03125f;
-
+        
+        interactorAnimator?.SetTrigger(IsShowering);
+        
         DOTween.To(
                 () => startHeight,
                 value =>
                 {
                     startHeight = value;
-                    waterfall.SetHeight(value);
+                    waterfallController.SetHeight(value);
                 },
                 endHeight,
                 waterfallDrainDuration
@@ -96,10 +114,13 @@ public class Biomass : MonoBehaviour, IInteractable
             .SetEase(waterfallDrainEase)
             .OnComplete(() =>
             {
-                if (deactivateWaterfallAfterDrain && activeWaterfall != null)
+                if (deactivateWaterfallAfterDrain && activeWaterfall)
                     activeWaterfall.SetActive(false);
             });
         
+        yield return new  WaitForSeconds(waterfallDrainDuration);
+        
+        interactorAnimator?.SetTrigger(IsTryingToMove);
         hasBeenConsumed = true;
     }
     
