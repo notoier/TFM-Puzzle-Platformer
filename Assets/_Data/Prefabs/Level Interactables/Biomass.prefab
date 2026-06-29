@@ -313,10 +313,6 @@ PrefabInstance:
       propertyPath: m_SortingLayerID
       value: -1048240195
       objectReference: {fileID: 0}
-    - target: {fileID: 2135571358079657192, guid: 42c9d0198284a2e4a934ae40100f39ff, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 2990742355124230937, guid: 42c9d0198284a2e4a934ae40100f39ff, type: 3}
       propertyPath: m_LocalPosition.y
       value: -4.03
@@ -344,10 +340,6 @@ PrefabInstance:
     - target: {fileID: 4413587081709066354, guid: 42c9d0198284a2e4a934ae40100f39ff, type: 3}
       propertyPath: sortingLayerName
       value: Water
-      objectReference: {fileID: 0}
-    - target: {fileID: 5746466755380445076, guid: 42c9d0198284a2e4a934ae40100f39ff, type: 3}
-      propertyPath: m_Mesh
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 6123212629292798730, guid: 42c9d0198284a2e4a934ae40100f39ff, type: 3}
       propertyPath: m_Name
@@ -471,10 +463,6 @@ PrefabInstance:
       propertyPath: sortingLayerName
       value: Water
       objectReference: {fileID: 0}
-    - target: {fileID: 6519917795308326198, guid: 542f735b2929b7c44b47004a4a47adde, type: 3}
-      propertyPath: m_Mesh
-      value: 
-      objectReference: {fileID: 0}
     - target: {fileID: 8305819974376676471, guid: 542f735b2929b7c44b47004a4a47adde, type: 3}
       propertyPath: m_SortingLayer
       value: 4
@@ -482,10 +470,6 @@ PrefabInstance:
     - target: {fileID: 8305819974376676471, guid: 542f735b2929b7c44b47004a4a47adde, type: 3}
       propertyPath: m_SortingLayerID
       value: -1048240195
-      objectReference: {fileID: 0}
-    - target: {fileID: 8305819974376676471, guid: 542f735b2929b7c44b47004a4a47adde, type: 3}
-      propertyPath: 'm_Materials.Array.data[0]'
-      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 8311587552682938781, guid: 542f735b2929b7c44b47004a4a47adde, type: 3}
       propertyPath: m_LocalPosition.y
