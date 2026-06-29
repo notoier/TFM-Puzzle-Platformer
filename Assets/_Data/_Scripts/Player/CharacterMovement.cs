@@ -479,6 +479,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         {
             Debug.Log("Interacting");
             interactionTrigger.TryInteract(gameObject);
+            animator.SetTrigger("IsShowering");
         }
     }
     
