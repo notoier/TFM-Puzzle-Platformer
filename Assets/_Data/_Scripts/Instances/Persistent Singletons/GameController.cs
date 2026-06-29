@@ -41,6 +41,11 @@ public class GameController : PersistentSingleton<GameController>
         return Vector3.Distance(objectPosition, player.transform.position);
     }
 
+    public CharacterMovement GetPlayer()
+    {
+        return player;
+    }
+
     public void GameAreaChanged(GameArea newArea)
     {
         if (newArea == currentArea) return;

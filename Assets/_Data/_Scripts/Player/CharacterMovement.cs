@@ -10,23 +10,23 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private static readonly int IsWalledParameter = Animator.StringToHash("IsWalled");
     private static readonly int SpeedParameter = Animator.StringToHash("Speed");
     private static readonly int IsTryingToMoveTrigger = Animator.StringToHash("IsTryingToMove");
+    private static readonly int Splitting = Animator.StringToHash("Splitting");
 
     [SerializeField] private Animator animator;
 
     [Header("Movement Configuration")]
     [SerializeField] private float speed;
-
-    [Header("SplitConfig")]
-    [SerializeField] bool canSplit;
     
     [Header("Jump Configuration")]
     [SerializeField] private float jumpForce =14;
     [SerializeField] private float coyoteTime = 0.1f;
     [SerializeField] private float jumpBufferTime = 0.1f;
     
-    
+    [Header("Interact")]
+    [SerializeField] private PlayerInteractionTrigger interactionTrigger;
+
     [Header("Audio")]
-    [SerializeField] private AudioClip jumpSFX;
+    [SerializeField] private AudioClip jumpSfx;
     [SerializeField] private float jumpVolume;
 
     [Header("Particle Configuration")]
@@ -85,6 +85,9 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private bool isInsideWater;
     private bool hasJumped;
     private bool jumpPressed;
+    private bool canSplit = true;
+    
+    public float Weight { get; set; } = 2;
     
     //Timers salto
     private float coyoteTimeCounter;
@@ -297,7 +300,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         groundDetectionDisableCounter =
             groundDetectionDisableTime;
 
-        AudioManager.Instance.PlayEffect(jumpSFX, transform, jumpVolume);
+        AudioManager.Instance.PlayEffect(jumpSfx, transform, jumpVolume);
         animator.SetTrigger(JumpTrigger);
         animator.SetBool(IsGroundedParameter, false);
     }
@@ -430,11 +433,15 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
 
     public void OnSplit(InputAction.CallbackContext context)
     {
-        if (canSplit)
+        if (canSplit && context.performed)
         {
-            canSplit = false;
-            animator.SetTrigger("Splitting");
+            animator.SetTrigger(Splitting);
         }
+    }
+
+    public void SetCanSplit(bool bCanSplit)
+    {
+        canSplit = bCanSplit;
     }
     
     public void OnMove(InputAction.CallbackContext context)
@@ -466,6 +473,15 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         );
     }
 
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Debug.Log("Interacting");
+            interactionTrigger.TryInteract(gameObject);
+        }
+    }
+    
     public Vector2 GetMovementDirection()
     {
         return characterMovementDirection;
@@ -480,8 +496,6 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     {
         isInsideWater = false;
     }
-
-    public float Weight { get; set; } = 2;
 
     public void AddWeight(float mass)
     {
