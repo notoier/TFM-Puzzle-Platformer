@@ -7,25 +7,20 @@ public class FocusControllerUI : MonoBehaviour
     [Header("Configuration focus")]
     [SerializeField]
     private GameObject initialButton;
-    [SerializeField]
-    private bool isActive = true;
+    //[SerializeField]
+    //private bool isActive = true;
 
     private Coroutine focusRoutine;
 
+    private void Start()
+    {
+        EventSystem.current.SetSelectedGameObject(initialButton.gameObject);
+    }
     private void OnEnable()
     {
-        if (isActive)
-        {
-            FocusInitialObject();
-        }
-    }
-
-    private void OnDisable()
-    {
-        if (focusRoutine != null)
-        {
-            StopCoroutine(focusRoutine);
-        }
+        
+       FocusInitialObject();
+        
     }
 
     private void FocusInitialObject()
@@ -41,6 +36,14 @@ public class FocusControllerUI : MonoBehaviour
         EventSystem.current.SetSelectedGameObject(null);
         yield return null;
         if(initialButton != null && initialButton.activeInHierarchy)
+        {
+            EventSystem.current.SetSelectedGameObject(initialButton);
+        }
+    }
+
+    private void Update()
+    {
+        if(EventSystem.current.currentSelectedGameObject == null)
         {
             EventSystem.current.SetSelectedGameObject(initialButton);
         }
