@@ -125,12 +125,16 @@ namespace Cainos.InteractivePixelWater
         [Range(1, 16)]
         private int verticesPerUnitY = 4;
 
-        [Tooltip(
-            "La posición del objeto representa la salida superior de la cascada. " +
-            "La malla crece hacia abajo."
-        )]
+        public enum WaterfallOrigin
+        {
+            Top,
+            Center,
+            Bottom
+        }
+
+        [Tooltip("Punto local que representa la posición del Transform.")]
         [SerializeField]
-        private bool originAtTop = true;
+        private WaterfallOrigin origin = WaterfallOrigin.Top;
 
         [Header("Interaction")]
 
@@ -402,18 +406,54 @@ namespace Cainos.InteractivePixelWater
         public float Width => width;
         public float Height => height;
 
-        public Vector3 TopCenterWorld => transform.position;
+        public Vector3 TopCenterWorld =>
+            transform.TransformPoint(GetLocalTopCenter());
 
-        public Vector3 BottomCenterWorld
+        public Vector3 BottomCenterWorld =>
+            transform.TransformPoint(GetLocalBottomCenter());
+
+        private Vector3 GetLocalTopCenter()
         {
-            get
+            return origin switch
             {
-                Vector3 localBottom = originAtTop
-                    ? new Vector3(0f, -height, 0f)
-                    : new Vector3(0f, -height * 0.5f, 0f);
+                WaterfallOrigin.Top => Vector3.zero,
+                WaterfallOrigin.Center => new Vector3(0f, height * 0.5f, 0f),
+                WaterfallOrigin.Bottom => new Vector3(0f, height, 0f),
+                _ => Vector3.zero
+            };
+        }
 
-                return transform.TransformPoint(localBottom);
-            }
+        private Vector3 GetLocalBottomCenter()
+        {
+            return origin switch
+            {
+                WaterfallOrigin.Top => new Vector3(0f, -height, 0f),
+                WaterfallOrigin.Center => new Vector3(0f, -height * 0.5f, 0f),
+                WaterfallOrigin.Bottom => Vector3.zero,
+                _ => new Vector3(0f, -height, 0f)
+            };
+        }
+
+        private float GetLocalYFromNormalizedDepth(float normalizedY)
+        {
+            return origin switch
+            {
+                WaterfallOrigin.Top => -normalizedY * height,
+                WaterfallOrigin.Center => Mathf.Lerp(height * 0.5f, -height * 0.5f, normalizedY),
+                WaterfallOrigin.Bottom => (1f - normalizedY) * height,
+                _ => -normalizedY * height
+            };
+        }
+
+        private Vector2 GetColliderOffset()
+        {
+            return origin switch
+            {
+                WaterfallOrigin.Top => new Vector2(0f, -height * 0.5f),
+                WaterfallOrigin.Center => Vector2.zero,
+                WaterfallOrigin.Bottom => new Vector2(0f, height * 0.5f),
+                _ => new Vector2(0f, -height * 0.5f)
+            };
         }
 
         private void Awake()
@@ -424,6 +464,13 @@ namespace Cainos.InteractivePixelWater
 
             timeOffset = UnityEngine.Random.Range(0f, 1000f);
             ResetImpactTimers();
+        }
+        
+        public void SetHeight(float newHeight)
+        {
+            height = Mathf.Max(0.03125f, newHeight);
+
+            Refresh();
         }
 
         private void OnEnable()
@@ -658,9 +705,7 @@ namespace Cainos.InteractivePixelWater
             {
                 float normalizedY = y / (float)(vertexCountY - 1);
 
-                float localY = originAtTop
-                    ? -normalizedY * height
-                    : Mathf.Lerp(height * 0.5f, -height * 0.5f, normalizedY);
+                float localY = GetLocalYFromNormalizedDepth(normalizedY);
 
                 float taperMultiplier =
                     1f - bottomTaper * normalizedY;
@@ -840,10 +885,7 @@ namespace Cainos.InteractivePixelWater
 
             boxCollider.isTrigger = true;
             boxCollider.size = new Vector2(width, height);
-
-            boxCollider.offset = originAtTop
-                ? new Vector2(0f, -height * 0.5f)
-                : Vector2.zero;
+            boxCollider.offset = GetColliderOffset();
         }
 
         private void UpdateMaterial()
@@ -1074,9 +1116,7 @@ namespace Cainos.InteractivePixelWater
                         0.05f
                     );
 
-                    shape.position = originAtTop
-                        ? new Vector3(0f, -height * 0.5f, 0f)
-                        : Vector3.zero;
+                    shape.position = GetColliderOffset();
                 }
             }
 
@@ -1356,9 +1396,8 @@ namespace Cainos.InteractivePixelWater
         {
             Gizmos.matrix = transform.localToWorldMatrix;
 
-            Vector3 center = originAtTop
-                ? new Vector3(0f, -height * 0.5f, 0f)
-                : Vector3.zero;
+            Vector2 centerOffset = GetColliderOffset();
+            Vector3 center = new Vector3(centerOffset.x, centerOffset.y, 0f);
 
             Gizmos.DrawWireCube(
                 center,
