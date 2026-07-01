@@ -244,6 +244,9 @@ public class AbilityNodeDrawer : PropertyDrawer
             case CancelNode:
                 ClearUnusedCancelFields(nodeProperty, changedPropertyName);
                 break;
+            case ModifyJointNode:
+                ClearUnusedModifyJointFields(nodeProperty, changedPropertyName);
+                break;
             case ParameterNode:
                 ClearUnusedParameterFields(nodeProperty, changedPropertyName);
                 break;
@@ -297,6 +300,16 @@ public class AbilityNodeDrawer : PropertyDrawer
     {
         if (changedPropertyName == "targetSource")
             ClearTargetSourceFields(nodeProperty, GetTargetSource(nodeProperty), "targetTag", "targetName", "contextTargetKey", "targetSelectionMode");
+
+        if (changedPropertyName != "outputMode")
+            return;
+
+        TargetOutputMode outputMode = GetTargetOutputMode(nodeProperty);
+        if (outputMode == TargetOutputMode.Position)
+            ClearRelativeProperty(nodeProperty, "outputGameObjectKey");
+
+        if (outputMode == TargetOutputMode.GameObject)
+            ClearRelativeProperty(nodeProperty, "outputPositionKey");
     }
 
     private void ClearUnusedDeathFields(SerializedProperty nodeProperty, string changedPropertyName)
@@ -462,6 +475,24 @@ public class AbilityNodeDrawer : PropertyDrawer
         {
             if (valueProperty != activeValueProperty)
                 ClearRelativeProperty(nodeProperty, valueProperty);
+        }
+    }
+
+    private void ClearUnusedModifyJointFields(
+        SerializedProperty nodeProperty,
+        string changedPropertyName)
+    {
+        if (changedPropertyName == "ownerSource"
+            && GetJointOwnerSource(nodeProperty) == JointObjectSource.Self)
+        {
+            ClearRelativeProperty(nodeProperty, "ownerKey");
+        }
+
+        if (changedPropertyName == "connectionSource"
+            && GetJointConnectionSource(nodeProperty)
+            != JointConnectionSource.ContextGameObject)
+        {
+            ClearRelativeProperty(nodeProperty, "connectedBodyKey");
         }
     }
 
@@ -634,6 +665,9 @@ public class AbilityNodeDrawer : PropertyDrawer
         if (nodeProperty.managedReferenceValue is CancelNode)
             return ShouldDrawCancelProperty(nodeProperty, childProperty);
 
+        if (nodeProperty.managedReferenceValue is ModifyJointNode)
+            return ShouldDrawModifyJointProperty(nodeProperty, childProperty);
+
         if (nodeProperty.managedReferenceValue is not ParameterNode)
             return true;
 
@@ -778,21 +812,186 @@ public class AbilityNodeDrawer : PropertyDrawer
     private bool ShouldDrawTargetProperty(SerializedProperty nodeProperty, SerializedProperty childProperty)
     {
         string childName = childProperty.name;
+        bool isNestedTarget = nodeProperty.name == "targetNode";
+        if (isNestedTarget
+            && (childName == "outputMode"
+                || childName == "outputPositionKey"
+                || childName == "outputGameObjectKey"))
+        {
+            return false;
+        }
+
         if (childName != "targetSelectionMode"
             && childName != "contextTargetKey"
             && childName != "targetTag"
-            && childName != "targetName")
+            && childName != "targetName"
+            && childName != "outputPositionKey"
+            && childName != "outputGameObjectKey")
             return true;
 
         TargetSource targetSource = GetTargetSource(nodeProperty);
+        TargetOutputMode outputMode = GetTargetOutputMode(nodeProperty);
         return childName switch
         {
             "targetSelectionMode" => UsesTargetSelection(targetSource),
             "contextTargetKey" => targetSource == TargetSource.ContextTarget,
             "targetTag" => targetSource == TargetSource.Tag,
             "targetName" => targetSource == TargetSource.Name,
+            "outputPositionKey" => outputMode == TargetOutputMode.Position
+                                   || outputMode == TargetOutputMode.PositionAndGameObject,
+            "outputGameObjectKey" => outputMode == TargetOutputMode.GameObject
+                                     || outputMode == TargetOutputMode.PositionAndGameObject,
             _ => true
         };
+    }
+
+    /// <summary>
+    /// Shows only the settings supported by the selected Joint2D type and operation.
+    /// </summary>
+    private bool ShouldDrawModifyJointProperty(
+        SerializedProperty nodeProperty,
+        SerializedProperty childProperty)
+    {
+        string childName = childProperty.name;
+        ModifyJointOperation operation = GetModifyJointOperation(nodeProperty);
+        Joint2DKind jointType = GetJointType(nodeProperty);
+
+        if (childName == "ownerKey")
+            return GetJointOwnerSource(nodeProperty) == JointObjectSource.ContextGameObject;
+
+        bool connects = operation == ModifyJointOperation.Connect
+                        || operation == ModifyJointOperation.Toggle;
+        if (childName == "connectionSource")
+            return connects;
+        if (childName == "connectedBodyKey")
+            return connects
+                   && GetJointConnectionSource(nodeProperty)
+                   == JointConnectionSource.ContextGameObject;
+        if (childName == "useTargetAsConnectedAnchor")
+            return connects
+                   && GetJointConnectionSource(nodeProperty)
+                   != JointConnectionSource.World;
+
+        bool canApplySettings = operation == ModifyJointOperation.Enable
+                                || operation == ModifyJointOperation.Connect
+                                || operation == ModifyJointOperation.Toggle;
+        if (childName == "applySettings")
+            return canApplySettings;
+
+        if (!IsJointSettingProperty(childName))
+            return true;
+
+        if (!canApplySettings || !GetBool(nodeProperty, "applySettings"))
+            return false;
+
+        if (IsCommonJointSetting(childName))
+        {
+            bool isAnchorSetting = childName == "autoConfigureConnectedAnchor"
+                                   || childName == "anchor"
+                                   || childName == "connectedAnchor";
+            if (isAnchorSetting && jointType == Joint2DKind.Relative)
+                return false;
+
+            return childName != "connectedAnchor"
+                   || !GetBool(nodeProperty, "autoConfigureConnectedAnchor");
+        }
+
+        if (childName == "autoConfigureDistance")
+            return jointType == Joint2DKind.Distance || jointType == Joint2DKind.Spring;
+        if (childName == "distance")
+            return (jointType == Joint2DKind.Distance || jointType == Joint2DKind.Spring)
+                   && !GetBool(nodeProperty, "autoConfigureDistance");
+        if (childName == "maxDistanceOnly")
+            return jointType == Joint2DKind.Distance;
+
+        if (childName == "useHingeMotor" || childName == "useHingeLimits")
+            return jointType == Joint2DKind.Hinge;
+        if (childName == "hingeMotor")
+            return jointType == Joint2DKind.Hinge && GetBool(nodeProperty, "useHingeMotor");
+        if (childName == "hingeLimits")
+            return jointType == Joint2DKind.Hinge && GetBool(nodeProperty, "useHingeLimits");
+
+        if (childName == "dampingRatio" || childName == "frequency")
+            return jointType == Joint2DKind.Spring || jointType == Joint2DKind.Fixed;
+
+        if (childName == "frictionMaxForce" || childName == "frictionMaxTorque")
+            return jointType == Joint2DKind.Friction;
+
+        if (childName == "relativeMaxForce"
+            || childName == "relativeMaxTorque"
+            || childName == "correctionScale"
+            || childName == "autoConfigureOffset")
+        {
+            return jointType == Joint2DKind.Relative;
+        }
+        if (childName == "linearOffset" || childName == "angularOffset")
+            return jointType == Joint2DKind.Relative
+                   && !GetBool(nodeProperty, "autoConfigureOffset");
+
+        if (childName == "autoConfigureAngle"
+            || childName == "useSliderMotor"
+            || childName == "useSliderLimits")
+        {
+            return jointType == Joint2DKind.Slider;
+        }
+        if (childName == "angle")
+            return jointType == Joint2DKind.Slider
+                   && !GetBool(nodeProperty, "autoConfigureAngle");
+        if (childName == "sliderMotor")
+            return jointType == Joint2DKind.Slider
+                   && GetBool(nodeProperty, "useSliderMotor");
+        if (childName == "sliderLimits")
+            return jointType == Joint2DKind.Slider
+                   && GetBool(nodeProperty, "useSliderLimits");
+
+        if (childName == "useWheelMotor" || childName == "suspension")
+            return jointType == Joint2DKind.Wheel;
+        if (childName == "wheelMotor")
+            return jointType == Joint2DKind.Wheel
+                   && GetBool(nodeProperty, "useWheelMotor");
+
+        return false;
+    }
+
+    private bool IsJointSettingProperty(string propertyName)
+    {
+        return IsCommonJointSetting(propertyName)
+               || propertyName == "autoConfigureDistance"
+               || propertyName == "distance"
+               || propertyName == "maxDistanceOnly"
+               || propertyName == "useHingeMotor"
+               || propertyName == "hingeMotor"
+               || propertyName == "useHingeLimits"
+               || propertyName == "hingeLimits"
+               || propertyName == "dampingRatio"
+               || propertyName == "frequency"
+               || propertyName == "frictionMaxForce"
+               || propertyName == "frictionMaxTorque"
+               || propertyName == "relativeMaxForce"
+               || propertyName == "relativeMaxTorque"
+               || propertyName == "correctionScale"
+               || propertyName == "autoConfigureOffset"
+               || propertyName == "linearOffset"
+               || propertyName == "angularOffset"
+               || propertyName == "autoConfigureAngle"
+               || propertyName == "angle"
+               || propertyName == "useSliderMotor"
+               || propertyName == "sliderMotor"
+               || propertyName == "useSliderLimits"
+               || propertyName == "sliderLimits"
+               || propertyName == "useWheelMotor"
+               || propertyName == "wheelMotor"
+               || propertyName == "suspension";
+    }
+
+    private bool IsCommonJointSetting(string propertyName)
+    {
+        return propertyName == "autoConfigureConnectedAnchor"
+               || propertyName == "anchor"
+               || propertyName == "connectedAnchor"
+               || propertyName == "enableCollision"
+               || propertyName == "breakForce"
+               || propertyName == "breakTorque";
     }
 
     /// <summary>
@@ -979,6 +1178,49 @@ public class AbilityNodeDrawer : PropertyDrawer
         return targetSource != null
             ? (TargetSource)targetSource.enumValueIndex
             : TargetSource.Self;
+    }
+
+    /// <summary>
+    /// Reads which values TargetNode writes to the ability context.
+    /// </summary>
+    private TargetOutputMode GetTargetOutputMode(SerializedProperty nodeProperty)
+    {
+        SerializedProperty outputMode = nodeProperty.FindPropertyRelative("outputMode");
+        return outputMode != null
+            ? (TargetOutputMode)outputMode.enumValueIndex
+            : TargetOutputMode.Position;
+    }
+
+    private ModifyJointOperation GetModifyJointOperation(SerializedProperty nodeProperty)
+    {
+        SerializedProperty operation = nodeProperty.FindPropertyRelative("operation");
+        return operation != null
+            ? (ModifyJointOperation)operation.enumValueIndex
+            : ModifyJointOperation.Enable;
+    }
+
+    private Joint2DKind GetJointType(SerializedProperty nodeProperty)
+    {
+        SerializedProperty jointType = nodeProperty.FindPropertyRelative("jointType");
+        return jointType != null
+            ? (Joint2DKind)jointType.enumValueIndex
+            : Joint2DKind.Distance;
+    }
+
+    private JointObjectSource GetJointOwnerSource(SerializedProperty nodeProperty)
+    {
+        SerializedProperty ownerSource = nodeProperty.FindPropertyRelative("ownerSource");
+        return ownerSource != null
+            ? (JointObjectSource)ownerSource.enumValueIndex
+            : JointObjectSource.Self;
+    }
+
+    private JointConnectionSource GetJointConnectionSource(SerializedProperty nodeProperty)
+    {
+        SerializedProperty connectionSource = nodeProperty.FindPropertyRelative("connectionSource");
+        return connectionSource != null
+            ? (JointConnectionSource)connectionSource.enumValueIndex
+            : JointConnectionSource.World;
     }
 
     /// <summary>

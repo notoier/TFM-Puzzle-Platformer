@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 
 [DisallowMultipleComponent]
 public class AbilityManager : MonoBehaviour
@@ -11,6 +12,11 @@ public class AbilityManager : MonoBehaviour
     {
         public Ability ability;
         public Key key = Key.None;
+
+        [Tooltip("Allows this ability to be activated with a gamepad button.")]
+        public bool useGamepad;
+
+        public GamepadButton gamepadButton = GamepadButton.South;
     }
 
     [Header("Abilities")]
@@ -25,16 +31,26 @@ public class AbilityManager : MonoBehaviour
 
     private void Update()
     {
-        if (Keyboard.current == null || Abilities == null)
+        if (Abilities == null)
             return;
 
         for (int i = 0; i < Abilities.Count; i++)
         {
             AbilityInputBinding binding = Abilities[i];
-            if (binding == null || binding.ability == null || binding.key == Key.None)
+            if (binding == null || binding.ability == null)
                 continue;
 
-            if (Keyboard.current[binding.key].wasPressedThisFrame)
+            bool keyboardPressed =
+                binding.key != Key.None
+                && Keyboard.current != null
+                && Keyboard.current[binding.key].wasPressedThisFrame;
+
+            bool gamepadPressed =
+                binding.useGamepad
+                && Gamepad.current != null
+                && Gamepad.current[binding.gamepadButton].wasPressedThisFrame;
+
+            if (keyboardPressed || gamepadPressed)
                 ActivateAbility(i);
         }
     }
