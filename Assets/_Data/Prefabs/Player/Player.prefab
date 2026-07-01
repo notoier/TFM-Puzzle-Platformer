@@ -62,6 +62,90 @@ Transform:
   m_Children: []
   m_Father: {fileID: 7735130212821983693}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1335854875608705896
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4312930849659676212}
+  - component: {fileID: 5816190969711917321}
+  - component: {fileID: 2908195684528648083}
+  m_Layer: 7
+  m_Name: InteractableArea
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4312930849659676212
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335854875608705896}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4599501691189525817}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!58 &5816190969711917321
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335854875608705896}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 2048
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 2047
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: 0}
+  m_Radius: 5
+--- !u!114 &2908195684528648083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1335854875608705896}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1546adb68d1411d9b7ab40467a0d6d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractionTrigger
+  interactableLayer:
+    serializedVersion: 2
+    m_Bits: 2048
 --- !u!1 &1628808578322530279
 GameObject:
   m_ObjectHideFlags: 0
@@ -154,7 +238,7 @@ Transform:
   m_GameObject: {fileID: 3726608349725393533}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -255,6 +339,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AnimationController
   characterMovement: {fileID: 4226739494265616928}
+  abilityManager: {fileID: 5222016646057465994}
+  playerInput: {fileID: 800464548893343621}
+  playerRb2D: {fileID: 5532902179444305022}
 --- !u!1 &4778372731098097646
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,6 +476,7 @@ Transform:
   - {fileID: 7735130212821983693}
   - {fileID: 3966109919011376703}
   - {fileID: 5965213841105264347}
+  - {fileID: 4312930849659676212}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!58 &6916065077965339973
@@ -471,6 +559,9 @@ MonoBehaviour:
   jumpForce: 19
   coyoteTime: 0.1
   jumpBufferTime: 0.1
+  interactionTrigger: {fileID: 2908195684528648083}
+  jumpSfx: {fileID: 8300000, guid: f87ba3d2e23b33649bd90337588f985b, type: 3}
+  jumpVolume: 0.75
   splashParticles: {fileID: 2384036333798542363, guid: 171bd2911ea1f644bb90407c0c7509b2, type: 3}
   particleSpawnPosition1: {fileID: 9059777092281050729}
   particleSpawnPosition2: {fileID: 3659393838860549648}
@@ -490,12 +581,15 @@ MonoBehaviour:
   maxSlopeAngle: 50
   groundDetectionDisableTime: 0.1
   groundCheck: {fileID: 1060500521697069407}
-  groundCheckDistance: 0.3
+  groundCheckDistance: 0.18
   groundRadius: 0.15
   groundLayer:
     serializedVersion: 2
     m_Bits: 336
-  groundProbeDistance: 0.3
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 320
+  groundProbeDistance: 0.2
   groundedContactDistance: 0.05
   weightDebug: 1
   isTryingToMove: 0
@@ -564,7 +658,19 @@ MonoBehaviour:
     m_ActionId: 6c2ab1b8-8984-453a-af3d-a3c78ae1679a
     m_ActionName: 'Player/Attack[/Mouse/leftButton,/Keyboard/enter]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 4226739494265616928}
+        m_TargetAssemblyTypeName: CharacterMovement, Assembly-CSharp
+        m_MethodName: OnInteract
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 852140f2-7766-474d-8707-702459ba45f3
     m_ActionName: 'Player/Interact[/Keyboard/e]'
   - m_PersistentCalls:
@@ -639,6 +745,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 9caa3d8a-6b2f-4e8e-8bad-6ede561bd9be
     m_ActionName: UI/TrackedDeviceOrientation
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 4226739494265616928}
+        m_TargetAssemblyTypeName: CharacterMovement, Assembly-CSharp
+        m_MethodName: OnSplit
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: a3426c09-f1d2-4aed-b975-f44e8396a498
+    m_ActionName: 'Player/Split[/Keyboard/q]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: 
@@ -657,12 +779,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::AbilityManager
   Abilities:
-  - ability: {fileID: 11400000, guid: 7ffb9ebe096db554eaa1a39fb49adc9f, type: 2}
-    key: 32
+  - ability: {fileID: 11400000, guid: 2553279b3ed85b8438a60c62a4b6fd0a, type: 2}
+    key: 31
+  - ability: {fileID: 11400000, guid: fb4a4315125906e4e8baafca793adbca, type: 2}
+    key: 0
   - ability: {fileID: 11400000, guid: a50bffc5af49e4a4289863b7ff2acf15, type: 2}
-    key: 31
-  - ability: {fileID: 11400000, guid: d08d62e5fa65ab843a149278fc96583b, type: 2}
-    key: 31
+    key: 19
 --- !u!114 &9101280762301852308
 MonoBehaviour:
   m_ObjectHideFlags: 0
