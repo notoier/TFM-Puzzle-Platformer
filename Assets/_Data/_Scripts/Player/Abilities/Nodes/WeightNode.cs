@@ -55,19 +55,22 @@ public class WeightNode : ActionNode
         switch (nodeType)
         {
             case WeightNodeType.Sum:
-                weightTarget.AddWeight(resolvedWeight);
+                weightTarget.AddWeight(resolvedWeight, true);
                 break;
             case WeightNodeType.Rest:
-                weightTarget.AddWeight(-resolvedWeight);
+                weightTarget.AddWeight(-resolvedWeight, true);
                 break;
             case WeightNodeType.Set:
                 weightTarget.Weight = resolvedWeight;
+                weightTarget.AdaptWeight(false);
                 break;
             case WeightNodeType.Divide:
                 weightTarget.Weight /= resolvedWeight;
+                weightTarget.AdaptWeight(false);
                 break;
             case WeightNodeType.Multiply:
                 weightTarget.Weight *= resolvedWeight;
+                weightTarget.AdaptWeight(false);
                 break;
         }
     }

@@ -19,10 +19,8 @@ MonoBehaviour:
   - rid: 7721760597818736712
   - rid: 7721760597818736721
   - rid: 7721760597818736713
-  - rid: 7721760597818736714
   - rid: 7721760597818736715
   - rid: 7721760597818736717
-  - rid: 7721760597818736725
   - rid: 7721760597818736723
   - rid: 7721760597818736718
   - rid: 7721760814094352475
@@ -52,24 +50,11 @@ MonoBehaviour:
         valueSource: 0
         visibilityParameter:
           rid: -2
-    - rid: 7721760597818736714
-      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
-      data:
-        nodeType: 1
-        targetSource: 0
-        targetSelectionMode: 0
-        targetTag: 
-        targetName: 
-        contextTargetKey: 
-        scale: 0.5
-        valueSource: 0
-        scaleParameter:
-          rid: -2
     - rid: 7721760597818736715
       type: {class: WeightNode, ns: , asm: Assembly-CSharp}
       data:
         targetSource: 0
-        nodeType: 3
+        nodeType: 1
         targetSelectionMode: 0
         targetTag: 
         targetName: 
@@ -84,7 +69,7 @@ MonoBehaviour:
         key: 
         parameterType: 1
         floatValue: 0
-        intValue: 2
+        intValue: 1
         boolValue: 0
         vector3Value: {x: 0, y: 0, z: 0}
         gameObjectValue: {fileID: 0}
@@ -112,7 +97,7 @@ MonoBehaviour:
         contextTargetKey: 
         outputKey: New Weight
         outputType: 1
-        divideBy: 2
+        divideBy: 2.1
     - rid: 7721760597818736723
       type: {class: WeightNode, ns: , asm: Assembly-CSharp}
       data:
@@ -136,19 +121,6 @@ MonoBehaviour:
         boolValue: 0
         vector3Value: {x: 0, y: 0, z: 0}
         gameObjectValue: {fileID: 0}
-    - rid: 7721760597818736725
-      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
-      data:
-        nodeType: 1
-        targetSource: 9
-        targetSelectionMode: 0
-        targetTag: 
-        targetName: 
-        contextTargetKey: Player Clone
-        scale: 0.5
-        valueSource: 0
-        scaleParameter:
-          rid: -2
     - rid: 7721760814094352475
       type: {class: MultiNode, ns: , asm: Assembly-CSharp}
       data:

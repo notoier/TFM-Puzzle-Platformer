@@ -17,7 +17,6 @@ MonoBehaviour:
   - rid: 7721760781164871756
   - rid: 7721760781164871762
   - rid: 7721760781164871758
-  - rid: 7721760781164871759
   - rid: 7721760781164871760
   references:
     version: 2
@@ -48,19 +47,6 @@ MonoBehaviour:
         targetTag: Player Clone
         targetName: 
         contextTargetKey: 
-    - rid: 7721760781164871759
-      type: {class: ScaleNode, ns: , asm: Assembly-CSharp}
-      data:
-        nodeType: 1
-        targetSource: 0
-        targetSelectionMode: 0
-        targetTag: 
-        targetName: 
-        contextTargetKey: 
-        scale: 2
-        valueSource: 0
-        scaleParameter:
-          rid: -2
     - rid: 7721760781164871760
       type: {class: WeightNode, ns: , asm: Assembly-CSharp}
       data:

@@ -77,7 +77,7 @@ public class Biomass : MonoBehaviour, IInteractable
 
     private void DrinkWater(GameObject interactor)
     {
-        interactor?.GetComponent<IProvidesWeight>()?.AddWeight(mass);
+        interactor?.GetComponent<IProvidesWeight>()?.AddWeight(mass, false);
 
         waterfallController = activeWaterfall.GetComponentInChildren<PixelWaterfall>();
         interactorAnimator = interactor?.GetComponentInChildren<Animator>();

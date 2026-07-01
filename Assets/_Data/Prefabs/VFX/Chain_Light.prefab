@@ -84,12 +84,12 @@ SpriteRenderer:
   m_SortingLayer: 6
   m_SortingOrder: -2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5236127978418506008, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
   m_Color: {r: 0.9114107, g: 0.97304577, b: 0.9436228, a: 0.7647059}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.41, y: 0.57}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -174,7 +174,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0.28499985}
-  m_ConnectedAnchor: {x: -0.010002136, y: -0.25300026}
+  m_ConnectedAnchor: {x: -0.010002136, y: -0.25300217}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -364,12 +364,12 @@ SpriteRenderer:
   m_SortingLayer: 6
   m_SortingOrder: -2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5236127978418506008, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
   m_Color: {r: 0.9114107, g: 0.97304577, b: 0.9436228, a: 0.7647059}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.41, y: 0.57}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -454,7 +454,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0.28499985}
-  m_ConnectedAnchor: {x: -0.0079956055, y: -0.25499916}
+  m_ConnectedAnchor: {x: -0.008003235, y: -0.25499344}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -548,12 +548,12 @@ SpriteRenderer:
   m_SortingLayer: 6
   m_SortingOrder: -2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5236127978418506008, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
   m_Color: {r: 0.9114107, g: 0.97304577, b: 0.9436228, a: 0.7647059}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.41, y: 0.57}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -638,7 +638,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0.28499985}
-  m_ConnectedAnchor: {x: -0.023002625, y: -0.019000053}
+  m_ConnectedAnchor: {x: -0.023002625, y: -0.019001007}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -732,12 +732,12 @@ SpriteRenderer:
   m_SortingLayer: 6
   m_SortingOrder: -2
   m_MaskInteraction: 0
-  m_Sprite: {fileID: -5236127978418506008, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 18ac54aef7dafd3499f1fcc896f42618, type: 3}
   m_Color: {r: 0.9114107, g: 0.97304577, b: 0.9436228, a: 0.7647059}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.41, y: 0.57}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -822,7 +822,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0, y: 0.28499985}
-  m_ConnectedAnchor: {x: -0.011001587, y: -0.2480011}
+  m_ConnectedAnchor: {x: -0.0109939575, y: -0.24800491}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -938,7 +938,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5343206307956089025, guid: c1ab977855c635d4083c85a316ff2196, type: 3}
       propertyPath: m_ConnectedAnchor.y
-      value: -0.11300087
+      value: -0.11300278
       objectReference: {fileID: 0}
     - target: {fileID: 5343206307956089025, guid: c1ab977855c635d4083c85a316ff2196, type: 3}
       propertyPath: m_ConnectedRigidBody

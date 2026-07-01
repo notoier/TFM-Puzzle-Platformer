@@ -114,7 +114,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         InitWeight();
         weightDebug = Math.Clamp(weightDebug, minWeight, maxWeight);
         Weight = weightDebug;
-        AdaptWeight();
+        AdaptWeight(false);
     }
 
     private void InitWeight()
@@ -123,8 +123,10 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         minWeight = weightConfigs.Min(config => config.neededWeight);
     }
 
-    private void AdaptWeight()
+    public void AdaptWeight(bool splitting)
     {
+        weightDebug = Weight;
+        
         WeightConfig newWeightConfig = weightConfigs
             .OrderBy(config => Mathf.Abs(config.neededWeight - Weight))
             .FirstOrDefault();
@@ -146,10 +148,17 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             currentScale.z
         );
 
-        scaleTween = transform
-            .DOScale(targetScale, scaleTweenDuration)
-            .SetEase(scaleTweenEase);
-
+        if (!splitting)
+        {
+            scaleTween = transform
+                .DOScale(targetScale, scaleTweenDuration)
+                .SetEase(scaleTweenEase);   
+        }
+        else
+        {
+            transform.localScale = targetScale;
+        }
+        
         if (characterRigidbody)
             characterRigidbody.mass = currentWeightConfig.mass;
     }
@@ -490,6 +499,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         if (canSplit && context.performed)
         {
             animator.SetTrigger(Splitting);
+            //AddWeight(-1);
         }
     }
 
@@ -557,14 +567,14 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         isInsideWater = false;
     }
 
-    public void AddWeight(float mass)
+    public void AddWeight(float mass, bool splitting)
     {
         Weight += mass;
         Debug.Log("Min: " + minWeight + "Max: " + maxWeight);
         Weight = Math.Clamp(Weight, minWeight, maxWeight);
         
         weightDebug = Weight;
-        AdaptWeight();
+        AdaptWeight(splitting);
     }
     
     public void SpawnParticles()

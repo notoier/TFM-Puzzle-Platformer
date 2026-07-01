@@ -17,6 +17,9 @@ public class Door : MonoBehaviour, IActivable
     [SerializeField] private AudioClip closeSound;
     [SerializeField] private float closeSoundVolume;
 
+    [Header("Settings")]
+    [SerializeField] private bool explodes;
+
     private void Awake()
     {
         if (!startsOpen) return;
@@ -53,6 +56,7 @@ public class Door : MonoBehaviour, IActivable
         doorOpen?.SetActive(true);
         
         if (openSound) AudioManager.Instance?.PlayEffect(openSound, transform, openSoundVolume);
+        if (explodes) CameraShake.Instance?.Shake(CameraShake.ShakeType.Large);
     }
 
     public void Deactivate()
