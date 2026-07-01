@@ -1,5 +1,3 @@
-using UnityEditorInternal;
-using UnityEngine;
 using UnityEngine.InputSystem;
 
 public static class InputHelper 

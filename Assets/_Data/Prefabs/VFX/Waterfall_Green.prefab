@@ -186,7 +186,7 @@ MonoBehaviour:
   height: 13.9
   verticesPerUnitX: 4
   verticesPerUnitY: 4
-  originAtTop: 1
+  origin: 0
   interactionLayerMask:
     serializedVersion: 2
     m_Bits: 4294967295
