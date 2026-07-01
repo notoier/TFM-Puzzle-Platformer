@@ -4,8 +4,9 @@ using UnityEngine.InputSystem;
 
 public class InputReader : MonoBehaviour
 {
-    public static InputReader Instance;
+    public static InputReader Instance { get; private set; }
     private PlayerInputActions actions;
+    
 
     private void Awake()
     {
@@ -33,7 +34,7 @@ public class InputReader : MonoBehaviour
     
     private void OnPause(InputAction.CallbackContext context)
     {
-        GameManager.Instance.TogglePause();
+        GameEvents.OnPausedPressed?.Invoke();
     }
 
 
