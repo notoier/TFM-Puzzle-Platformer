@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
         else
             Destroy(gameObject);  
 
-        SetState(GameState.Playing);
+        SetState(GameState.MainMenu);
     }
 
     private void OnEnable()
@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
 
     public void TogglePause()
     {
-        if (CurrentState == GameState.Paused)
+        if (CurrentState == GameState.MainMenu) return;
+
+            if (CurrentState == GameState.Paused)
             ResumeGame();
         else if (CurrentState == GameState.Playing)
             PauseGame();
@@ -62,8 +64,15 @@ public class GameManager : MonoBehaviour
 
     public void LoadMainMenu()
     {
+        SetState(GameState.MainMenu);
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
-   
+
+    public void LoadGame()
+    {
+        SetState(GameState.Playing);
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("GameMap");
+    }
 }
