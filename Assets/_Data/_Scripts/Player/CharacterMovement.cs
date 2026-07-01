@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -10,6 +13,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private static readonly int IsWalledParameter = Animator.StringToHash("IsWalled");
     private static readonly int SpeedParameter = Animator.StringToHash("Speed");
     private static readonly int IsTryingToMoveTrigger = Animator.StringToHash("IsTryingToMove");
+    private static readonly int Splitting = Animator.StringToHash("Splitting");
 
     [SerializeField] private Animator animator;
 
@@ -21,9 +25,11 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField] private float coyoteTime = 0.1f;
     [SerializeField] private float jumpBufferTime = 0.1f;
     
-    
+    [Header("Interact")]
+    [SerializeField] private PlayerInteractionTrigger interactionTrigger;
+
     [Header("Audio")]
-    [SerializeField] private AudioClip jumpSFX;
+    [SerializeField] private AudioClip jumpSfx;
     [SerializeField] private float jumpVolume;
 
     [Header("Particle Configuration")]
@@ -61,11 +67,23 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [SerializeField] private float groundCheckDistance;
     [SerializeField] private float groundRadius = 0.15f;
     [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private LayerMask wallLayer;
     [Tooltip("Distancia utilizada para buscar una superficie debajo.")]
     [SerializeField] private float groundProbeDistance = 0.3f;
 
     [Tooltip("Distancia máxima para considerar que los pies están tocando el suelo.")]
     [SerializeField] private float groundedContactDistance = 0.05f;
+
+    [Header("Weight Configs")] 
+    [SerializeField] private List<WeightConfig> weightConfigs;
+    [SerializeField] private float scaleTweenDuration = 0.25f;
+    [SerializeField] private Ease scaleTweenEase = Ease.OutBack;
+
+    private Tween scaleTween;
+    
+    private float maxWeight;
+    private float minWeight;
+    private WeightConfig currentWeightConfig;
     
     [Header("Debug")] 
     [SerializeField] private float weightDebug = 1f;
@@ -81,16 +99,59 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private bool isInsideWater;
     private bool hasJumped;
     private bool jumpPressed;
+    private bool canSplit = true;
+    
+    public float Weight { get; set; } = 2;
     
     //Timers salto
     private float coyoteTimeCounter;
     private float jumpBufferCounter;
     private float groundDetectionDisableCounter;
-    
-    void Awake()
+
+    private void Awake()
     {
         characterRigidbody = GetComponent<Rigidbody2D>();
+        InitWeight();
+        weightDebug = Math.Clamp(weightDebug, minWeight, maxWeight);
         Weight = weightDebug;
+        AdaptWeight();
+    }
+
+    private void InitWeight()
+    {
+        maxWeight = weightConfigs.Max(config => config.neededWeight);
+        minWeight = weightConfigs.Min(config => config.neededWeight);
+    }
+
+    private void AdaptWeight()
+    {
+        WeightConfig newWeightConfig = weightConfigs
+            .OrderBy(config => Mathf.Abs(config.neededWeight - Weight))
+            .FirstOrDefault();
+
+        if (!newWeightConfig)
+            return;
+
+        if (currentWeightConfig == newWeightConfig)
+            return;
+
+        currentWeightConfig = newWeightConfig;
+
+        scaleTween?.Kill();
+
+        Vector3 currentScale = transform.localScale;
+        Vector3 targetScale = new Vector3(
+            currentWeightConfig.scale,
+            currentWeightConfig.scale,
+            currentScale.z
+        );
+
+        scaleTween = transform
+            .DOScale(targetScale, scaleTweenDuration)
+            .SetEase(scaleTweenEase);
+
+        if (characterRigidbody)
+            characterRigidbody.mass = currentWeightConfig.mass;
     }
 
     private void Update()
@@ -100,6 +161,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         UpdateJumpBuffer();
         HandleWallPushAnimation();
         DrawDebugChecks();
+        
     }
 
     private void FixedUpdate()
@@ -133,6 +195,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             IsWalledParameter,
             isWalled
         );
+        
+        
     }
     
     private void UpdateFacingDirection()
@@ -181,7 +245,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         isWalled = Physics2D.OverlapCircle(
             wallCheck.position,
             wallRadius,
-            groundLayer
+            wallLayer
             
         );
     }
@@ -272,8 +336,8 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         }
 
         float finalJumpForce = isInsideWater
-            ? jumpForce * jumpDebuffOnWater
-            : jumpForce;
+            ? jumpForce * jumpDebuffOnWater * currentWeightConfig.jump
+            : jumpForce * currentWeightConfig.jump;
 
         characterRigidbody.linearVelocity = new Vector2(
             characterRigidbody.linearVelocity.x,
@@ -290,7 +354,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         groundDetectionDisableCounter =
             groundDetectionDisableTime;
 
-        AudioManager.Instance.PlayEffect(jumpSFX, transform, jumpVolume);
+        AudioManager.Instance.PlayEffect(jumpSfx, transform, jumpVolume);
         animator.SetTrigger(JumpTrigger);
         animator.SetBool(IsGroundedParameter, false);
     }
@@ -329,7 +393,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     private void ApplyAirHorizontalMovement(float horizontalInput)
     {
         characterRigidbody.linearVelocity = new Vector2(
-            horizontalInput * speed,
+            horizontalInput * speed * currentWeightConfig.speed,
             characterRigidbody.linearVelocity.y
         );
     }
@@ -420,11 +484,29 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
             slopeRotationSpeed * Time.fixedDeltaTime
         );
     }
+
+    public void OnSplit(InputAction.CallbackContext context)
+    {
+        if (canSplit && context.performed)
+        {
+            animator.SetTrigger(Splitting);
+        }
+    }
+
+    public void SetCanSplit(bool bCanSplit)
+    {
+        canSplit = bCanSplit;
+    }
     
     public void OnMove(InputAction.CallbackContext context)
     {
         Vector2 vectorInput = context.ReadValue<Vector2>();
         characterMovementDirection = new Vector3(vectorInput.x, 0f, 0f);
+    }
+
+    public void SetMovementDirection(Vector3 vectorInput)
+    {
+        characterMovementDirection = vectorInput;
     }
 
     public void OnJump(InputAction.CallbackContext context)
@@ -450,6 +532,16 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         );
     }
 
+    public void OnInteract(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            Debug.Log("Interacting");
+            interactionTrigger.TryInteract(gameObject);
+            //animator.SetTrigger("IsShowering");
+        }
+    }
+    
     public Vector2 GetMovementDirection()
     {
         return characterMovementDirection;
@@ -465,12 +557,14 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         isInsideWater = false;
     }
 
-    public float Weight { get; set; } = 2;
-
     public void AddWeight(float mass)
     {
         Weight += mass;
-        weightDebug += mass;
+        Debug.Log("Min: " + minWeight + "Max: " + maxWeight);
+        Weight = Math.Clamp(Weight, minWeight, maxWeight);
+        
+        weightDebug = Weight;
+        AdaptWeight();
     }
     
     public void SpawnParticles()

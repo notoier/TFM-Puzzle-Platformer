@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 72836178683560157}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.39300156, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -171,7 +171,7 @@ HingeJoint2D:
   m_BreakAction: 3
   m_AutoConfigureConnectedAnchor: 1
   m_Anchor: {x: 0.021003723, y: 0.49399948}
-  m_ConnectedAnchor: {x: -0.029996276, y: -1.7020006}
+  m_ConnectedAnchor: {x: 110.51, y: -62.4256}
   m_UseConnectedAnchor: 1
   m_UseMotor: 0
   m_Motor:
@@ -231,7 +231,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LightController
   lightSourceSpriteRenderer: {fileID: 1221358105052969460}
   lightFrameSpriteRenderer: {fileID: 5470206860403110760}
-  frameColor: {r: 0, g: 0, b: 0, a: 0}
+  frameColor: {r: 0, g: 0, b: 0, a: 1}
   lightColor: {r: 0, g: 0, b: 0, a: 0}
   lightColorAlpha: 1
   spriteColorAlpha: 1
@@ -329,15 +329,15 @@ SpriteRenderer:
   m_SortingLayer: 6
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0}
+  m_Sprite: {fileID: -520320261171042114, guid: 36eaf08078f957942877d2eee2460b74, type: 3}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 1.27, y: 2.13}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 0
+  m_WasSpriteAssigned: 1
   m_SpriteSortPoint: 0
 --- !u!1 &2822569640211022286
 GameObject:
@@ -616,7 +616,7 @@ Transform:
   m_GameObject: {fileID: 8145542162968650008}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.393, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

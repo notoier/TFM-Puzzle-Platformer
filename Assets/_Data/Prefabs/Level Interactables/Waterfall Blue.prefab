@@ -1,0 +1,250 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1122059800637174419
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8311587552682938781}
+  m_Layer: 3
+  m_Name: ImpactPoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8311587552682938781
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1122059800637174419}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -13.83, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8719743817662728731}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &8512567325827466030
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8719743817662728731}
+  - component: {fileID: 8305819974376676471}
+  - component: {fileID: 6519917795308326198}
+  - component: {fileID: 618447891875605781}
+  - component: {fileID: 4186678773824751649}
+  m_Layer: 3
+  m_Name: Waterfall Blue
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8719743817662728731
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8512567325827466030}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -74.68, y: 0.33, z: 3}
+  m_LocalScale: {x: 0.9766, y: 1.0236, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 8311587552682938781}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &8305819974376676471
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8512567325827466030}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 774804653
+  m_SortingLayer: 1
+  m_SortingOrder: 2
+  m_MaskInteraction: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &6519917795308326198
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8512567325827466030}
+  m_Mesh: {fileID: 0}
+--- !u!61 &618447891875605781
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8512567325827466030}
+  m_Enabled: 0
+  serializedVersion: 3
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_CompositeOperation: 0
+  m_CompositeOrder: 0
+  m_Offset: {x: 0, y: -3.405}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Size: {x: 1.67, y: 6.81}
+  m_EdgeRadius: 0
+--- !u!114 &4186678773824751649
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8512567325827466030}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7b9766ed2cf44a2aa9f5f292049efb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Cainos.InteractivePixelWater.PixelWaterfall
+  width: 1.67
+  height: 6.81
+  verticesPerUnitX: 4
+  verticesPerUnitY: 4
+  origin: 0
+  interactionLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  interactionTriggerLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  waterfallMaterial: {fileID: 2100000, guid: bd987cbb869826546ab55904007ee279, type: 2}
+  createMaterialInstance: 1
+  waterColorShallow: {r: 0.49803922, g: 0.7137255, b: 0.9137255, a: 0.101960786}
+  waterColorDeep: {r: 0.4, g: 0.2627451, b: 0.49019608, a: 0.4}
+  underwaterTintShallow: {r: 0.78039217, g: 0.8117647, b: 0.8862745, a: 1}
+  underwaterTintDeep: {r: 0.39215687, g: 0.23921569, b: 0.49019608, a: 1}
+  flowSpeed: 2.5
+  flowScale: 1.5
+  edgeFade: 0.12
+  verticalDarkening: 0.01
+  distortionEnabled: 1
+  distortionSpeed: 0.5
+  distortionScale: 1
+  distortionStrength: 0.5
+  blurEnabled: 1
+  blurAmountTop: 2
+  blurAmountBottom: 6
+  lightShaftEnabled: 1
+  lightShaftColor: {r: 0.23137255, g: 0.25882354, b: 0.32156864, a: 0.4}
+  lightShaftScale: 1.4
+  lightShaftPower: 1.25
+  lightShaftTilt: 0
+  lightShaftDepth: 2
+  lightShaftSpeed: 1
+  horizontalWobble: 0.14
+  horizontalWobbleSpeed: 1.2
+  horizontalWobbleFrequency: 1.4
+  edgeWobble: 0.11
+  edgeWobbleSpeed: 1.7
+  bottomTaper: 0.2
+  applyDownwardForce: 1
+  downwardForce: 86.1
+  horizontalDrag: 6
+  constantHorizontalForce: 0
+  limitMaximumFallSpeed: 1
+  maximumFallSpeed: 177.8
+  entryParticleSystem: {fileID: 0}
+  entryParticleCount: 8
+  exitParticleSystem: {fileID: 0}
+  exitParticleCount: 4
+  waterfallParticleConfigs: []
+  targetWater: {fileID: 0}
+  impactPoint: {fileID: 8311587552682938781}
+  generateImpactWaves: 1
+  impactWaveInterval: 0.12
+  impactWaveRadius: 0.45
+  impactWaveStrength: -0.1
+  impactHorizontalRandomness: 0.4
+  generateImpactSplashes: 1
+  impactSplashInterval: 0.75
+  impactSplashSize: 0.4
+  impactSplashSpeed: 4
+  continuousImpactParticles: {fileID: 0}
+  sortingLayerName: Background
+  orderInLayer: 2

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -18,13 +19,23 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
 
     [SerializeField] private bool deactivates = true;
 
+    [Header("Button States")]
+    [SerializeField] private GameObject buttonUnpressed;
+    [SerializeField] private GameObject buttonPressed;
+    [SerializeField] private Collider2D pressCollider;
+    
     [Header("Audio")]
     [SerializeField] private AudioClip activationSound;
     [SerializeField] private float activationSoundVolume;
     [SerializeField] private AudioClip deactivationSound;
     [SerializeField] private float deactivationSoundVolume;
 
-    
+    private void Awake()
+    {
+        buttonUnpressed.SetActive(true);
+        buttonPressed.SetActive(false);
+    }
+
     /* IActivable */
     public void Activate()
     {
@@ -35,6 +46,9 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
         });
         
         if (activationSound) AudioManager.Instance?.PlayEffect(activationSound, transform, activationSoundVolume);
+        if (buttonUnpressed) buttonUnpressed.SetActive(false);
+        if (buttonPressed) buttonPressed.SetActive(true);
+        if (pressCollider) pressCollider.enabled = false;
     }
 
     public void Deactivate()
@@ -47,6 +61,9 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
         });
         
         if (deactivationSound) AudioManager.Instance?.PlayEffect(deactivationSound, transform, deactivationSoundVolume);
+        if (buttonPressed) buttonPressed.SetActive(false);
+        if (buttonUnpressed) buttonUnpressed.SetActive(true);
+        if (pressCollider) pressCollider.enabled = true;
     }
 
     
@@ -145,18 +162,18 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
         return false;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnCollisionEnter2D(Collision2D other)
     {
-        IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
+        IProvidesWeight weightProvider = other.gameObject.GetComponent<IProvidesWeight>();
         if (weightProvider == null) return;
         
         //_weightProviders.Add(weightProvider);
         RegisterWeight(weightProvider);
     }
 
-    private void OnTriggerExit2D(Collider2D other)
+    private void OnCollisionExit2D(Collision2D other)
     {
-        IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
+        IProvidesWeight weightProvider = other.gameObject.GetComponent<IProvidesWeight>();
         if (weightProvider == null || !deactivates) return;
         
         //_weightProviders.Add(weightProvider);
