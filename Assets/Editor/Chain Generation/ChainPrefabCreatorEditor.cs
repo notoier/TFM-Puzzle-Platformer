@@ -10,6 +10,7 @@ public class ChainPrefabCreatorEditor : EditorWindow
     private GameObject chainRoot;
     private GameObject chainSegmentA;
     private GameObject chainSegmentB;
+    private GameObject chainHook;
 
     [MenuItem("Tools/Chain Prefab Creator")]
     private static void ShowWindow()
@@ -40,6 +41,7 @@ public class ChainPrefabCreatorEditor : EditorWindow
         chainRoot = DrawPrefabField("Chain Root", chainRoot);
         chainSegmentA = DrawPrefabField("Segment A", chainSegmentA);
         chainSegmentB = DrawPrefabField("Segment B", chainSegmentB);
+        chainHook = DrawPrefabField("Hook (Optional)", chainHook);
 
         EditorGUILayout.Space();
 
@@ -79,7 +81,8 @@ public class ChainPrefabCreatorEditor : EditorWindow
                 prefabName,
                 chainRoot,
                 chainSegmentA,
-                chainSegmentB);
+                chainSegmentB,
+                chainHook);
 
             ChainPrefabCreator.SavePrefab(
                 generatedChain,
