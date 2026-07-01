@@ -10,7 +10,7 @@ public class MainMenu : UIPanel
     }
     public void Play()
     {
-        SceneManager.LoadScene("GameMap");
+        GameManager.Instance.LoadGame();
     }
     public void Quit()
     {
