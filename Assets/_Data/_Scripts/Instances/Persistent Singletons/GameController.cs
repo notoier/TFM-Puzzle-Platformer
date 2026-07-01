@@ -12,6 +12,10 @@ public class GameController : PersistentSingleton<GameController>
     [Header("References")]
     [SerializeField] private CharacterMovement player;
 
+    [Header("SpawnPoint")]
+    [SerializeField] private GameObject spawnPoint;
+    [SerializeField] private bool startAtSpawn;
+    
     [Header("Area Managment")]
     [SerializeField] private AudioClip sewerAreaAmbienceMusic;
     [SerializeField] private float sewerAreaAmbienceVolume;
@@ -28,7 +32,8 @@ public class GameController : PersistentSingleton<GameController>
     protected override void Awake()
     {
         base.Awake();
-        if (!player) player = FindAnyObjectByType<CharacterMovement>();   
+        if (!player) player = FindAnyObjectByType<CharacterMovement>();
+        if (startAtSpawn && player) player.transform.position = spawnPoint.transform.position;
     }
 
     private void Start()
@@ -39,6 +44,11 @@ public class GameController : PersistentSingleton<GameController>
     public float GetDistanceToPlayer(Vector3 objectPosition)
     {
         return Vector3.Distance(objectPosition, player.transform.position);
+    }
+
+    public CharacterMovement GetPlayer()
+    {
+        return player;
     }
 
     public void GameAreaChanged(GameArea newArea)
