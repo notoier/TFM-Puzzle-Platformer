@@ -1,14 +1,11 @@
 using System;
-using Unity.VisualScripting;
+
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-
-    public event Action<GameState> OnGameStateChanged;
-
+    public static GameManager Instance { get; private set; }
     public GameState CurrentState { get; private set; }
 
     private void Awake()
@@ -16,9 +13,18 @@ public class GameManager : MonoBehaviour
         if(Instance ==null)
             Instance = this;
         else
-            Destroy(gameObject);
+            Destroy(gameObject);  
 
         SetState(GameState.Playing);
+    }
+
+    private void OnEnable()
+    {
+        GameEvents.OnPausedPressed += TogglePause;
+    }
+    private void OnDisable()
+    {
+        GameEvents.OnPausedPressed -= TogglePause;
     }
 
     public void TogglePause()
@@ -46,15 +52,18 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    private void SetState(GameState newState)
+    {
+        if (CurrentState==newState)
+            return;
+        CurrentState = newState;
+        GameEvents.OnGameStateChanged?.Invoke(newState);
+    }
+
     public void LoadMainMenu()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("MainMenu");
     }
-
-    private void SetState(GameState newState)
-    {
-        CurrentState = newState;
-        OnGameStateChanged?.Invoke(newState);
-    }
+   
 }
