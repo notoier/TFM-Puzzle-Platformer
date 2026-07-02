@@ -44,6 +44,11 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     [SerializeField] private AudioClip lockedSound;
     [SerializeField] private float lockedSoundVolume;
     
+    [Header("Weight Behaviour")]
+    [SerializeField]
+    [Tooltip("Si está activo, la plataforma se mueve proporcionalmente al peso. Si está desactivado, solo se mueve al llegar al peso requerido.")]
+    private bool usePartialWeightMovement;
+    
     [Header("References")]
     [SerializeField] private Rigidbody2D ChainAnchor;
     
@@ -229,7 +234,10 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
         if (config.requiredWeight <= 0f)
             return 1f;
 
-        return Mathf.Clamp01(CurrentWeight / config.requiredWeight);
+        if (usePartialWeightMovement)
+            return Mathf.Clamp01(CurrentWeight / config.requiredWeight);
+
+        return CurrentWeight >= config.requiredWeight ? 1f : 0f;
     }
 
     /// <summary>

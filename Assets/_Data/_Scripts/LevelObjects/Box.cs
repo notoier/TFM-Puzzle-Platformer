@@ -43,21 +43,50 @@ public class Box : MonoBehaviour, IMovable, IProvidesWeight
         if (weightProvider.Weight < WeightRequired)
         {
             LockHorizontalMovement();
+            StopDraggingSound();
             return;
         }
 
-        if (other.transform.position.y > this.transform.position.y * transform.lossyScale.y) return;
+        CharacterMovement characterMovement = other.gameObject.GetComponent<CharacterMovement>();
+        if (characterMovement == null) return;
+
+        Vector2 dir = characterMovement.GetMovementDirection();
+
+        bool isSideContact = false;
+
+        foreach (ContactPoint2D contact in other.contacts)
+        {
+            // Si la normal tiene bastante componente horizontal, el contacto es lateral
+            if (Mathf.Abs(contact.normal.x) > 0.5f)
+            {
+                isSideContact = true;
+                break;
+            }
+        }
+
+        if (!isSideContact)
+        {
+            LockHorizontalMovement();
+            StopDraggingSound();
+            return;
+        }
+
+        if (Mathf.Abs(dir.x) < 0.01f)
+        {
+            LockHorizontalMovement();
+            StopDraggingSound();
+            return;
+        }
+
         UnlockHorizontalMovement();
 
-        Vector2 dir = other.gameObject.GetComponent<CharacterMovement>()?.GetMovementDirection() ?? Vector2.zero;
-        
-        if (!dragging &&  dir != Vector2.zero)
+        if (!dragging)
         {
             dragging = true;
             AudioManager.Instance?.PlayLoopEffect(draggingSound, transform, draggingVolume);
         }
-        
-        ((IMovable)this).Move(dir);
+
+        ((IMovable)this).Move(new Vector2(dir.x, 0f));
     }
 
     private void OnCollisionExit2D(Collision2D other)
@@ -71,6 +100,14 @@ public class Box : MonoBehaviour, IMovable, IProvidesWeight
             dragging = false;
             AudioManager.Instance?.StopSound(draggingSound, transform);
         }
+    }
+    
+    private void StopDraggingSound()
+    {
+        if (!dragging) return;
+
+        dragging = false;
+        AudioManager.Instance?.StopSound(draggingSound, transform);
     }
 
     private void LockHorizontalMovement()

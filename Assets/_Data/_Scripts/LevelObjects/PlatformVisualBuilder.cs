@@ -14,7 +14,6 @@ public class PlatformVisualBuilder : MonoBehaviour
     [SerializeField] private Sprite rightSprite;
 
     [Header("Size")]
-    [Min(1)]
     [SerializeField] private int centerPieces = 3;
 
     [Header("Sorting")]
