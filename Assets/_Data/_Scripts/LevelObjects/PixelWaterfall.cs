@@ -308,23 +308,21 @@ namespace Cainos.InteractivePixelWater
         [Header("Entry FX")]
 
         [SerializeField]
-        private ParticleSystem entryParticleSystem;
+        private BurstParticlePrefabConfig entryParticles = new()
+        {
+            particleCount = 8
+        };
 
         [SerializeField]
-        [Min(0)]
-        private int entryParticleCount = 8;
-
-        [SerializeField]
-        private ParticleSystem exitParticleSystem;
-
-        [SerializeField]
-        [Min(0)]
-        private int exitParticleCount = 4;
+        private BurstParticlePrefabConfig exitParticles = new()
+        {
+            particleCount = 4
+        };
 
         [Header("Continuous Particles")]
 
         [SerializeField]
-        private List<ParticleConfig> waterfallParticleConfigs = new();
+        private List<ParticlePrefabConfig> waterfallParticleConfigs = new();
 
         [Header("Impact")]
 
@@ -373,7 +371,7 @@ namespace Cainos.InteractivePixelWater
         private float impactSplashSpeed = 4f;
 
         [SerializeField]
-        private ParticleSystem continuousImpactParticles;
+        private ParticlePrefabConfig continuousImpactParticles = new();
 
         [Header("Sorting")]
 
@@ -481,8 +479,14 @@ namespace Cainos.InteractivePixelWater
 
             if (Application.isPlaying)
             {
-                if (continuousImpactParticles)
-                    continuousImpactParticles.Play();
+                entryParticles.EnsureInstance(transform);
+                exitParticles.EnsureInstance(transform);
+
+                if (continuousImpactParticles != null)
+                {
+                    continuousImpactParticles.EnsureInstance(transform);
+                    continuousImpactParticles.SetPlaying(true);
+                }
 
                 SetContinuousParticlesEnabled(true);
             }
@@ -521,12 +525,18 @@ namespace Cainos.InteractivePixelWater
 
         private void OnDisable()
         {
-            if (Application.isPlaying)
-                SetContinuousParticlesEnabled(false);
+            if (!Application.isPlaying)
+                return;
+
+            SetContinuousParticlesEnabled(false);
+
+            if (continuousImpactParticles != null)
+                continuousImpactParticles.SetPlaying(false);
         }
 
         private void OnDestroy()
         {
+            DestroyParticleInstances();
             DestroyGeneratedMesh();
 
             if (runtimeMaterial)
@@ -542,6 +552,26 @@ namespace Cainos.InteractivePixelWater
             }
         }
 
+        private void DestroyParticleInstances()
+        {
+            entryParticles.DestroyInstance();
+            exitParticles.DestroyInstance();
+
+            if (continuousImpactParticles != null)
+                continuousImpactParticles.DestroyInstance();
+
+            if (waterfallParticleConfigs == null)
+                return;
+
+            foreach (ParticlePrefabConfig config in waterfallParticleConfigs)
+            {
+                if (config == null)
+                    continue;
+
+                config.DestroyInstance();
+            }
+        }
+        
         private void Update()
         {
             if (!Application.isPlaying)
@@ -1086,44 +1116,44 @@ namespace Cainos.InteractivePixelWater
         {
             if (waterfallParticleConfigs != null)
             {
-                foreach (ParticleConfig config in waterfallParticleConfigs)
+                foreach (ParticlePrefabConfig config in waterfallParticleConfigs)
                 {
-                    if (config == null || !config.particleSystem)
+                    if (config == null)
                         continue;
 
-                    ParticleSystem particleSystem =
-                        config.particleSystem;
+                    config.EnsureInstance(transform);
 
-                    ParticleSystem.EmissionModule emission =
-                        particleSystem.emission;
+                    if (!config.RuntimeRoot)
+                        continue;
 
-                    emission.enabled = config.enabled;
+                    config.RuntimeRoot.transform.localPosition =
+                        new Vector3(GetColliderOffset().x, GetColliderOffset().y, 0f);
 
-                    emission.rateOverTimeMultiplier =
-                        width *
-                        height *
-                        config.emissionPerSquareUnit;
+                    config.RuntimeRoot.transform.localRotation = Quaternion.identity;
 
-                    ParticleSystem.ShapeModule shape =
-                        particleSystem.shape;
-
-                    shape.shapeType =
-                        ParticleSystemShapeType.Rectangle;
-
-                    shape.scale = new Vector3(
+                    config.ApplyToParticleSystems(
                         width,
                         height,
-                        0.05f
+                        Vector3.zero
                     );
-
-                    shape.position = GetColliderOffset();
                 }
             }
 
-            if (continuousImpactParticles)
+            if (continuousImpactParticles != null)
             {
-                continuousImpactParticles.transform.position =
-                    GetImpactPosition();
+                continuousImpactParticles.EnsureInstance(transform);
+
+                if (continuousImpactParticles.RuntimeRoot)
+                {
+                    continuousImpactParticles.RuntimeRoot.transform.position =
+                        GetImpactPosition();
+
+                    continuousImpactParticles.ApplyToParticleSystems(
+                        width,
+                        0.25f,
+                        Vector3.zero
+                    );
+                }
             }
         }
 
@@ -1132,18 +1162,13 @@ namespace Cainos.InteractivePixelWater
             if (waterfallParticleConfigs == null)
                 return;
 
-            foreach (ParticleConfig config in waterfallParticleConfigs)
+            foreach (ParticlePrefabConfig config in waterfallParticleConfigs)
             {
-                if (config == null || !config.particleSystem)
+                if (config == null)
                     continue;
 
-                if (enabled && config.enabled)
-                    config.particleSystem.Play();
-                else
-                    config.particleSystem.Stop(
-                        true,
-                        ParticleSystemStopBehavior.StopEmitting
-                    );
+                config.EnsureInstance(transform);
+                config.SetPlaying(enabled && config.enabled);
             }
         }
 
@@ -1152,13 +1177,10 @@ namespace Cainos.InteractivePixelWater
             if (!CanInteract(other))
                 return;
 
-            if (entryParticleSystem && entryParticleCount > 0)
-            {
-                entryParticleSystem.transform.position =
-                    other.bounds.center;
-
-                entryParticleSystem.Emit(entryParticleCount);
-            }
+            entryParticles.EmitAt(
+                transform,
+                other.bounds.center
+            );
         }
 
         private void OnTriggerStay2D(Collider2D other)
@@ -1212,13 +1234,10 @@ namespace Cainos.InteractivePixelWater
             if (!CanInteract(other))
                 return;
 
-            if (exitParticleSystem && exitParticleCount > 0)
-            {
-                exitParticleSystem.transform.position =
-                    other.bounds.center;
-
-                exitParticleSystem.Emit(exitParticleCount);
-            }
+            exitParticles.EmitAt(
+                transform,
+                other.bounds.center
+            );
         }
 
         private bool CanInteract(Collider2D collider)
@@ -1265,10 +1284,15 @@ namespace Cainos.InteractivePixelWater
                 impactSplashTimer = impactSplashInterval;
             }
 
-            if (continuousImpactParticles)
+            if (continuousImpactParticles != null)
             {
-                continuousImpactParticles.transform.position =
-                    GetImpactPosition();
+                continuousImpactParticles.EnsureInstance(transform);
+
+                if (continuousImpactParticles.RuntimeRoot)
+                {
+                    continuousImpactParticles.RuntimeRoot.transform.position =
+                        GetImpactPosition();
+                }
             }
         }
 
@@ -1415,14 +1439,242 @@ namespace Cainos.InteractivePixelWater
         }
 
         [Serializable]
-        public class ParticleConfig
+public class ParticlePrefabConfig
+{
+    [Tooltip("Prefab completo que contiene uno o varios ParticleSystem.")]
+    public GameObject particlePrefab;
+
+    [Tooltip("Instancia generada automáticamente.")]
+    [SerializeField]
+    private GameObject runtimeRoot;
+
+    public bool enabled = true;
+
+    [Tooltip("Si está activo, la cascada modificará la emisión según su tamaño.")]
+    public bool overrideEmissionRate = true;
+
+    [Min(0f)]
+    public float emissionPerSquareUnit = 1f;
+
+    [Tooltip("Si está activo, la cascada forzará una Shape rectangular.")]
+    public bool overrideShape = true;
+
+    public GameObject RuntimeRoot => runtimeRoot;
+
+    public void EnsureInstance(Transform parent)
+    {
+        if (runtimeRoot)
+            return;
+
+        if (!particlePrefab)
+            return;
+
+        if (Application.isPlaying)
         {
-            public ParticleSystem particleSystem;
-
-            public bool enabled = true;
-
-            [Min(0f)]
-            public float emissionPerSquareUnit = 1f;
+            runtimeRoot = Instantiate(
+                particlePrefab,
+                parent
+            );
         }
+#if UNITY_EDITOR
+        else
+        {
+            runtimeRoot = PrefabUtility.InstantiatePrefab(
+                particlePrefab,
+                parent
+            ) as GameObject;
+        }
+#endif
+
+        if (!runtimeRoot)
+            return;
+
+        runtimeRoot.name = $"{particlePrefab.name} [Waterfall Particles]";
+        runtimeRoot.transform.localPosition = Vector3.zero;
+        runtimeRoot.transform.localRotation = Quaternion.identity;
+        runtimeRoot.transform.localScale = Vector3.one;
+    }
+
+    public void ApplyToParticleSystems(
+        float width,
+        float height,
+        Vector3 shapePosition
+    )
+    {
+        if (!runtimeRoot)
+            return;
+
+        ParticleSystem[] particleSystems =
+            runtimeRoot.GetComponentsInChildren<ParticleSystem>(true);
+
+        foreach (ParticleSystem particleSystem in particleSystems)
+        {
+            ParticleSystem.EmissionModule emission =
+                particleSystem.emission;
+
+            emission.enabled = enabled;
+
+            if (overrideEmissionRate)
+            {
+                emission.rateOverTimeMultiplier =
+                    width *
+                    height *
+                    emissionPerSquareUnit;
+            }
+
+            if (overrideShape)
+            {
+                ParticleSystem.ShapeModule shape =
+                    particleSystem.shape;
+
+                shape.shapeType =
+                    ParticleSystemShapeType.Rectangle;
+
+                shape.scale = new Vector3(
+                    width,
+                    height,
+                    0.05f
+                );
+
+                shape.position = shapePosition;
+            }
+        }
+    }
+
+    public void SetPlaying(bool shouldPlay)
+    {
+        if (!runtimeRoot)
+            return;
+
+        ParticleSystem[] particleSystems =
+            runtimeRoot.GetComponentsInChildren<ParticleSystem>(true);
+
+        foreach (ParticleSystem particleSystem in particleSystems)
+        {
+            if (shouldPlay)
+            {
+                if (!particleSystem.isPlaying)
+                    particleSystem.Play();
+            }
+            else
+            {
+                particleSystem.Stop(
+                    true,
+                    ParticleSystemStopBehavior.StopEmitting
+                );
+            }
+        }
+    }
+
+    public void DestroyInstance()
+    {
+        if (!runtimeRoot)
+            return;
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+            UnityEngine.Object.DestroyImmediate(runtimeRoot);
+        else
+#endif
+            UnityEngine.Object.Destroy(runtimeRoot);
+
+        runtimeRoot = null;
+    }
+}
+
+[Serializable]
+public class BurstParticlePrefabConfig
+{
+    [Tooltip("Prefab completo que contiene uno o varios ParticleSystem.")]
+    public GameObject particlePrefab;
+
+    [Tooltip("Instancia generada automáticamente.")]
+    [SerializeField]
+    private GameObject runtimeRoot;
+
+    public bool enabled = true;
+
+    [Min(0)]
+    public int particleCount = 8;
+
+    public GameObject RuntimeRoot => runtimeRoot;
+
+    public void EnsureInstance(Transform parent)
+    {
+        if (runtimeRoot)
+            return;
+
+        if (!particlePrefab)
+            return;
+
+        if (Application.isPlaying)
+        {
+            runtimeRoot = Instantiate(
+                particlePrefab,
+                parent
+            );
+        }
+#if UNITY_EDITOR
+        else
+        {
+            runtimeRoot = PrefabUtility.InstantiatePrefab(
+                particlePrefab,
+                parent
+            ) as GameObject;
+        }
+#endif
+
+        if (!runtimeRoot)
+            return;
+
+        runtimeRoot.name = $"{particlePrefab.name} [Waterfall Burst Particles]";
+        runtimeRoot.transform.localPosition = Vector3.zero;
+        runtimeRoot.transform.localRotation = Quaternion.identity;
+        runtimeRoot.transform.localScale = Vector3.one;
+    }
+
+    public void EmitAt(
+        Transform parent,
+        Vector3 worldPosition
+    )
+    {
+        if (!enabled)
+            return;
+
+        if (particleCount <= 0)
+            return;
+
+        EnsureInstance(parent);
+
+        if (!runtimeRoot)
+            return;
+
+        runtimeRoot.transform.position = worldPosition;
+
+        ParticleSystem[] particleSystems =
+            runtimeRoot.GetComponentsInChildren<ParticleSystem>(true);
+
+        foreach (ParticleSystem particleSystem in particleSystems)
+        {
+            particleSystem.Emit(particleCount);
+        }
+    }
+
+    public void DestroyInstance()
+    {
+        if (!runtimeRoot)
+            return;
+
+#if UNITY_EDITOR
+        if (!Application.isPlaying)
+            UnityEngine.Object.DestroyImmediate(runtimeRoot);
+        else
+#endif
+            UnityEngine.Object.Destroy(runtimeRoot);
+
+        runtimeRoot = null;
+    }
+}
+        
     }
 }

@@ -229,10 +229,16 @@ MonoBehaviour:
   constantHorizontalForce: 0
   limitMaximumFallSpeed: 1
   maximumFallSpeed: 177.8
-  entryParticleSystem: {fileID: 0}
-  entryParticleCount: 8
-  exitParticleSystem: {fileID: 0}
-  exitParticleCount: 4
+  entryParticles:
+    particlePrefab: {fileID: 0}
+    runtimeRoot: {fileID: 0}
+    enabled: 1
+    particleCount: 8
+  exitParticles:
+    particlePrefab: {fileID: 0}
+    runtimeRoot: {fileID: 0}
+    enabled: 1
+    particleCount: 4
   waterfallParticleConfigs: []
   targetWater: {fileID: 0}
   impactPoint: {fileID: 8311587552682938781}
@@ -245,6 +251,12 @@ MonoBehaviour:
   impactSplashInterval: 0.75
   impactSplashSize: 0.4
   impactSplashSpeed: 4
-  continuousImpactParticles: {fileID: 0}
+  continuousImpactParticles:
+    particlePrefab: {fileID: 0}
+    runtimeRoot: {fileID: 0}
+    enabled: 1
+    overrideEmissionRate: 1
+    emissionPerSquareUnit: 1
+    overrideShape: 1
   sortingLayerName: Background
   orderInLayer: 2
