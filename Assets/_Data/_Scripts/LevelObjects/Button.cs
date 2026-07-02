@@ -156,25 +156,29 @@ public class Button : MonoBehaviour, IActivable, IDetectsWeight
         if  (buttonConfig.requiredWeight > CurrentWeight && IsActive)
         {
             IsActive = false;
-            Deactivate();
+            if (deactivates) Deactivate();
         }
     
         return false;
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    private void OnTriggerEnter2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.gameObject.GetComponent<IProvidesWeight>();
         if (weightProvider == null) return;
+        
+        Debug.LogWarning("Object entered:  " + other.name);
         
         //_weightProviders.Add(weightProvider);
         RegisterWeight(weightProvider);
     }
 
-    private void OnCollisionExit2D(Collision2D other)
+    private void OnTriggerExit2D(Collider2D other)
     {
         IProvidesWeight weightProvider = other.gameObject.GetComponent<IProvidesWeight>();
-        if (weightProvider == null || !deactivates) return;
+        if (weightProvider == null) return;
+        
+        Debug.LogWarning("Object exited:  " + other.name);
         
         //_weightProviders.Add(weightProvider);
         UnregisterWeight(weightProvider);

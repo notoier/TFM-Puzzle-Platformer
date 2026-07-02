@@ -63,6 +63,9 @@ public class Biomass : MonoBehaviour, IInteractable
         if (hasBeenConsumed) return;
         if (interactCoroutine != null) return;
 
+        waterfallController = activeWaterfall.GetComponentInChildren<PixelWaterfall>();
+        interactorAnimator = interactor?.GetComponentInChildren<Animator>();
+        
         interactCoroutine = StartCoroutine(InteractRoutine(interactor));
     }
 
@@ -77,10 +80,7 @@ public class Biomass : MonoBehaviour, IInteractable
 
     private void DrinkWater(GameObject interactor)
     {
-        interactor?.GetComponent<IProvidesWeight>()?.AddWeight(mass, false);
-
-        waterfallController = activeWaterfall.GetComponentInChildren<PixelWaterfall>();
-        interactorAnimator = interactor?.GetComponentInChildren<Animator>();
+        interactor?.GetComponent<IProvidesWeight>()?.AddWeight(mass, false, false);
         
         StartCoroutine(DrainActiveWaterfall(interactor));
     }

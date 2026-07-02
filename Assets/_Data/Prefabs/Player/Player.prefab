@@ -594,6 +594,7 @@ MonoBehaviour:
   groundedContactDistance: 0.05
   weightConfigs: []
   scaleTweenDuration: 0.25
+  scaleTweenDurationOnFuse: 0.3
   scaleTweenEase: 27
   weightDebug: 1
   isTryingToMove: 0

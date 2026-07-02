@@ -6,9 +6,18 @@ using DG.Tweening;
 [RequireComponent(typeof(Collider2D))]
 public class HiddenArea : MonoBehaviour
 {
+    [Header("Follow offset")]
     [SerializeField] private CinemachineFollow followCamera;
     [SerializeField] private Vector3 offset = new Vector3(0, 2.5f, 5f);
-
+    
+    [Header("Camera FOV")]
+    [SerializeField] private CinemachineCamera cinemachineCamera;
+    [SerializeField] private float fieldOfView = 80f;
+    
+    [Header("Camera Target")]
+    [SerializeField] private CameraController cameraTarget;
+    [SerializeField] private Transform target;
+    
     [Header("Tween")]
     [SerializeField] private float zoomDuration = 0.35f;
     [SerializeField] private Ease zoomEase = Ease.OutQuad;
@@ -29,6 +38,9 @@ public class HiddenArea : MonoBehaviour
 
         prevFollow = followCamera.FollowOffset;
 
+        if (cameraTarget && target) cameraTarget.player = target;
+        if (cinemachineCamera) cinemachineCamera.Lens.FieldOfView = fieldOfView;
+        
         Vector3 targetOffset = offset;
 
         TweenFollowOffset(targetOffset);
@@ -38,6 +50,9 @@ public class HiddenArea : MonoBehaviour
     {
         if (collision.gameObject.layer != LayerMask.NameToLayer("Player")) return;
 
+        if (cameraTarget) cameraTarget.player = GameController.Instance?.GetPlayer().transform;
+        if (cinemachineCamera) cinemachineCamera.Lens.FieldOfView = 60f;
+        
         TweenFollowOffset(prevFollow);
     }
 

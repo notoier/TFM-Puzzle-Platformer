@@ -52,6 +52,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     [Header("References")]
     [SerializeField] private Rigidbody2D ChainAnchor;
     
+    
+    private readonly Dictionary<IProvidesWeight, int> _weightProviderColliderCounts = new();
     private bool _isMovingSoundPlaying;
     
     private Vector3 _startPosition;
@@ -93,6 +95,8 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     /// </summary>
     private void Update()
     {
+        RefreshCurrentWeight();
+        
         if (controlMode != ControlMode.Independent || _isReturning || _isWaitingAtStart)
             return;
 
@@ -478,34 +482,93 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     /// <param name="weightProvider">Object that provides weight.</param>
     public void RegisterWeight(IProvidesWeight weightProvider)
     {
-        CurrentWeight += weightProvider.Weight;
+        if (weightProvider == null)
+            return;
+
+        if (_weightProviderColliderCounts.TryGetValue(weightProvider, out int count))
+        {
+            _weightProviderColliderCounts[weightProvider] = count + 1;
+        }
+        else
+        {
+            _weightProviderColliderCounts[weightProvider] = 1;
+        }
+
+        RefreshCurrentWeight();
     }
 
-    /// <summary>
-    /// Registers a raw weight value on the platform.
-    /// </summary>
-    /// <param name="weight">Weight value to add.</param>
     public void RegisterWeight(float weight)
     {
         CurrentWeight += weight;
     }
 
-    /// <summary>
-    /// Removes the weight of an object that is no longer affecting the platform.
-    /// </summary>
-    /// <param name="weightProvider">Object that provides weight.</param>
     public void UnregisterWeight(IProvidesWeight weightProvider)
     {
-        CurrentWeight -= weightProvider.Weight;
+        if (weightProvider == null)
+            return;
+
+        if (!_weightProviderColliderCounts.TryGetValue(weightProvider, out int count))
+            return;
+
+        count--;
+
+        if (count > 0)
+        {
+            _weightProviderColliderCounts[weightProvider] = count;
+        }
+        else
+        {
+            _weightProviderColliderCounts.Remove(weightProvider);
+        }
+
+        RefreshCurrentWeight();
     }
 
-    /// <summary>
-    /// Removes a raw weight value from the platform.
-    /// </summary>
-    /// <param name="weight">Weight value to remove.</param>
     public void UnregisterWeight(float weight)
     {
         CurrentWeight -= weight;
+
+        if (CurrentWeight < 0f)
+            CurrentWeight = 0f;
+    }
+    
+    private void OnDisable()
+    {
+        _weightProviderColliderCounts.Clear();
+        CurrentWeight = 0f;
+
+        _riders.Clear();
+        _riderColliderCounts.Clear();
+        _appliedPlatformVelocities.Clear();
+    }
+    
+    private void RefreshCurrentWeight()
+    {
+        float totalWeight = 0f;
+
+        List<IProvidesWeight> invalidProviders = null;
+
+        foreach (IProvidesWeight weightProvider in _weightProviderColliderCounts.Keys)
+        {
+            if (weightProvider is not UnityEngine.Object unityObject || unityObject == null)
+            {
+                invalidProviders ??= new List<IProvidesWeight>();
+                invalidProviders.Add(weightProvider);
+                continue;
+            }
+
+            totalWeight += weightProvider.Weight;
+        }
+
+        if (invalidProviders != null)
+        {
+            foreach (IProvidesWeight invalidProvider in invalidProviders)
+            {
+                _weightProviderColliderCounts.Remove(invalidProvider);
+            }
+        }
+
+        CurrentWeight = Mathf.Max(0f, totalWeight);
     }
 
     /// <summary>
@@ -514,31 +577,27 @@ public class WeightedPlatform : MonoBehaviour, IDetectsWeight
     /// <returns>True if the current weight is greater than or equal to the required weight.</returns>
     public bool HasEnoughWeight() => CurrentWeight >= config.requiredWeight;
 
-    /// <summary>
-    /// Detects weighted objects entering the platform trigger area and registers their weight.
-    /// </summary>
-    /// <param name="other">Collider entering the trigger.</param>
     private void OnTriggerEnter2D(Collider2D other)
     {
-        IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
+        IProvidesWeight weightProvider = other.GetComponentInParent<IProvidesWeight>();
+
+        Debug.LogWarning("Object entered: " + other.name);
 
         if (weightProvider != null)
             RegisterWeight(weightProvider);
-        
+
         RegisterRider(other);
     }
 
-    /// <summary>
-    /// Detects weighted objects leaving the platform trigger area and unregisters their weight.
-    /// </summary>
-    /// <param name="other">Collider exiting the trigger.</param>
     private void OnTriggerExit2D(Collider2D other)
     {
-        IProvidesWeight weightProvider = other.GetComponent<IProvidesWeight>();
+        IProvidesWeight weightProvider = other.GetComponentInParent<IProvidesWeight>();
+
+        Debug.LogWarning("Object exited: " + other.name);
 
         if (weightProvider != null)
             UnregisterWeight(weightProvider);
-        
+
         UnregisterRider(other);
     }
     

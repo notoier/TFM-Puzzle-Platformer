@@ -77,6 +77,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
     [Header("Weight Configs")] 
     [SerializeField] private List<WeightConfig> weightConfigs;
     [SerializeField] private float scaleTweenDuration = 0.25f;
+    [SerializeField] private float scaleTweenDurationOnFuse = 0.3f;
     [SerializeField] private Ease scaleTweenEase = Ease.OutBack;
 
     private Tween scaleTween;
@@ -114,7 +115,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         InitWeight();
         weightDebug = Math.Clamp(weightDebug, minWeight, maxWeight);
         Weight = weightDebug;
-        AdaptWeight(false);
+        AdaptWeight(false, false);
     }
 
     private void InitWeight()
@@ -123,7 +124,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         minWeight = weightConfigs.Min(config => config.neededWeight);
     }
 
-    public void AdaptWeight(bool splitting)
+    public void AdaptWeight(bool splitting, bool fusing)
     {
         weightDebug = Weight;
         
@@ -151,7 +152,7 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         if (!splitting)
         {
             scaleTween = transform
-                .DOScale(targetScale, scaleTweenDuration)
+                .DOScale(targetScale, fusing ? scaleTweenDurationOnFuse : scaleTweenDuration)
                 .SetEase(scaleTweenEase);   
         }
         else
@@ -567,14 +568,14 @@ public class CharacterMovement : MonoBehaviour, IProvidesWeight
         isInsideWater = false;
     }
 
-    public void AddWeight(float mass, bool splitting)
+    public void AddWeight(float mass, bool splitting, bool fusing)
     {
         Weight += mass;
-        Debug.Log("Min: " + minWeight + "Max: " + maxWeight);
+        //Debug.Log("Min: " + minWeight + "Max: " + maxWeight);
         Weight = Math.Clamp(Weight, minWeight, maxWeight);
         
         weightDebug = Weight;
-        AdaptWeight(splitting);
+        AdaptWeight(splitting, fusing);
     }
     
     public void SpawnParticles()
